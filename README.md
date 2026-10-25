@@ -14,6 +14,10 @@ npm run dev -- --port 5173
 
 Åbn appen via din udviklingsklients portvisning eller din lokale browsers adresse til udviklingsserveren. Serveren lytter på port 5173. Ved lokal installation bruges projektmappen i stedet for `/workspace/Engstien25`.
 
+## Familieforside
+
+**Hjem** åbner familiens overblik med en redigerbar huskeliste, en handleliste med Apple Noter som planlagt kilde og en Renosyd-eksempelkalender med danske affaldspiktogrammer. Listeændringer gemmes på den enkelte enhed; Apple Noter og Renosyd er endnu ikke tilsluttet. **Rum** åbner den eksisterende husmodel. Se [dataarkitektur og kildebegrænsninger](docs/family-dashboard.md).
+
 ## Betjening
 
 - Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et kort gulvtryk viser labelen i ca. 1,8 sekunder. **Aa** viser eller skjuler alle rumnavne manuelt.
