@@ -37,9 +37,11 @@ Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Justér `playwright.c
 
 ## Model og begrænsninger
 
-`src/house.js` gemmer rumkoordinater i meter, navne og testtilstand separat fra rendering. Planen er manuelt fortolket fra `Floorplan.png`; rumgrænser, åbninger og ydermål skal afstemmes yderligere. Arealangivelser er fra tegningen og kan afvige fra de forenklede rektangler. Højder, vinduesmål og møbler er foreløbige, ikke en udførelsesmodel. Tag/loft er skjult i dashboardet; loftshældning er endnu ikke modelleret. Køkkenet er en forenklet fortolkning af HTH-materialet, ikke en fuld gengivelse. Soveværelse og sofa er stiliserede pladsholdere, ikke præcise produktmodeller fra de oplyste links.
+Modellen vises nu **uden møbler og inventar**, så vægge og åbninger kan kontrolleres først. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem snit i 1,2 m og fuld højde.
 
-`src/scene.js` bygger separate Three.js-objekter til rum, inventar og gardiner. Modellen er genereret fra data, ikke et færdigt GLB-aktiv. GLB-eksport, rumvandring og møbelredigering kommer senere. Den aktuelle visning skalerer til mindre skærme; enhedens faktiske ydelse bør prøves før valg af vægtablet.
+`src/architecture.js` samler vægforløb, åbninger og rumkonturer, aflæst fra `Floorplan.png`. `src/structure.js` genererer vægge med rigtige huller, dørblade, bueslag og vinduesrammer. `src/house.js` gemmer rumidentitet og testtilstand. Forskydninger ved kontor/entré og depot er med i gulvpolygonerne. Højden går fra 2,4 til 3,1 m efter facadetegningen. De almindelige vinduers præcise højder og karmmål er stadig omtrentlige; se [geometrigennemgangen](docs/geometry-review.md) for kilder, adgangsveje og usikkerheder.
+
+`src/scene.js` samler visningen. Modellen er genereret fra data, ikke et færdigt GLB-aktiv. GLB-eksport, rumvandring og møbelredigering kommer senere. Enhedens faktiske ydelse bør prøves før valg af vægtablet. Gardinbetjening er bevaret som testdata, men fysiske gardiner er fjernet sammen med inventaret.
 
 ## Videre plan
 

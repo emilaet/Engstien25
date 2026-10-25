@@ -14,3 +14,14 @@ test('Floor tap toggles room, dragging does not toggle, holding opens menu',asyn
  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+60,y+40,{steps:8});await page.mouse.up();expect(await lights()).toEqual({loft:true,lampe:true});
  await page.getByRole('button',{name:'Nulstil visning'}).click();await page.waitForTimeout(700);await page.mouse.move(x,y);await page.mouse.down();await page.waitForTimeout(800);await page.mouse.up();await expect(page.getByRole('heading',{name:'Stue',exact:true})).toBeVisible();expect(await lights()).toEqual({loft:true,lampe:true});
 });
+test('Empty architectural model supports overhead plan and full wall inspection',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');
+ const plan=page.getByRole('button',{name:'Vis plantegning ovenfra'}),walls=page.getByRole('button',{name:'Vis vægge i fuld højde'});
+ await plan.click();await expect(plan).toHaveAttribute('aria-pressed','true');await page.waitForTimeout(700);
+ await page.screenshot({path:'/tmp/engstien-corrected-plan.png'});
+ await walls.click();await expect(walls).toHaveAttribute('aria-pressed','true');await expect(page.locator('.model-badge')).toHaveText('FULDE VÆGGE · UDEN INVENTAR');
+ await page.getByRole('button',{name:'Nulstil visning'}).click();await expect(plan).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
+ await page.screenshot({path:'/tmp/engstien-corrected-full.png'});
+ await walls.click();await expect(walls).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
+ await page.screenshot({path:'/tmp/engstien-corrected-cutaway.png'});expect(errors).toEqual([]);
+});
