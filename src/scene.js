@@ -34,7 +34,7 @@ export function createHouse(host,onTap,onHold){
    crossings.sort((a,b)=>a-b);
    for(let i=0;i<crossings.length-1;i+=2)box(x,.121,(crossings[i]+crossings[i+1])/2,.006,.001,crossings[i+1]-crossings[i],r.tile?'#bbb5ab':'#c3a77f');
   }
-  const label=document.createElement('button');label.className='room-label';label.innerHTML=`<span>${r.short}</span><small></small>`;label.setAttribute('aria-label',`Åbn ${r.name}`);host.append(label);label.onclick=()=>onHold(r.id);labels[r.id]=label;
+  const label=document.createElement('button');label.className='room-label';label.innerHTML=`<span>${r.short}</span><small></small>`;label.setAttribute('aria-label',`Åbn ${r.name}`);label.hidden=true;host.append(label);label.onclick=()=>onHold(r.id);labels[r.id]=label;
  }
  const structure=buildStructure(scene);let cutaway=true;
  // Empty carport/shed; no cars, furniture, cabinetry or bathroom fittings.
@@ -51,8 +51,17 @@ export function createHouse(host,onTap,onHold){
  renderer.domElement.addEventListener('pointerup',()=>{activePointers.clear();if(gesture&&!gesture.held)onTap(gesture.id);cancel();});
  renderer.domElement.addEventListener('pointercancel',()=>{activePointers.clear();cancel();});
  renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();const id=pick(e);if(id)onHold(id);});
- const project=new THREE.Vector3();let showingLabels=true;
+ const project=new THREE.Vector3();let showingLabels=false,selectedRoom=null,flashRoomId=null,flashTimer;
+ function refreshLabels(){
+  for(const r of rooms){
+   const contextual=r.id===selectedRoom||r.id===flashRoomId;
+   labels[r.id].classList.toggle('context-only',!showingLabels);
+   labels[r.id].hidden=!(contextual||showingLabels)||labels[r.id].dataset.offscreen==='true'||(!contextual&&camera.position.distanceTo(controls.target)<9);
+  }
+ }
+ function flashRoom(id){flashRoomId=id;clearTimeout(flashTimer);refreshLabels();flashTimer=setTimeout(()=>{flashRoomId=null;refreshLabels();},1800);}
  function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h);perspective.aspect=w/h;perspective.updateProjectionMatrix();const halfH=Math.max(8.5,12.7/(w/h));planCamera.left=-halfH*w/h;planCamera.right=halfH*w/h;planCamera.top=halfH;planCamera.bottom=-halfH;planCamera.updateProjectionMatrix();}new ResizeObserver(resize).observe(host);resize();
- function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);for(const r of rooms){project.set(r.x+r.w/2,finishedFloor+.03,r.z+r.d/2).project(camera);const el=labels[r.id];el.style.left=`${(project.x+1)/2*host.clientWidth}px`;el.style.top=`${(-project.y+1)/2*host.clientHeight}px`;el.hidden=!showingLabels||project.z>1||camera.position.distanceTo(controls.target)<9;}}animate();
- return {home,togglePlan,toggleWalls(){cutaway=!cutaway;structure.setCutaway(cutaway);return cutaway;},zoom(factor){if(isPlan){camera.zoom=THREE.MathUtils.clamp(camera.zoom/factor,.5,8);camera.updateProjectionMatrix();}else camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();},toggleLabels(){showingLabels=!showingLabels;for(const label of Object.values(labels))label.hidden=!showingLabels;},update(state,selected){for(const r of rooms){const s=state[r.id],on=Object.values(s.lights).some(Boolean);floors[r.id].material.emissive.set(on?'#9d671d':'#000000');floors[r.id].material.emissiveIntensity=on?s.brightness/100*.19:0;labels[r.id].classList.toggle('is-on',on);labels[r.id].classList.toggle('selected',r.id===selected);labels[r.id].querySelector('small').textContent=`${s.current.toLocaleString('da-DK')}° · ${on?'Tændt':'Slukket'}`;}}};
+ function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);for(const r of rooms){project.set(r.x+r.w/2,finishedFloor+.03,r.z+r.d/2).project(camera);const el=labels[r.id];el.style.left=`${(project.x+1)/2*host.clientWidth}px`;el.style.top=`${(-project.y+1)/2*host.clientHeight}px`;el.dataset.offscreen=String(project.z>1||project.z< -1);
+ }refreshLabels();}animate();
+ return {home,togglePlan,toggleWalls(){cutaway=!cutaway;structure.setCutaway(cutaway);return cutaway;},zoom(factor){if(isPlan){camera.zoom=THREE.MathUtils.clamp(camera.zoom/factor,.5,8);camera.updateProjectionMatrix();}else camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();},flashRoom,toggleLabels(){showingLabels=!showingLabels;refreshLabels();return showingLabels;},update(state,selected){selectedRoom=selected;for(const r of rooms){const s=state[r.id],on=Object.values(s.lights).some(Boolean);floors[r.id].material.color.set(on?(r.tile?'#e9d5a0':'#e4bd77'):(r.tile?'#b5bbb4':'#b6b6a6'));floors[r.id].material.emissive.set(on?'#e6a335':'#000000');floors[r.id].material.emissiveIntensity=on?.18+s.brightness/100*.35:0;labels[r.id].classList.toggle('is-on',on);labels[r.id].classList.toggle('selected',r.id===selected);labels[r.id].querySelector('small').textContent=`${s.current.toLocaleString('da-DK')}° · ${on?'Lys tændt':'Lys slukket'}`;}refreshLabels();}};
 }

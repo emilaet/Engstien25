@@ -24,3 +24,16 @@ export const rooms=roomInfo.map(([id,name,short,area,tile=false])=>{
 export function initialState(){return Object.fromEntries(rooms.map((r,i)=>[r.id,{lights:{loft:['stue','kokken','alrum'].includes(r.id),lampe:r.id==='stue'},brightness:75,current:Math.round((21+i%3*.3)*10)/10,target:22,curtains:(r.curtains||[]).map(()=>65)}]));}
 export function toggleRoom(state,id){const on=Object.values(state[id].lights).some(Boolean);for(const key of Object.keys(state[id].lights))state[id].lights[key]=!on;}
 export function chargingEstimate(battery,target,capacity,power){return power>0?Math.max(0,target-battery)/100*capacity/power:null;}
+
+export function roomLightStatus(roomState){
+ const values=Object.values(roomState.lights),on=values.filter(Boolean).length;
+ return {on,total:values.length,mode:on===0?'off':on===values.length?'on':'partial'};
+}
+export function houseLightStatus(state){
+ const lamps=Object.values(state).flatMap(s=>Object.values(s.lights));
+ const on=lamps.filter(Boolean).length;
+ return {on,total:lamps.length,litRooms:Object.values(state).filter(s=>Object.values(s.lights).some(Boolean)).length};
+}
+export function setAllLights(state,on){
+ for(const s of Object.values(state))for(const key of Object.keys(s.lights))s.lights[key]=on;
+}

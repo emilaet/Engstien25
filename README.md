@@ -16,6 +16,9 @@ npm run dev -- --port 5173
 
 ## Betjening
 
+- Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et kort gulvtryk viser labelen i ca. 1,8 sekunder. **Aa** viser eller skjuler alle rumnavne manuelt.
+- Gyldne gulve og gule statusfelter viser tændt lys. Afdæmpede gulve og grå statusfelter viser slukket lys. Rumlisten viser også delvist tændte rum, fx **1/2 tændt**.
+- **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og gemt lysstyrke ændres ikke.
 - Kort tryk på gulvet: sluk alle lamper i rummet hvis mindst én er tændt; ellers tænd alle.
 - Hold 650 ms, højreklik eller tryk på rumnavn/listen: rummenu.
 - Rummenu: separate loftslys og bordlampe, lysstyrke og gulvvarmens måltemperatur.
