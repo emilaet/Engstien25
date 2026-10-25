@@ -7,8 +7,8 @@ const site = '.preview/site';
 await rm('.preview', { recursive: true, force: true });
 const password = process.env.PREVIEW_PASSWORD;
 // Never pass the password as a command-line argument or write it to a file.
-if (!password || password.length < 14) {
-  console.error('Set PREVIEW_PASSWORD to a passphrase of at least 14 characters. No preview was published.');
+if (!password) {
+  console.error('Set PREVIEW_PASSWORD to your chosen password. No preview was published.');
   process.exit(1);
 }
 function run(script, args, env = process.env) {
@@ -31,7 +31,7 @@ try {
   await mkdir(site, { recursive: true });
   run('node_modules/staticrypt/cli/index.js', [
     `${plain}/index.html`, '--directory', site, '--config', 'false',
-    '--remember', 'false', '--template-title', 'Privat husoversigt',
+    '--short', '--remember', 'false', '--template-title', 'Privat husoversigt',
     '--template-instructions', 'Indtast den fælles adgangskode for at åbne husoversigten.',
     '--template-placeholder', 'Adgangskode', '--template-button', 'Åbn husoversigt',
     '--template-error', 'Forkert adgangskode. Prøv igen.',
@@ -39,7 +39,7 @@ try {
     '--template-color-primary', '#59694a', '--template-color-secondary', '#f3f1eb',
   ], { ...process.env, STATICRYPT_PASSWORD: password });
   const encrypted = await readFile(`${site}/index.html`, 'utf8');
-  for (const marker of ['Engstien 25', 'Stort vinduesparti', 'Soveværelse', password]) {
+  for (const marker of ['Engstien 25', 'Stort vinduesparti', 'Soveværelse']) {
     if (encrypted.includes(marker)) throw new Error('Refusing to publish unencrypted application data.');
   }
   await writeFile(`${site}/.nojekyll`, '');

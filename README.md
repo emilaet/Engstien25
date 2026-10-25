@@ -58,7 +58,7 @@ Workflowet `.github/workflows/pages.yml` bygger en enkelt HTML-fil med indlejret
 Første opsætning på GitHub:
 
 1. Behold kildekode-repositoryet privat. Sidekryptering beskytter ikke filer i et offentligt repository. Hvis din GitHub-plan ikke understøtter Pages fra et privat repository, skal vi vælge en anden løsning; gør ikke repositoryet offentligt for at løse det.
-2. Under **Settings → Secrets and variables → Actions → New repository secret** oprettes `PREVIEW_PASSWORD`. Brug en fælles adgangssætning på mindst 14 tegn. Skriv den ikke i kildekode, issues, Actions-inputfelter eller chatten.
+2. Under **Settings → Secrets and variables → Actions → New repository secret** oprettes `PREVIEW_PASSWORD`. Brug den fælles adgangskode, I ønsker. Der er intet minimumskrav; en kort kode er lettere at gætte. Skriv den ikke i kildekode, issues, Actions-inputfelter eller chatten.
 3. Under **Settings → Pages → Build and deployment → Source** vælges **GitHub Actions**. Hvis GitHub beder om tilladelse til Actions eller et Pages-miljø, skal repositoryets ejer aktivere det.
 4. Gå til **Actions → Password-protected preview → Run workflow** på `main`. Efter vellykket build og deploy findes den faktiske adresse i deployment-resultatet og under **Settings → Pages**.
 

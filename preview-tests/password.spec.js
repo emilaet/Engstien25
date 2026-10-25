@@ -4,8 +4,8 @@ import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { readFile, readdir, access } from 'node:fs/promises';
 
-// Ephemeral test password: never saved, printed or used for deployment.
-const password = randomBytes(24).toString('base64url');
+// Ephemeral short test password (8 characters): never saved, printed or used for deployment.
+const password = randomBytes(4).toString('hex');
 let server, url;
 test.beforeAll(async () => {
   const result = spawnSync(process.execPath, ['scripts/build-preview.mjs'], {
