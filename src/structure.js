@@ -81,7 +81,5 @@ export function buildStructure(scene){
    }
   }
  }
- let furnished=false,cutaway=true;
- function presentation(){for(const id of ['garden','east'])root.getObjectByName('wall:'+id).visible=!(furnished&&cutaway);}
- return {root,setFurnished(value){furnished=value;presentation();},setCutaway(enabled){cutaway=enabled;presentation();for(const cap of cutCaps)cap.visible=enabled;for(const material of [wallMaterial,leafMaterial,oakMaterial,jambMaterial,frameMaterial,glassMaterial]){material.clippingPlanes=enabled?[clip]:[];material.needsUpdate=true;}}};
+ return {root,setCutaway(enabled){for(const cap of cutCaps)cap.visible=enabled;for(const material of [wallMaterial,leafMaterial,oakMaterial,jambMaterial,frameMaterial,glassMaterial]){material.clippingPlanes=enabled?[clip]:[];material.needsUpdate=true;}}};
 }

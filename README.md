@@ -24,7 +24,7 @@ Der vises et første møbleret udkast efter ejerens billeder og produktlinks sam
 
 I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. Her kan navn, mål, rotation, placering, farve og materiale ændres. Fast inventar har låste mål/placeringer i formularen. Produktlink, referencebillede og ønsker til næste modelopdatering gemmes pr. møbel. **Hent indretningsfil** eksporterer disse oplysninger inklusive billeder; filen kan vedhæftes i chatten eller indlæses igen. Ingen automatisk billedgenkendelse eller modelændring ud fra links er tilsluttet.
 
-**Møbler** viser/skjuler hele inventaret. Med møbler i snitvisning åbnes have- og østfacadens massive vægge visuelt for at vise indretningen. **Vægge** gendanner alle vægge i fuld højde. Geometrien og åbningerne i grundplanen ændres ikke. Se [møbeldata, kilder og begrænsninger](docs/furnishing.md).
+**Møbler** viser/skjuler hele inventaret. Alle ydervægge bevares også med møbler. Snitvisningen sænker væggene ensartet til 1,2 m; **Vægge** viser alle vægge i fuld højde. Geometrien og åbningerne i grundplanen ændres ikke. Se [møbeldata, kilder og begrænsninger](docs/furnishing.md).
 
 ## Betjening
 

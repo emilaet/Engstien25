@@ -8,9 +8,13 @@ Modellen indeholder separate, parametriske 3D-objekter. De følger jeres husplan
 - Spisegruppe: ejerfoto samme dag viser en lys blank plade, lamelsokler og seks træstole med buede rygge. Ejeren har bekræftet træ som bordpladens materiale. Alle mål er fortsat skøn.
 - Seng: Nordic Dream Nova 180 × 200, bouclé latte, fra ejerens link. 180 × 200 er madrasmålet. De foreløbige ydermål 194 × 218 cm og gavlhøjden 110 cm er modelskøn.
 - Køkken: `Samlede tegninger 150926.pdf`, HTH, især siderne 1, 2, 5 og 6. Nordic Essence Natur Eg, bagbord ca. 3252 mm, ø ca. 2042 × 1200 mm og ovn/køl i østnichen. Den skabsintegrerede depotdør er fortsat en reel åbning. Detaljer som vask, greb og apparatfronter er stiliserede.
-- Bad, bryggers og entré: HTH Nordic Spirit Hvid Eg, plantegning og udstillingshusbilleder. Sanitets- og skabsdetaljer er foreløbige.
+- Bad: HTH s. 18–23, Nordic Spirit Hvid Eg. Vaskemøbler 1420/1020 × 510 mm, bund 279 mm, krop 576 mm, vandrette profiler, hvid integreret vask og rektangulære spejle.
+- Bryggers: HTH s. 13–17, Mono (ny hvid), lys træbordplade, TT/VM mod vest og vask mod øst. Fronter mod nord/ind i rummet. To hvide skydelåger foran teknikzonen, 2460 mm bredde og ca. 2750 mm højde.
+- Entré: HTH s. 10–12, lav bænk 1220 × 565 mm med sæde ca. 50 cm, træknager, separat sort konsol og rundt spejl. Intet højskab.
 - Børneværelser: Lucas og Sophia er ca. 4 og knap 3 år. Juniorsenge, legetæpper og lav opbevaring er forslag. Værelse 1 er Lucas’ og værelse 2 er Sophias, bekræftet af ejeren. Konkrete produktmodeller og møbelmål afventer.
-- Kontor, TV-møbel, natborde og dekorationer: foreløbige forslag i lys eg, beige, dæmpet grøn/ler og stål.
+- Kontor: ejerens mål 180 cm, bagsiden helt op ad sydvæggen mod carporten; stol mod rummets indre. Dybde og materialer er forslag.
+- Lucas’ hvide indbygningsskab udfylder indhakket på værelse 1. Begge børnesenge står langs bagvæggen med gavlen mod øst som i udstillingshusreferencerne. Bænk, lav opbevaring og geometriske legetæpper er stiliserede forslag.
+- TV-møbel, natborde og dekorationer: foreløbige forslag i lys eg, beige, dæmpet grøn/ler og stål.
 
 ## Redigering
 
@@ -20,7 +24,7 @@ Formularen ændrer navn, mål i cm, position relativt til rummets bageste venstr
 
 Møbler må ikke placeres med deres footprint uden for det tilknyttede rums gulvpolygon. Standardudkastet kontrolleres også for fri passage gennem døråbningernes midter. Dette er ikke en komplet møbelkollisions-/tilgængelighedsberegning. Kontrollér dørslag og ganglinjer visuelt, især efter flytning og ændring af mål. Et foreløbigt modelmål skal ikke bruges til indkøb eller installation.
 
-**Gendan dette møbel** vender tilbage til den aktuelle kodeversions forslag. Referencebilledet bevares. Møbler og fast inventar kan skjules hver for sig eller samlet via Møbler-knappen. Med møbler vist i snit åbnes de massive have- og østfacadevægge visuelt; fulde vægge eller den tomme model kan altid vælges igen.
+**Gendan dette møbel** vender tilbage til den aktuelle kodeversions forslag. Referencebilledet bevares. Møbler og fast inventar kan skjules hver for sig eller samlet via Møbler-knappen. Alle ydervægge bevares med og uden møbler. Snittet er ensartet 1,2 m; Vægge viser fuld højde.
 
 ## Referencer og næste modelændring
 
@@ -30,7 +34,7 @@ Under **Reference og ændringsønsker** kan der gemmes et produktlink, en tekst 
 
 Browserændringer og billeder gemmes kun på den aktuelle enhed. De publiceres ikke i GitHub og sendes ikke til HA eller en AI-tjeneste. Møbelændringer ligger som journaloperationer under `engstien-furniture-v1`; billeder ligger i IndexedDB. Hvis lagring fejler, fortsætter arbejdet i hukommelsen med besked, og eksport er stadig mulig. Denne version deler ikke møbelændringer mellem familiens enheder.
 
-Kun faktisk ændrede felter gemmes som overrides. Nye katalogrevisioner når derfor også en browser, som allerede har gemte møbler, mens ejerens bevidste ændringer bevares. Et gendannet møbel følger igen kataloget. Hvert objekt har et stabilt ID, fx `sove-bed`, `stue-sofa` og `alrum-dining`.
+Kun faktisk ændrede felter gemmes som overrides. Nye katalogrevisioner når derfor også en browser, som allerede har gemte møbler, mens ejerens øvrige ændringer bevares. Ved denne planrettelse erstattes ældre placeringer/mål for de berørte objekter, så forkerte retninger ikke genindlæses. Noter, referencer og billeder bevares; nye rettelser gemmes på den aktuelle layoutrevision. Ældre indretningsfiler opgraderes med nye objekter og korrigeret fast inventar. Et gendannet møbel følger igen kataloget. Hvert objekt har et stabilt ID, fx `sove-bed`, `stue-sofa` og `alrum-dining`.
 
 ## Kode og kontrol
 
@@ -39,4 +43,6 @@ Kun faktisk ændrede felter gemmes som overrides. Nye katalogrevisioner når der
 - `furniture-editor.js`: valg, formular, import og eksport.
 - `furniture-references.js`: lokal billedlagring.
 
-Enhedstests kontrollerer rumgrænser, frie dørmidter, isoleret lagring, ugyldige input og opdatering af kataloget uden tab af ejerrettelser. Browserkontroller tester persistence, referencebilleder/import/eksport, objektvalg, mobil/tablet og fortsat rumstyring. Den krypterede Pages-version testes også før udgivelse.
+Spejlene er lyse, stiliserede flader uden dynamiske refleksioner. HTH-fronternes udtryk er modelleret, men ikke producentens CAD-geometri.
+
+Enhedstests kontrollerer desuden maskinfronters verdensretning, vandhaners udløb over vaskene, bordets kontakt med carportvæggen, HTH-detaljer, synlige ydervægge og opgradering af ældre møbeldata. De kontrollerer rumgrænser, frie dørmidter, isoleret lagring, ugyldige input og opdatering af kataloget uden tab af ejerrettelser. Browserkontroller tester persistence, referencebilleder/import/eksport, objektvalg, mobil/tablet og fortsat rumstyring. Den krypterede Pages-version testes også før udgivelse.
