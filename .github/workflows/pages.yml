@@ -36,7 +36,19 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm test
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      - name: Browser tests
+        shell: bash
+        run: npm run test:browser 2>&1 | tee /tmp/engstien-browser-tests.log
+      - name: Browser diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          {
+            echo '### Browser test diagnostics'
+            echo '```text'
+            tail -n 180 /tmp/engstien-browser-tests.log 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - run: npm run test:preview
       - name: Build encrypted preview
         run: npm run build:pages
