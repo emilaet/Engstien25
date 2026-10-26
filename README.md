@@ -26,11 +26,11 @@ I **Rum** folder pilen ved hvert rum en menu ud med separate lamper, lysstyrke, 
 
 Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes.
 
-- Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et kort gulvtryk viser labelen i ca. 1,8 sekunder. **Aa** viser eller skjuler alle rumnavne manuelt.
+- Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et gulvtryk markerer rummet og folder enhederne ud i listen. **Aa** viser eller skjuler alle rumnavne manuelt.
 - Gyldne gulve og gule statusfelter viser tændt lys. Afdæmpede gulve og grå statusfelter viser slukket lys. Rumlisten viser også delvist tændte rum, fx **1/2 tændt**.
 - **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og gemt lysstyrke ændres ikke.
-- Kort tryk på gulvet: sluk alle lamper i rummet hvis mindst én er tændt; ellers tænd alle.
-- Hold 650 ms, højreklik eller tryk på rumnavn/listen: rummenu.
+- Kort tryk på gulvet: markér rummet og åbn dets enheder i højremenuen. Trykket ændrer ingen enhedstilstand.
+- Hold 650 ms, højreklik eller tryk på rumnavn/listen: vælg og fold rummet ud. Alle muligheder åbner den fulde rummenu.
 - Rummenu: separate loftslys og bordlampe, lysstyrke og gulvvarmens måltemperatur.
 - Stuemenu: tre separate rullegardiner med 0 % = lukket og 100 % = åbent.
 - Træk roterer, musehjul/to fingre zoomer. Husknappen nulstiller kameraet.

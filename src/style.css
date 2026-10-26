@@ -41,3 +41,5 @@
 .dashboard-grid>.family-card{overflow:auto}.dashboard-grid.is-editing>.family-card{overflow:hidden}
 
 .widget-dimensions{display:flex;gap:8px;grid-column:1 / -1}.widget-dimensions label{flex:1;min-width:0}.widget-dimensions select{flex:1}.dashboard-grid.is-editing>.summary-widget .stat small{display:none}.dashboard-grid.is-editing>.summary-widget .stat strong{font-size:22px;line-height:1.2}
+
+.room-accordion.is-selected>.room-row{outline:2px solid #557c60;outline-offset:-2px;background:#e3eddf}.room-accordion.is-selected>.room-quick-controls{border-color:#91ad89;background:#eff5e9}.room-accordion.is-selected .room-row-name b{font-weight:700;color:#31553c}.room-label.selected{background:#e3efdf;color:#294f38;outline:2px solid #416c4f}
