@@ -51,3 +51,9 @@ Alle løse møbler, køkkenskabe, garderobeskabe, sanitetsinventar, biler, krukk
 **Plan** skifter til ortografisk visning ovenfra. **Vægge** skifter mellem et vandret snit i 1,2 m og fulde vægge. Snitflader har synlige topflader, og både vinduer og døre følger snittet. Den fulde geometri bevares i begge tilstande.
 
 Automatiske kontroller verificerer adgangsgrafen, ubrudte/lukkede vægforløb, at alle åbninger er inden for deres vægge og ikke overlapper, at 3D-raycasts kan passere gennem åbningerne uden at ramme en væg, samt at gulvpolygonerne dækker huset præcis én gang. Visuel kontrol af plantegning og fuld 3D-visning supplerer testene.
+
+## Billader og carportstolper
+
+Efter ejerens rettelse er den midterste stolpe på carportens åbne side fjernet; de to endestolper er bevaret. Der er tilføjet en stiliseret OK-ladeboks efter ejerens fotoreferencer: mørk, afrundet front med en grøn statusring. Den sidder på skurets østvendte ydervæg, til venstre for døren set fra carporten. Placeringen beregnes ud fra den eksisterende `shed-door`-åbning, så den følger med ved senere rettelser af dørens position. Montagehøjde og kabinetmål er foreløbige illustrationstal, ikke installationsmål.
+
+Menuen består nu af Hjem, Rum og Billader. Lys og varme betjenes inde i Rum. Ældre links med `#lights` og `#heat` åbner også Rum. Billader animerer kamera og fokuspunkt frem til boksen over ca. 1,45 sekund og gendanner de fulde skurvægge under nærbilledet. Ved retur til Rum gendannes snit-/væghøjdevalget. Under simuleret opladning pulserer ringen grønt; på pause er den afdæmpet. Med systemindstillingen reduceret bevægelse er kameraskiftet øjeblikkeligt og den grønne ring konstant.

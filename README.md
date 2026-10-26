@@ -20,6 +20,8 @@ npm run dev -- --port 5173
 
 ## Betjening
 
+Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes.
+
 - Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et kort gulvtryk viser labelen i ca. 1,8 sekunder. **Aa** viser eller skjuler alle rumnavne manuelt.
 - Gyldne gulve og gule statusfelter viser tændt lys. Afdæmpede gulve og grå statusfelter viser slukket lys. Rumlisten viser også delvist tændte rum, fx **1/2 tændt**.
 - **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og gemt lysstyrke ændres ikke.
@@ -44,7 +46,7 @@ Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Justér `playwright.c
 
 ## Model og begrænsninger
 
-Modellen vises nu **uden møbler og inventar**, så vægge og åbninger kan kontrolleres først. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem snit i 1,2 m og fuld højde.
+Modellen vises nu **uden møbler**, med den faste billader ved skuret, så vægge og åbninger kan kontrolleres først. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem snit i 1,2 m og fuld højde.
 
 `src/architecture.js` samler vægforløb, åbninger og rumkonturer, aflæst fra `Floorplan.png`. `src/structure.js` genererer vægge med rigtige huller, dørblade, bueslag og vinduesrammer. `src/house.js` gemmer rumidentitet og testtilstand. Forskydninger ved kontor/entré og depot er med i gulvpolygonerne. Højden går fra 2,4 til 3,1 m efter facadetegningen. De almindelige vinduers præcise højder og karmmål er stadig omtrentlige; se [geometrigennemgangen](docs/geometry-review.md) for kilder, adgangsveje og usikkerheder.
 
