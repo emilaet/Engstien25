@@ -4,7 +4,7 @@ export default defineConfig({
   timeout: 60000,
   use: {
     launchOptions: {
-      executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+      executablePath: process.env.CHROMIUM_PATH || (process.env.CI ? undefined : '/usr/bin/chromium'),
       args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
     },
     viewport: { width: 1280, height: 900 },

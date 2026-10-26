@@ -7,7 +7,7 @@
 - Huskeliste: lokale eksempelopgaver. Nye punkter kan tilføjes, afkrydses, genåbnes og fjernes, når de er klarede.
 - Handleliste: Apple Noter er den ønskede fremtidige kilde. Nu er data lokale eksempler. Tilføjelse/afkrydsning påvirker **ikke** Apple Noter.
 - Renosyd: kalenderen er **ikke** forbundet til Renosyd. Datoer og beholdersammensætninger genereres relativt til dagen, så demonstrationen viser kommende tømninger. De må ikke bruges som den faktiske tømmekalender.
-- Listeændringer gemmes under `engstien-family-v1` i browserens lokale lager. De deles ikke mellem enheder. Rumindstillinger bruger fortsat deres egen eksisterende nøgle.
+- Listeændringer gemmes som en ændringsjournal under `engstien-family-v1` og tilhørende `:op:`-nøgler i browserens lokale lager. De synkroniseres mellem åbne faner, men ikke mellem enheder. Den valgfrie [dashboardserver](integrations.md) kan dele lister mellem enheder. Rumindstillinger bruger fortsat deres egen eksisterende nøgle.
 
 Dagsberegninger bruger Europe/Copenhagen og kalenderdage, så de ikke forskydes ved dansk sommer-/vintertid.
 
@@ -21,14 +21,16 @@ Providerens asynkrone kontrakt er:
 load()                         // -> FamilySnapshot
 addItem('tasks'|'shopping',text) // -> opdateret FamilySnapshot
 setDone(list,id,boolean)        // -> opdateret FamilySnapshot
+editItem(list,id,patch)         // -> opdateret FamilySnapshot
 clearCompleted(list)           // -> opdateret FamilySnapshot
+undo()                         // -> gendan senest fjernede punkter i denne session
 ```
 
 Snapshot indeholder `today` som ISO-kalenderdag, `tasks`, `shopping`, `waste`, `sources`, `mode` og `persistence`. Et listepunkt har `id`, `text`, `done`, valgfri `detail` og valgfri ISO-dag `due`. En tømning har `id`, ISO-dagen `date`, en `label` og en liste af fraktionsnøgler fra `src/waste-icons.js`. Kilder er eksplicit mærket som demo i denne version. Ved tilslutning af en liveprovider skal kildebadges og hjælpetekster også skifte til den faktiske forbindelsesstatus, og read-only-kilder skal håndteres tilsvarende.
 
 Apple Noter har ikke en almindelig browserintegration i denne løsning. Undersøg en understøttet bro, fx Apple Genveje til et privat server-/Home Assistant-endpoint. Afklar om synkronisering skal være en- eller tovejs, og hvordan punkt-ID'er og samtidige ændringer håndteres. Der må ikke lægges Apple-sessioner eller hemmeligheder i GitHub Pages-koden.
 
-Renosyd kræver særskilt undersøgelse af den faktiske kalenderadgang. AffaldDK beskriver Renosyd-support, som kan undersøges sammen med en kommende Home Assistant-installation; det er ikke testet for denne adresse. Hvis Renosyd tilbyder en eksport eller et abonnementslink, kan det også vurderes. Login og personlige kalenderlinks hører til på en server/HA, ikke i den statiske hjemmeside.
+Renosyd kræver særskilt undersøgelse af den faktiske kalenderadgang. AffaldDK beskriver Renosyd-support, som kan undersøges sammen med den installerede Home Assistant-instans; det er ikke testet for denne adresse. Hvis Renosyd tilbyder en eksport eller et abonnementslink, kan det også vurderes. Login og personlige kalenderlinks hører til på en server/HA, ikke i den statiske hjemmeside.
 
 ## Piktogrammer
 

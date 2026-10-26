@@ -1,6 +1,6 @@
 # Engstien 25
 
-Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. Alle enheder og ladeoplysninger er **simulerede**. Der er ingen forbindelse til Home Assistant, Tesla eller OK.
+Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. GitHub Pages bruger **simulerede** data. En valgfri lokal dashboardserver kan dele familielister og læse Tesla-/ladeboksdata via Home Assistant; forbindelsen er ikke konfigureret endnu. Se [opsætning og datakilder](docs/integrations.md).
 
 ## Start
 
@@ -16,7 +16,7 @@ npm run dev -- --port 5173
 
 ## Familieforside
 
-**Hjem** åbner familiens overblik med en redigerbar huskeliste, en handleliste med Apple Noter som planlagt kilde og en Renosyd-eksempelkalender med danske affaldspiktogrammer. Listeændringer gemmes på den enkelte enhed; Apple Noter og Renosyd er endnu ikke tilsluttet. **Rum** åbner den eksisterende husmodel. Se [dataarkitektur og kildebegrænsninger](docs/family-dashboard.md).
+**Hjem** åbner familiens overblik med en redigerbar huskeliste, en handleliste med Apple Noter som planlagt kilde og en Renosyd-eksempelkalender med danske affaldspiktogrammer. Lister kan redigeres, ryddes og gendannes med Fortryd. Listeændringer gemmes på den enkelte enhed og deles mellem faner; Apple Noter og Renosyd er endnu ikke tilsluttet. **Rum** åbner den eksisterende husmodel. Se [dataarkitektur og kildebegrænsninger](docs/family-dashboard.md).
 
 ## Betjening
 
@@ -32,17 +32,18 @@ Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under R
 - Træk roterer, musehjul/to fingre zoomer. Husknappen nulstiller kameraet.
 - Ladeoversigten demonstrerer pause/start, målprocent og pris. Estimat antager 75 kWh og konstant 11 kW; ingen faktisk telemetri.
 
-Rumindstillinger gemmes i browserens localStorage. Aktuelle temperaturer og bilstatus er statiske testdata. Lysstyrke er en fælles simuleret værdi for rummet; individuel lampedæmpning er ikke implementeret. Rummene har to eksempellamper hver, som senere skal erstattes af en faktisk enhedsliste.
+Rumindstillinger gemmes i browserens localStorage. Aktuelle temperaturer er testdata. Ladetilstand og pause gemmes separat og kan afprøves via scenarier; ukendte data vises som manglende. Lysstyrke er en fælles simuleret værdi for rummet; individuel lampedæmpning er ikke implementeret. Rummene har to eksempellamper hver, som senere skal erstattes af en faktisk enhedsliste.
 
 ## Kontrol
 
 ```sh
 npm test
 npm run build
-npx playwright test
+npm run test:browser
+npm run test:preview
 ```
 
-Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Justér `playwright.config.js` til din browserinstallation, hvis du kører dem andetsteds. De verificerer WebGL, betjening, bevaret tilstand, rumtryk/hold/rotation samt responsive layouts. Enhedstestene kontrollerer lysgrupper, isolation mellem rum, modeloverlap og ladeberegning.
+Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Sæt `CHROMIUM_PATH` ved en anden lokal browserinstallation. CI installerer Playwright Chromium. De verificerer WebGL, betjening, bevaret tilstand, rumtryk/hold/rotation samt responsive layouts. Enhedstestene kontrollerer lysgrupper, isolation mellem rum, modeloverlap og ladeberegning.
 
 ## Model og begrænsninger
 
@@ -56,11 +57,11 @@ Modellen vises nu **uden møbler**, med den faste billader ved skuret, så vægg
 
 1. Afstem grundmodel og kameravinkel med ejeren, og ret mål/åbninger/materialer.
 2. Tilpas lamper og varmezoner til el- og VVS-planen. Afklar gulvvarmesystem, Shelly, Matter/Thread og Zigbee-enheder.
-3. Installér Home Assistant og implementér en adapter fra de lokale tilstande/handlinger til faktiske entiteter. Authentication skal håndteres sikkert, ikke gemmes i kildekode eller browserens localStorage.
+3. Home Assistant er installeret. Konfigurér serverens læseadapter, og implementér senere styring af de faktiske rumenheder. Authentication skal håndteres sikkert, ikke gemmes i kildekode eller browserens localStorage.
 4. Undersøg adgang og integrationsmuligheder til Tesla og den valgte OK-ladeboks. Afklar kWh-pris, tariffer og batterikapacitet; manglende data skal vises som ukendte.
 5. Tilføj præcise møbelmodeller, redigering, GLB-eksport, gemte kameravinkler og mulighed for at gå ind i rummene.
 
-Indflytning er forventet 15. september 2027. Første version kan afprøves før hardware og Home Assistant er installeret.
+Indflytning er forventet 15. september 2027. Dashboardet kan afprøves med dummydata før tilslutning af hardware.
 
 ## Adgangskodebeskyttet GitHub Pages-preview
 
@@ -68,7 +69,7 @@ Workflowet `.github/workflows/pages.yml` bygger en enkelt HTML-fil med indlejret
 
 Første opsætning på GitHub:
 
-1. Behold kildekode-repositoryet privat. Sidekryptering beskytter ikke filer i et offentligt repository. Hvis din GitHub-plan ikke understøtter Pages fra et privat repository, skal vi vælge en anden løsning; gør ikke repositoryet offentligt for at løse det.
+1. Repositoryet er gjort offentligt efter ejerens valg for at aktivere Pages. Kildekode, tegninger og billeder i GitHub er derfor offentlige; adgangskoden beskytter kun det krypterede preview. Læg aldrig personlige live-data eller hemmeligheder i repositoryet.
 2. Under **Settings → Secrets and variables → Actions → New repository secret** oprettes `PREVIEW_PASSWORD`. Brug den fælles adgangskode, I ønsker. Der er intet minimumskrav; en kort kode er lettere at gætte. Skriv den ikke i kildekode, issues, Actions-inputfelter eller chatten.
 3. Under **Settings → Pages → Build and deployment → Source** vælges **GitHub Actions**. Hvis GitHub beder om tilladelse til Actions eller et Pages-miljø, skal repositoryets ejer aktivere det.
 4. Gå til **Actions → Password-protected preview → Run workflow** på `main`. Efter vellykket build og deploy findes den faktiske adresse i deployment-resultatet og under **Settings → Pages**.

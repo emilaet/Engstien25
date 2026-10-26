@@ -4,6 +4,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 // Everything is embedded before encryption. No public model, JS or CSS files.
 export default defineConfig({
   plugins: [viteSingleFile()],
+  define: {'import.meta.env.STATIC_PREVIEW': 'true'},
   publicDir: false,
   build: { outDir: '.preview/plain', sourcemap: false },
 });

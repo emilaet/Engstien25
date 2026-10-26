@@ -7,3 +7,4 @@ playwright-report/
 .staticrypt.json
 .env
 .env.*
+.local-dashboard/

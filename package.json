@@ -9,7 +9,9 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test tests/*.test.js",
     "build:pages": "node scripts/build-preview.mjs",
-    "test:preview": "playwright test --config playwright.preview.config.js"
+    "test:preview": "playwright test --config playwright.preview.config.js",
+    "server": "node --env-file-if-exists=.env server/start.mjs",
+    "test:browser": "npm run build && playwright test"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

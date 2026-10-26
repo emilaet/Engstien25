@@ -9,7 +9,7 @@ test('3D dashboard renders and room controls persist independently',async({page}
 test('Landscape tablet and mobile have no horizontal overflow',async({page})=>{for(const [w,h] of [[1024,768],[390,844]]){await page.setViewportSize({width:w,height:h});await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();await expect(page.locator('#scene canvas')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();}});
 test('Floor tap toggles room, dragging does not toggle, holding opens menu',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();await page.getByRole('button',{name:'Vis eller skjul rumnavne'}).click();const label=page.locator('.room-label').filter({has:page.locator('span',{hasText:/^Stue$/})});await expect(label).toBeVisible();await page.waitForTimeout(600);const rect=await label.boundingBox();const x=rect.x+rect.width/2,y=rect.y+rect.height/2;await page.getByRole('button',{name:'Vis eller skjul rumnavne'}).click();
- const lights=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('engstien-v1')).stue.lights);
+ const lights=()=>page.evaluate(async()=>(await import('/src/home-data.js')).createDemoHome().load().stue.lights);
  await page.mouse.click(x,y);expect(await lights()).toEqual({loft:false,lampe:false});await page.mouse.click(x,y);expect(await lights()).toEqual({loft:true,lampe:true});
  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+60,y+40,{steps:8});await page.mouse.up();expect(await lights()).toEqual({loft:true,lampe:true});
  await page.getByRole('button',{name:'Nulstil visning'}).click();await page.waitForTimeout(700);await page.mouse.move(x,y);await page.mouse.down();await page.waitForTimeout(800);await page.mouse.up();await expect(page.getByRole('heading',{name:'Stue',exact:true})).toBeVisible();expect(await lights()).toEqual({loft:true,lampe:true});
@@ -38,7 +38,7 @@ test('Labels stay quiet until adjusting a room; all labels can be explicitly sho
 });
 test('Whole-house light buttons cover partial lamp states, persist and leave other devices unchanged',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();const on=page.getByRole('button',{name:'Tænd alt lys i huset'}),off=page.getByRole('button',{name:'Sluk alt lys i huset'});
- const devices=()=>page.evaluate(()=>Object.values(JSON.parse(localStorage.getItem('engstien-v1'))).map(({lights,...rest})=>rest));const before=await devices();
+ const devices=()=>page.evaluate(async()=>Object.values((await import('/src/home-data.js')).createDemoHome().load()).map(({lights,...rest})=>rest));const before=await devices();
  await off.click();await expect(off).toBeDisabled();await expect(on).toBeEnabled();await expect(page.locator('#light-count')).toHaveText('0 / 14');
  await expect(page.locator('.room-row[data-light-state="off"]')).toHaveCount(14);await expect(page.locator('.room-label:visible')).toHaveCount(0);
  await page.getByRole('button',{name:'Vis plantegning ovenfra'}).click();await page.waitForTimeout(300);await page.screenshot({path:'/tmp/engstien-all-lights-off.png'});
