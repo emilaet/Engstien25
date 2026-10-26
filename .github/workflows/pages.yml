@@ -41,7 +41,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser tests
         shell: bash
-        run: npm run test:browser 2>&1 | tee /tmp/engstien-browser-tests.log
+        run: npm run test:browser -- --reporter=github,line 2>&1 | tee /tmp/engstien-browser-tests.log
       - name: Browser diagnostics
         if: failure()
         shell: bash
