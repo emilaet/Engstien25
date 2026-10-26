@@ -36,9 +36,17 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm test
-      - name: Install test browser
+      - name: Prepare test browser
         timeout-minutes: 3
-        run: npx playwright install --with-deps chromium
+        shell: bash
+        run: |
+          task_browser="$(command -v google-chrome || command -v chromium || true)"
+          if [ -n "$task_browser" ]; then
+            echo "CHROMIUM_PATH=$task_browser" >> "$GITHUB_ENV"
+            "$task_browser" --version
+          else
+            npx playwright install --with-deps chromium
+          fi
       - name: Browser tests
         shell: bash
         run: npm run test:browser -- --reporter=github,line 2>&1 | tee /tmp/engstien-browser-tests.log

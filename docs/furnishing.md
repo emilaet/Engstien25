@@ -5,11 +5,11 @@ Modellen indeholder separate, parametriske 3D-objekter. De følger jeres husplan
 ## Kilder
 
 - Sofa/lænestol/sofagruppe: ejerfoto sendt 26. oktober 2026 går forud for det tidligere forslag om L-sofa. Der er nu en lige, lav beige sofa med brede hynder og armlæn, en separat bred stol, et lyst tæppe og et afrundet bord med bred sokkel. Tidligere ILVA/Bolia-produktlinks bevares som referencer.
-- Spisegruppe: ejerfoto samme dag viser en lys blank plade, lamelsokler og seks træstole med buede rygge. Bordpladens præcise materiale og alle mål afventer bekræftelse; den vises som en lys beige overflade.
+- Spisegruppe: ejerfoto samme dag viser en lys blank plade, lamelsokler og seks træstole med buede rygge. Ejeren har bekræftet træ som bordpladens materiale. Alle mål er fortsat skøn.
 - Seng: Nordic Dream Nova 180 × 200, bouclé latte, fra ejerens link. 180 × 200 er madrasmålet. De foreløbige ydermål 194 × 218 cm og gavlhøjden 110 cm er modelskøn.
 - Køkken: `Samlede tegninger 150926.pdf`, HTH, især siderne 1, 2, 5 og 6. Nordic Essence Natur Eg, bagbord ca. 3252 mm, ø ca. 2042 × 1200 mm og ovn/køl i østnichen. Den skabsintegrerede depotdør er fortsat en reel åbning. Detaljer som vask, greb og apparatfronter er stiliserede.
 - Bad, bryggers og entré: HTH Nordic Spirit Hvid Eg, plantegning og udstillingshusbilleder. Sanitets- og skabsdetaljer er foreløbige.
-- Børneværelser: Lucas og Sophia er ca. 4 og knap 3 år. Juniorsenge, legetæpper og lav opbevaring er forslag. Der er endnu ikke fastlagt konkrete produktmodeller eller hvilken af de to der har værelse 1/2.
+- Børneværelser: Lucas og Sophia er ca. 4 og knap 3 år. Juniorsenge, legetæpper og lav opbevaring er forslag. Værelse 1 er Lucas’ og værelse 2 er Sophias, bekræftet af ejeren. Konkrete produktmodeller og møbelmål afventer.
 - Kontor, TV-møbel, natborde og dekorationer: foreløbige forslag i lys eg, beige, dæmpet grøn/ler og stål.
 
 ## Redigering
