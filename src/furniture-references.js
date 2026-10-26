@@ -1,0 +1,7 @@
+// Reference photos stay on this browser. They are only shared by explicit export.
+export function createReferenceStore(){
+ const memory=new Map();let dbPromise,persistent=true;
+ function db(){return dbPromise??=new Promise(resolve=>{try{const request=indexedDB.open('engstien-furniture-references',1);request.onupgradeneeded=()=>request.result.createObjectStore('images');request.onsuccess=()=>resolve(request.result);request.onerror=()=>{persistent=false;resolve(null);};}catch{persistent=false;resolve(null);}});}
+ return {get persistent(){return persistent;},async put(id,value){memory.set(id,value);const database=await db();if(!database)return false;return new Promise(resolve=>{try{const tx=database.transaction('images','readwrite');tx.objectStore('images').put(value,id);tx.oncomplete=()=>resolve(true);tx.onerror=tx.onabort=()=>{persistent=false;resolve(false);};}catch{persistent=false;resolve(false);}});},async get(id){if(memory.has(id))return memory.get(id);const database=await db();if(!database)return null;return new Promise(resolve=>{try{const request=database.transaction('images').objectStore('images').get(id);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>resolve(null);}catch{resolve(null);}});}};
+}
+export const blobDataUrl=blob=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Billedet kunne ikke læses.'));reader.readAsDataURL(blob);});

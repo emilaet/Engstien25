@@ -1,10 +1,12 @@
+import {buildFurnishings} from './furniture.js';
+import {initialFurnishing} from './furnishing-data.js';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {rooms} from './house.js';
 import {interior,finishedFloor,toPlan} from './architecture.js';
 import {buildStructure} from './structure.js';
 import {buildCharger,carportPostPixels} from './charger.js';
-export function createHouse(host,onTap,onHold){
+export function createHouse(host,onTap,onHold,options={}){
  let dirty=true,lastDraw=0;const scene=new THREE.Scene();scene.background=new THREE.Color('#eeede7');
  const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;renderer.localClippingEnabled=true;renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.setClearColor('#eeede7');host.append(renderer.domElement);
  const perspective=new THREE.PerspectiveCamera(35,1,.1,150);
@@ -43,8 +45,9 @@ export function createHouse(host,onTap,onHold){
  const seamGeometry=new THREE.BufferGeometry();seamGeometry.setAttribute('position',new THREE.Float32BufferAttribute(seams,3));scene.add(new THREE.LineSegments(seamGeometry,new THREE.LineBasicMaterial({color:'#a9ab94',transparent:true,opacity:.42})));
  const structure=buildStructure(scene);let cutaway=true;
  const charger=buildCharger(scene);
+ const furnishing=buildFurnishings(scene,options.furnishings||initialFurnishing());let furnitureEditing=false;structure.setFurnished(furnishing.visible);
  function applyLimits(){
-  const close=activeView==='charger';controls.minDistance=close?.6:6;controls.maxDistance=close?5:50;
+  const close=activeView==='charger';controls.minDistance=close?.6:furnitureEditing?.7:6;controls.maxDistance=close?5:50;
   controls.minAzimuthAngle=close?Math.PI*.25:-Infinity;controls.maxAzimuthAngle=close?Math.PI*.75:Infinity;
   controls.minPolarAngle=close?Math.PI/3:0;controls.maxPolarAngle=close?Math.PI/2+.15:Math.PI/2-.08;
  }
@@ -76,22 +79,24 @@ export function createHouse(host,onTap,onHold){
  const terrace=toPlan([1050,895]);box(terrace[0],-.04,terrace[1],12.8,.08,3.4,'#ddd9cb');
  const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let gesture=null;
  function interrupt(){if(!transition)return;transition=null;controls.enabled=true;dirty=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');}
- function pick(e){if(activeView==='charger'||transition)return;const rect=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);for(const hit of ray.intersectObjects([...targets,structure.root,charger.root],true)){if(hit.object.userData.room)return hit.object.userData.room;if(cutaway&&hit.point.y>finishedFloor+1.205)continue;if(hit.object.isMesh)return;}return undefined;}
+ function choose(id,hold=false){if(id?.startsWith('@'))options.onFurnitureSelect?.(id.slice(1));else if(id)(hold?onHold:onTap)(id);}
+ function pick(e){if(activeView==='charger'||transition)return;const rect=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);for(const hit of ray.intersectObjects([...targets,structure.root,charger.root,furnishing.root],true)){let hidden=false;for(let object=hit.object;object;object=object.parent)if(!object.visible)hidden=true;if(hidden)continue;const id=hit.object.userData.furnitureId;if(id)return furnitureEditing?'@'+id:hit.object.userData.room;if(hit.object.userData.room)return furnitureEditing?undefined:hit.object.userData.room;if(cutaway&&hit.point.y>finishedFloor+1.205)continue;if(hit.object.isMesh)return;}return undefined;}
+
  const activePointers=new Set();let interruptedPointer=null;
  renderer.domElement.addEventListener('pointerdown',e=>{if(transition){interruptedPointer=e.pointerId;interrupt();}},{capture:true});
  renderer.domElement.addEventListener('wheel',interrupt,{capture:true,passive:true});
  function cancel(){if(gesture)clearTimeout(gesture.timer);gesture=null;}
- renderer.domElement.addEventListener('pointerdown',e=>{if(interruptedPointer===e.pointerId)return;activePointers.add(e.pointerId);if(activePointers.size>1){cancel();return;}if(e.button!==0)return;const id=pick(e);if(!id)return;gesture={x:e.clientX,y:e.clientY,id,held:false};gesture.timer=setTimeout(()=>{if(gesture){gesture.held=true;onHold(id);}},650);});
+ renderer.domElement.addEventListener('pointerdown',e=>{if(interruptedPointer===e.pointerId)return;activePointers.add(e.pointerId);if(activePointers.size>1){cancel();return;}if(e.button!==0)return;const id=pick(e);if(!id)return;gesture={x:e.clientX,y:e.clientY,id,held:false};gesture.timer=setTimeout(()=>{if(gesture){gesture.held=true;choose(id,true);}},650);});
  renderer.domElement.addEventListener('pointermove',e=>{if(gesture&&Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)>7)cancel();});
- renderer.domElement.addEventListener('pointerup',()=>{interruptedPointer=null;activePointers.clear();if(gesture&&!gesture.held)onTap(gesture.id);cancel();});
+ renderer.domElement.addEventListener('pointerup',()=>{interruptedPointer=null;activePointers.clear();if(gesture&&!gesture.held)choose(gesture.id);cancel();});
  renderer.domElement.addEventListener('pointercancel',()=>{interruptedPointer=null;activePointers.clear();cancel();});
- renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();const id=pick(e);if(id)onHold(id);});
+ renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();const id=pick(e);if(id)choose(id,true);});
  const project=new THREE.Vector3();let showingLabels=false,selectedRoom=null,flashRoomId=null,flashTimer;
  function refreshLabels(){
   for(const r of rooms){
    const contextual=r.id===selectedRoom||r.id===flashRoomId;
    labels[r.id].classList.toggle('context-only',!showingLabels);
-   labels[r.id].hidden=activeView==='charger'||!(contextual||showingLabels)||labels[r.id].dataset.offscreen==='true'||(!contextual&&camera.position.distanceTo(controls.target)<9);
+   labels[r.id].hidden=furnitureEditing||activeView==='charger'||!(contextual||showingLabels)||labels[r.id].dataset.offscreen==='true'||(!contextual&&camera.position.distanceTo(controls.target)<9);
   }
  }
  function flashRoom(id){flashRoomId=id;clearTimeout(flashTimer);refreshLabels();flashTimer=setTimeout(()=>{flashRoomId=null;refreshLabels();},1800);}
@@ -112,6 +117,6 @@ export function createHouse(host,onTap,onHold){
  host.dataset.cameraDistance=camera.position.distanceTo(controls.target).toFixed(3);
  host.dataset.chargerPulse=charger.update(now/1000,charging,motionPreference.matches).toFixed(3);
  renderer.render(scene,camera);for(const r of rooms){project.set(r.x+r.w/2,finishedFloor+.03,r.z+r.d/2).project(camera);const el=labels[r.id];el.style.left=`${(project.x+1)/2*host.clientWidth}px`;el.style.top=`${(-project.y+1)/2*host.clientHeight}px`;el.dataset.offscreen=String(project.z>1||project.z< -1);
- }refreshLabels();}animate();
- return {home,togglePlan,setView,focusCharger,setCharging(value){if(charging!==!!value)dirty=true;charging=!!value;},setQuality(value){renderer.setPixelRatio(value==='light'?1:value==='detailed'?Math.min(devicePixelRatio,2):Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=value!=='light';sun.shadow.mapSize.set(value==='detailed'?2048:1024,value==='detailed'?2048:1024);sun.shadow.map?.dispose();sun.shadow.map=null;renderer.shadowMap.needsUpdate=true;resize();dirty=true;},toggleWalls(){dirty=true;cutaway=!cutaway;structure.setCutaway(activeView==='charger'?false:cutaway);renderer.shadowMap.needsUpdate=true;return cutaway;},zoom(factor){interrupt();dirty=true;if(isPlan){camera.zoom=THREE.MathUtils.clamp(camera.zoom/factor,.5,8);camera.updateProjectionMatrix();}else camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();},flashRoom,toggleLabels(){showingLabels=!showingLabels;refreshLabels();return showingLabels;},update(state,selected){dirty=true;selectedRoom=selected;host.dataset.selectedRoom=selected||'';for(const r of rooms){const s=state[r.id],on=Object.values(s.lights).some(Boolean);floors[r.id].material.color.set(on?(r.tile?'#e9d5a0':'#e4bd77'):(r.tile?'#b5bbb4':'#b6b6a6'));floors[r.id].material.emissive.set(on?'#e6a335':'#000000');floors[r.id].material.emissiveIntensity=on?.18+s.brightness/100*.35:0;selectionOutlines[r.id].visible=r.id===selected;if(r.id===selected){floors[r.id].material.color.set('#c5d9c2');floors[r.id].material.emissive.set('#8bb796');floors[r.id].material.emissiveIntensity=.25;}labels[r.id].classList.toggle('is-on',on);labels[r.id].classList.toggle('selected',r.id===selected);labels[r.id].querySelector('small').textContent=`${s.current.toLocaleString('da-DK')}° · ${on?'Lys tændt':'Lys slukket'}`;}refreshLabels();}};
+ }refreshLabels();}host.dataset.furnitureCount=String((options.furnishings||initialFurnishing()).items.filter(i=>i.visible).length);host.dataset.furnitureVisible=String(furnishing.visible);animate();
+ return {home,togglePlan,setView,focusCharger,setFurnishings(value){furnishing.setSnapshot(value);structure.setFurnished(value.visible);renderer.shadowMap.needsUpdate=true;dirty=true;host.dataset.furnitureCount=String(value.items.filter(i=>i.visible).length);host.dataset.furnitureVisible=String(value.visible);},setFurnitureEditing(value){furnitureEditing=value;if(!value)furnishing.select(null);refreshLabels();dirty=true;},selectFurniture(id,focus=false){furnishing.select(id);dirty=true;if(focus){const g=furnishing.get(id);if(g){const target=g.position.clone().add(new THREE.Vector3(0,.55,0));const bounds=new THREE.Box3().setFromObject(g).getSize(new THREE.Vector3());const distance=Math.max(.65,Math.max(bounds.x,bounds.z)/2.6);const front=['sofa','armchair'].includes((options.furnishings||initialFurnishing()).items.find(i=>i.id===id)?.type)?-1:1;moveCamera(target.clone().add(new THREE.Vector3(2.6,2.8,front*3.6).multiplyScalar(distance)),target);}}},setCharging(value){if(charging!==!!value)dirty=true;charging=!!value;},setQuality(value){renderer.setPixelRatio(value==='light'?1:value==='detailed'?Math.min(devicePixelRatio,2):Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=value!=='light';sun.shadow.mapSize.set(value==='detailed'?2048:1024,value==='detailed'?2048:1024);sun.shadow.map?.dispose();sun.shadow.map=null;renderer.shadowMap.needsUpdate=true;resize();dirty=true;},toggleWalls(){dirty=true;cutaway=!cutaway;structure.setCutaway(activeView==='charger'?false:cutaway);renderer.shadowMap.needsUpdate=true;return cutaway;},zoom(factor){interrupt();dirty=true;if(isPlan){camera.zoom=THREE.MathUtils.clamp(camera.zoom/factor,.5,8);camera.updateProjectionMatrix();}else camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();},flashRoom,toggleLabels(){showingLabels=!showingLabels;refreshLabels();return showingLabels;},update(state,selected){dirty=true;selectedRoom=selected;host.dataset.selectedRoom=selected||'';for(const r of rooms){const s=state[r.id],on=Object.values(s.lights).some(Boolean);floors[r.id].material.color.set(on?(r.tile?'#ded2b5':'#d8c3a1'):(r.tile?'#b5bbb4':'#b6b6a6'));floors[r.id].material.emissive.set(on?'#e6a335':'#000000');floors[r.id].material.emissiveIntensity=on?.06+s.brightness/100*.08:0;selectionOutlines[r.id].visible=r.id===selected;if(r.id===selected){floors[r.id].material.color.set('#c5d9c2');floors[r.id].material.emissive.set('#8bb796');floors[r.id].material.emissiveIntensity=.25;}labels[r.id].classList.toggle('is-on',on);labels[r.id].classList.toggle('selected',r.id===selected);labels[r.id].querySelector('small').textContent=`${s.current.toLocaleString('da-DK')}° · ${on?'Lys tændt':'Lys slukket'}`;}refreshLabels();}};
 }

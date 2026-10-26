@@ -18,6 +18,14 @@ npm run dev -- --port 5173
 
 **Hjem** åbner familiens overblik med en redigerbar huskeliste, en handleliste med Apple Noter som planlagt kilde og en Renosyd-eksempelkalender med danske affaldspiktogrammer. Lister kan redigeres, ryddes og gendannes med Fortryd. Listeændringer gemmes på den enkelte enhed og deles mellem faner; Apple Noter og Renosyd er endnu ikke tilsluttet. **Rum** åbner den eksisterende husmodel. Se [dataarkitektur og kildebegrænsninger](docs/family-dashboard.md).
 
+## Indretning
+
+Der vises et første møbleret udkast efter ejerens billeder og produktlinks samt HTH-tegningerne. Sofaen er lige med en separat bred lænestol, og spisegruppen har seks træstole. Børneværelserne har foreløbige juniorsenge og lav opbevaring. Mål, produkter og rumfordeling skal fortsat afstemmes.
+
+I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. Her kan navn, mål, rotation, placering, farve og materiale ændres. Fast inventar har låste mål/placeringer i formularen. Produktlink, referencebillede og ønsker til næste modelopdatering gemmes pr. møbel. **Hent indretningsfil** eksporterer disse oplysninger inklusive billeder; filen kan vedhæftes i chatten eller indlæses igen. Ingen automatisk billedgenkendelse eller modelændring ud fra links er tilsluttet.
+
+**Møbler** viser/skjuler hele inventaret. Med møbler i snitvisning åbnes have- og østfacadens massive vægge visuelt for at vise indretningen. **Vægge** gendanner alle vægge i fuld højde. Geometrien og åbningerne i grundplanen ændres ikke. Se [møbeldata, kilder og begrænsninger](docs/furnishing.md).
+
 ## Betjening
 
 På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle syv kort kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
@@ -51,11 +59,11 @@ Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Sæt `CHROMIUM_PATH` 
 
 ## Model og begrænsninger
 
-Modellen vises nu **uden møbler**, med den faste billader ved skuret, så vægge og åbninger kan kontrolleres først. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem snit i 1,2 m og fuld højde.
+Modellen vises nu med et første møbeludkast og den faste billader ved skuret. Møbler-knappen giver fortsat en tom visning til kontrol af vægge og åbninger. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem snit i 1,2 m og fuld højde.
 
 `src/architecture.js` samler vægforløb, åbninger og rumkonturer, aflæst fra `Floorplan.png`. `src/structure.js` genererer vægge med rigtige huller, dørblade, bueslag og vinduesrammer. `src/house.js` gemmer rumidentitet og testtilstand. Forskydninger ved kontor/entré og depot er med i gulvpolygonerne. Højden går fra 2,4 til 3,1 m efter facadetegningen. De almindelige vinduers præcise højder og karmmål er stadig omtrentlige; se [geometrigennemgangen](docs/geometry-review.md) for kilder, adgangsveje og usikkerheder.
 
-`src/scene.js` samler visningen. Modellen er genereret fra data, ikke et færdigt GLB-aktiv. GLB-eksport, rumvandring og møbelredigering kommer senere. Enhedens faktiske ydelse bør prøves før valg af vægtablet. Gardinbetjening er bevaret som testdata, men fysiske gardiner er fjernet sammen med inventaret.
+`src/scene.js` samler visningen. Modellen er genereret fra data, ikke et færdigt GLB-aktiv. Møbelredigering er implementeret på de parametriske modeller. GLB-eksport og egentlig rumvandring kommer senere. Enhedens faktiske ydelse bør prøves før valg af vægtablet. Gardinbetjening er bevaret som testdata, men fysiske gardiner er fjernet sammen med inventaret.
 
 ## Videre plan
 

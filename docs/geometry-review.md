@@ -44,9 +44,9 @@ Alle åbninger er skåret gennem væggenes faktiske 3D-geometri. Vinduer har sep
 
 Placeringer og forbindelser er aflæst fra planen, men karmenens præcise lysningsmål og almindelige vinduers brystnings-/overkantshøjder er ikke målsat i det tilgængelige materiale. De er derfor visuelt estimeret; almindelige vinduer står foreløbigt med brystning ca. 0,9 m. Højden 3,1 m på havepartiet er baseret på facadehøjden, ikke et vinduesskema. Døråbningsbredder er målt på rastertegningen og dørblade er vist ca. 70° åbne for læsbarhed; bueslag angiver retning. Depotets korte afgrænsning mod højskabene er delvist skjult af skabssymboler og er markeret `inferred` i data. Carportens væg-/stolpehøjde er foreløbigt 2,2 m.
 
-## Tom model og inspektion
+## Tom model og inspektion · opdateret med møbeludkast
 
-Alle løse møbler, køkkenskabe, garderobeskabe, sanitetsinventar, biler, krukker og gardinmodeller er fjernet. Der er kun gulve, vægge, åbninger, døre/vinduesrammer og en enkel terrasse/carport. Smart-home-menuernes testdata er bevaret; gardinsliders flytter ikke en fysisk gardinmodel i denne tomme visning.
+I den tidligere kontrolversion blev alle løse møbler og inventar fjernet. Den aktuelle version har et separat møbeludkast, som kan skjules med Møbler-knappen; der er fortsat ingen biler eller gardinmodeller. Der er kun gulve, vægge, åbninger, døre/vinduesrammer og en enkel terrasse/carport. Smart-home-menuernes testdata er bevaret; gardinsliders flytter ikke en fysisk gardinmodel i denne tomme visning.
 
 **Plan** skifter til ortografisk visning ovenfra. **Vægge** skifter mellem et vandret snit i 1,2 m og fulde vægge. Snitflader har synlige topflader, og både vinduer og døre følger snittet. Den fulde geometri bevares i begge tilstande.
 
@@ -57,3 +57,5 @@ Automatiske kontroller verificerer adgangsgrafen, ubrudte/lukkede vægforløb, a
 Efter ejerens rettelse er den midterste stolpe på carportens åbne side fjernet; de to endestolper er bevaret. Der er tilføjet en stiliseret OK-ladeboks efter ejerens fotoreferencer: mørk, afrundet front med en grøn statusring. Den sidder på skurets østvendte ydervæg, til venstre for døren set fra carporten. Placeringen beregnes ud fra den eksisterende `shed-door`-åbning, så den følger med ved senere rettelser af dørens position. Montagehøjde og kabinetmål er foreløbige illustrationstal, ikke installationsmål.
 
 Menuen består nu af Hjem, Rum og Billader. Lys og varme betjenes inde i Rum. Ældre links med `#lights` og `#heat` åbner også Rum. Billader animerer kamera og fokuspunkt frem til boksen over ca. 1,45 sekund og gendanner de fulde skurvægge under nærbilledet. Ved retur til Rum gendannes snit-/væghøjdevalget. Under simuleret opladning pulserer ringen grønt; på pause er den afdæmpet. Med systemindstillingen reduceret bevægelse er kameraskiftet øjeblikkeligt og den grønne ring konstant.
+
+Når møbeludkastet vises i snit, skjules de massive have- og østfacadevægge visuelt. Vindues-/dørpartierne bevares, og fuld væghøjde gendanner alle vægge. Dette er en visningsindstilling og ændrer ikke grundplanens geometri. Automatisk møbelkontrol verificerer afgrænsning til de tilknyttede rum og frie dør-/passagemidter; den er ikke en fuldstændig kollisionskontrol af alle dørslag, skabslåger og ganglinjer. Se [indretningsdokumentationen](furnishing.md).

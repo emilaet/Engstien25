@@ -15,6 +15,7 @@ test('Floor tap selects and expands the room without changing lights; drag does 
 });
 test('Empty architectural model supports overhead plan and full wall inspection',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();
+ await page.getByRole('button',{name:'Vis eller skjul møbler'}).click();
  const plan=page.getByRole('button',{name:'Vis plantegning ovenfra'}),walls=page.getByRole('button',{name:'Vis vægge i fuld højde'});
  await plan.click();await expect(plan).toHaveAttribute('aria-pressed','true');await page.waitForTimeout(700);
  await page.screenshot({path:'/tmp/engstien-corrected-plan.png'});
