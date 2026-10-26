@@ -41,3 +41,12 @@ Alle ikoner og licenstekster indlejres i den krypterede single-file-udgave, så 
 ## Kontrol
 
 `npm test` kontrollerer blandt andet kalenderdage, persistens, isolering mellem lister, ugyldige input og fejl ved lagring. `npx playwright test` afprøver lister, HTML-escaping, navigation, affaldsikoner, responsive layouts og de eksisterende husfunktioner. `npm run test:preview` afprøver også familieforsiden efter oplåsning og bekræfter fortsat, at den krypterede udgave ikke henter eksterne app-assets.
+
+
+## Tilpas Hjem og hurtig rumstyring
+
+På Hjem åbner **••• → Rediger dashboard** en editor til de fire statuskort og tre familiekort. Et fast grid har 12 kolonner og rækker på 64 px med mellemrum. Hvert kort kan flyttes via trækhåndtaget med mus/touch, via piletaster på håndtaget eller med Tidligere/Senere-knapperne. Bredde vælges i faste spring (¼, ⅓, ½, ⅔, fuld), og højde i antal felter. Gridet pakker kortene uden overlap i den valgte rækkefølge. På tablet/mobil gives kortene en passende minimumsbredde; den gemte bredde bevares til den større skærm.
+
+**Gem layout** gemmer kun placering og størrelse på denne enhed under `engstien-home-layout-v1`. **Annuller** eller navigation væk fra Hjem kasserer layoutkladder. **Gendan standard** genskaber standarden i kladden; tryk Gem for at beholde den. Lister og enhedstilstande påvirkes ikke af layoutændringer. Ved blokeret lagring vises det, at layoutet kun bevares i hukommelsen. Mens editoren er åben, er kortenes betjening deaktiveret, og automatiske listeopdateringer afventer, så flytning ikke bliver afbrudt. Layoutet synkroniseres ikke gennem dashboardserveren.
+
+I **Rum** har hvert rum en separat pil med `aria-expanded` og en tilknyttet enhedsmenu. Flere rum kan være åbne samtidig. Menuen viser rummets aktuelle lampeliste, fælles lysstyrke, varme og gardiner, hvor de findes. Kontakter ændrer kun den valgte lampe; rummets status, 3D-gulv og husets overblik opdateres sammen. Rumnavnet og **Alle muligheder** åbner fortsat hele rummenuen. Åbne menuer og listens scrollposition bevares under betjening; den åbne/klappede tilstand nulstilles efter genindlæsning. Alle rumenheder bruger stadig demo-adapteren.

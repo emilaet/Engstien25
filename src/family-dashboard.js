@@ -6,7 +6,7 @@ const fractionImages=fractions=>fractions.map(key=>`<img src="${wasteIcons[key].
 const smallIcon={check:'<path d="m5 12 4 4L19 6"/>',bag:'<path d="M4 7h16l-1 14H5L4 7Zm4 0V5a4 4 0 0 1 8 0v2"/>',bin:'<path d="M3 6h18M5 6l1 15h12l1-15M9 6V3h6v3M9 10v7m6-7v7"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'};
 const svg=name=>`<svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${smallIcon[name]}</svg>`;
 
-export function createFamilyDashboard(host,{onNavigate,provider=createDemoFamilyProvider()}={}){
+export function createFamilyDashboard(host,{onNavigate,onRender,provider=createDemoFamilyProvider()}={}){
  let data=null,busy=false,error='',wasteScenario='normal',editTarget=null,unsubscribe=()=>{};
  function listCard(key,title,subtitle,icon){
   const items=data[key],open=items.filter(item=>!item.done).length;
@@ -25,6 +25,7 @@ export function createFamilyDashboard(host,{onNavigate,provider=createDemoFamily
   for(const [key,value] of Object.entries(dirty))if(key!==resetList)host.querySelector(`form[data-list="${key}"] input`).value=value;
   if(resetList)host.querySelector(`form[data-list="${resetList}"] input`).focus({preventScroll:true});
   else if(focus){const input=host.querySelector(`[data-focus="${CSS.escape(focus)}"]`);input?.focus({preventScroll:true});if(selection&&input?.type==='text')input.setSelectionRange(...selection);}
+  onRender?.();
  }
  async function action(operation,{resetList}={}){
   if(busy)return;const focusKey=document.activeElement?.dataset.focus;busy=true;error='';host.setAttribute('aria-busy','true');host.querySelectorAll('input,.family-add button,[data-clear]').forEach(el=>el.disabled=true);
@@ -36,7 +37,7 @@ export function createFamilyDashboard(host,{onNavigate,provider=createDemoFamily
  host.addEventListener('submit',event=>{if(event.target.id==='edit-item-form'){event.preventDefault();const values=Object.fromEntries(new FormData(event.target));host.querySelector('.family-edit-dialog').close();action(()=>provider.editItem(editTarget.list,editTarget.id,values));return;}const form=event.target.closest('form[data-list]');if(!form)return;event.preventDefault();const text=new FormData(form).get('text');action(()=>provider.addItem(form.dataset.list,text),{resetList:form.dataset.list});});
  host.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;if(button.hasAttribute('data-undo'))action(()=>provider.undo());if(button.dataset.edit){event.preventDefault();const list=button.dataset.list,item=data[list].find(i=>i.id===button.dataset.edit);editTarget={list,id:item.id};const dialog=host.querySelector('.family-edit-dialog');for(const key of ['text','detail','due'])dialog.querySelector(`[name="${key}"]`).value=item[key]||'';dialog.showModal();}if(button.hasAttribute('data-edit-cancel')){host.querySelector('.family-edit-dialog').close();refresh();}if(button.dataset.clear)action(()=>provider.clearCompleted(button.dataset.clear));if(button.dataset.navigate)onNavigate(button.dataset.navigate);if(button.hasAttribute('data-about'))host.querySelector('dialog').showModal();if(button.hasAttribute('data-close')){host.querySelector('dialog').close();refresh();}});
  render();const ready=provider.load().then(value=>{data=value;render();}).catch(()=>{host.innerHTML='<p class="family-error" role="alert">Overblikket kunne ikke hentes. Genindlæs siden for at prøve igen.</p>';});
- async function refresh(){if(busy||host.querySelector('dialog[open]'))return;try{data=await provider.load();error='';}catch(e){error=e.message||'Forbindelsen mangler. De viste data kan være forældede.';}render();}
- function subscribe(){unsubscribe=provider.subscribe?.(value=>{if(!busy&&!host.querySelector('dialog[open]')){data=value;render();}})||(()=>{});}subscribe();
+ async function refresh(){if(busy||host.querySelector('dialog[open]')||document.documentElement.classList.contains('home-layout-editing'))return;try{data=await provider.load();error='';}catch(e){error=e.message||'Forbindelsen mangler. De viste data kan være forældede.';}render();}
+ function subscribe(){unsubscribe=provider.subscribe?.(value=>{if(!busy&&!host.querySelector('dialog[open]')&&!document.documentElement.classList.contains('home-layout-editing')){data=value;render();}})||(()=>{});}subscribe();
  return {ready,refresh,async setProvider(next){const value=await next.load();unsubscribe();provider=next;data=value;subscribe();render();}};
 }

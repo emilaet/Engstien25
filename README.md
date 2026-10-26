@@ -20,6 +20,10 @@ npm run dev -- --port 5173
 
 ## Betjening
 
+På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle syv kort kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
+
+I **Rum** folder pilen ved hvert rum en menu ud med separate lamper, lysstyrke, varme og eventuelle gardiner. Rumnavnet åbner fortsat den fulde rummenu.
+
 Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes.
 
 - Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et kort gulvtryk viser labelen i ca. 1,8 sekunder. **Aa** viser eller skjuler alle rumnavne manuelt.
