@@ -19,7 +19,7 @@ export function buildRoomLighting(scene,snapshot){
   for(const m of fixtureMaterials)m.dispose();for(const g of fixtureGeometries)g.dispose();fixtureMaterials=[];fixtureGeometries=[];root.clear();fixtureMap.clear();
   sources=lightLayout(value);root.visible=value.visible;
   for(const source of sources){
-   const group=new THREE.Group();group.name='light:'+source.id;group.position.fromArray(source.position);group.userData={lightId:source.id,room:source.room};root.add(group);
+   const group=new THREE.Group();group.name='light:'+source.id;group.position.fromArray(source.position);group.userData={lightId:source.id,room:source.room};group.visible=!['ceiling','pendant'].includes(source.kind);root.add(group);
    const metal=new THREE.MeshStandardMaterial({color:'#b5b9af',roughness:.36,metalness:.45});
    const shade=new THREE.MeshStandardMaterial({color:'#e4d8be',roughness:.85,side:THREE.DoubleSide});
    const bulb=new THREE.MeshStandardMaterial({color:'#fff0d0',emissive:'#ffd49b',emissiveIntensity:0,roughness:.4});fixtureMaterials.push(metal,shade,bulb);

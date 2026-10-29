@@ -44,7 +44,7 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Rum',exact:true}).click();
   await expect(page.locator('#scene canvas')).toBeVisible();
-  await expect(page.locator('.room-label')).toHaveCount(14);
+  await expect(page.locator('.room-label')).toHaveCount(0);
   await page.locator('[data-room="stue"]').click();await page.locator('[data-room-details="stue"]').click();
   const lamp=page.getByRole('switch',{name:'Gulvlampe'});
   await expect(lamp).toHaveAttribute('aria-checked','true');

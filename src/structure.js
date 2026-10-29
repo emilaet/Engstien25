@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {walls,openings,wallSections,openingPosition,ceilingHeight,finishedFloor} from './architecture.js';
+import {blackTimberMaterial} from './visual-materials.js';
 
 export function buildStructure(scene){
  const root=new THREE.Group();root.name='architecture';scene.add(root);
@@ -11,6 +12,7 @@ export function buildStructure(scene){
  const jambMaterial=new THREE.MeshStandardMaterial({color:'#d7d6ca',roughness:.6,clipShadows:false,clippingPlanes:[clip]});
  const capMaterial=new THREE.MeshStandardMaterial({color:'#a8b09c',roughness:.85});
  const cutCaps=[];
+ const shedMaterial=blackTimberMaterial();
  const capFrameMaterial=new THREE.MeshStandardMaterial({color:'#666f68',roughness:.55});
  const glassMaterial=new THREE.MeshPhysicalMaterial({color:'#bdd4d2',roughness:.12,transparent:true,opacity:.17,depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[clip]});
  function box(parent,x,y,z,w,h,d,material,name){
@@ -29,12 +31,19 @@ export function buildStructure(scene){
    if(Math.max(topA,topB)<=section.bottom+.001)continue;
    const shape=new THREE.Shape();shape.moveTo(0,section.bottom);shape.lineTo(along,section.bottom);shape.lineTo(along,topB);shape.lineTo(0,topA);shape.closePath();
    const geometry=new THREE.ExtrudeGeometry(shape,{depth:w.thickness,bevelEnabled:false});
-   const mesh=new THREE.Mesh(geometry,wallMaterial);mesh.name=`solid:${w.id}`;mesh.userData={kind:'wall',wall:w.id,...section};
+   const mesh=new THREE.Mesh(geometry,w.scope==='outbuilding'?shedMaterial:wallMaterial);mesh.name=`solid:${w.id}`;mesh.userData={kind:'wall',wall:w.id,...section};
    mesh.castShadow=true;mesh.receiveShadow=true;
    if(w.axis==='x')mesh.position.set(a[0],finishedFloor,a[1]-w.thickness/2);
    else{mesh.rotation.y=-Math.PI/2;mesh.position.set(a[0]+w.thickness/2,finishedFloor,a[1]);}
    group.add(mesh);
-   if(section.bottom<1.2&&Math.min(topA,topB)>1.2){
+   // Physical vertical boards follow the existing wall sections, including the door opening.
+   if(w.scope==='outbuilding'){
+    const count=Math.max(0,Math.ceil(along/.13)),height=topA-section.bottom;
+    const boards=new THREE.InstancedMesh(new THREE.BoxGeometry(w.axis==='x'?.122:w.thickness+.018,height,w.axis==='x'?w.thickness+.018:.122),shedMaterial,count),transform=new THREE.Object3D();
+    boards.name='cladding:'+w.id;boards.castShadow=true;boards.receiveShadow=true;boards.userData={kind:'wall',wall:w.id};
+    for(let i=0;i<count;i++){const width=Math.min(.122,along-i*.13),t=i*.13+width/2;transform.position.set(a[0]+(w.axis==='x'?t:0),finishedFloor+section.bottom+height/2,a[1]+(w.axis==='z'?t:0));transform.scale.set(w.axis==='x'?width/.122:1,1,w.axis==='z'?width/.122:1);transform.updateMatrix();boards.setMatrixAt(i,transform.matrix);}group.add(boards);
+   }
+   if(w.scope!=='outbuilding'&&section.bottom<1.2&&Math.min(topA,topB)>1.2){
     const cap=box(group,(a[0]+b[0])/2,finishedFloor+1.2,(a[1]+b[1])/2,w.axis==='x'?along:w.thickness,.008,w.axis==='x'?w.thickness:along,capMaterial,`cut-cap:${w.id}`);cutCaps.push(cap);
    }
   }
@@ -57,9 +66,9 @@ export function buildStructure(scene){
   // A positive world-Y rotation takes +x towards -z.
   pivot.rotation.y=THREE.MathUtils.degToRad(o.swing);parent.add(pivot);
   if(glazed)framedPane(pivot,atEnd?-width:0,atEnd?0:width,0,head-sill,o.id);
-  else box(pivot,localSign*width/2,(head-sill)/2,0,width-.025,head-sill-.025,.038,o.finish==='oak'?oakMaterial:leafMaterial,`leaf:${o.id}`);
+  else box(pivot,localSign*width/2,(head-sill)/2,0,width-.025,head-sill-.025,.038,o.id==='shed-door'?shedMaterial:o.finish==='oak'?oakMaterial:leafMaterial,`leaf:${o.id}`);
   box(pivot,localSign*(width-.1),1, .04,.11,.025,.025,frameMaterial);
-  if(!glazed&&head>1.2){const cap=box(pivot,localSign*width/2,1.2,0,width-.025,.008,.038,capMaterial);cutCaps.push(cap);}
+  if(o.id!=='shed-door'&&!glazed&&head>1.2){const cap=box(pivot,localSign*width/2,1.2,0,width-.025,.008,.038,capMaterial);cutCaps.push(cap);}
   const points=[];const theta=THREE.MathUtils.degToRad(o.swing);
   for(let i=0;i<=32;i++){
    const angle=theta*i/32;points.push(new THREE.Vector3(start+(atEnd?width:0)+localSign*width*Math.cos(angle),.014,-localSign*width*Math.sin(angle)));
@@ -68,10 +77,11 @@ export function buildStructure(scene){
  }
  for(const o of openings){
   const g=openingGroup(o),width=o.end-o.start;
+  const jamb=o.id==='shed-door'?shedMaterial:jambMaterial;
   if(o.kind==='passage')continue;
   if(o.kind==='door'){
-   for(const x of [.018,width-.018])box(g,x,o.head/2,0,.036,o.head,.12,jambMaterial);
-   box(g,width/2,o.head,0,width,.04,.12,jambMaterial);door(g,width,o.head,o,{glazed:o.glazed});
+   for(const x of [.018,width-.018])box(g,x,o.head/2,0,.036,o.head,.12,jamb);
+   box(g,width/2,o.head,0,width,.04,.12,jamb);door(g,width,o.head,o,{glazed:o.glazed});
   }else{
    const cuts=[0,...(o.columns||[]).map(t=>t*width),width];
    const levels=[o.sill,...(o.transoms||[]),o.head];

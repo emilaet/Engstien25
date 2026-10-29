@@ -45,5 +45,23 @@ test('Furniture shares lit materials within a room, while keeping unrelated bedr
  const scene=new THREE.Scene(),lights=buildRoomLighting(scene,initialFurnishing()),root=new THREE.Group(),material=new THREE.MeshStandardMaterial(),meshes=[];for(const room of ['sove','sove','v1']){const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);mesh.userData.room=room;root.add(mesh);meshes.push(mesh);}scene.add(root);lights.bindFurniture(root);assert.equal(meshes[0].material,meshes[1].material);assert.notEqual(meshes[0].material,meshes[2].material);const state=initialState();setAllLights(state,false);state.sove.lights.lampe=true;lights.update(state);assert.ok(lights.bindings.find(b=>b.material===meshes[0].material).uniforms.roomLightPower.value[0]>0);assert.ok([...lights.bindings.find(b=>b.material===meshes[2].material).uniforms.roomLightPower.value].every(v=>v===0));
 });
 test('Overview framing keeps the house and carport inside desktop, tablet and narrow preview cameras',()=>{
- for(const aspect of [.6,.85,1.2,1.8,2.4]){const camera=new THREE.PerspectiveCamera(35,aspect,.1,150);const framed=frameOverview(camera);assert.ok(framed.extent<.93,'cropped overview at aspect '+aspect);const first=camera.position.clone();frameOverview(camera);assert.ok(camera.position.distanceTo(first)<1e-8,'resizing must not accumulate zoom');}
+ for(const fov of [25,35])for(const aspect of [.6,.85,1.2,1.8,2.4]){const camera=new THREE.PerspectiveCamera(fov,aspect,.1,150);const framed=frameOverview(camera);assert.ok(framed.extent<.93,'cropped overview at aspect '+aspect);const first=camera.position.clone();frameOverview(camera);assert.ok(camera.position.distanceTo(first)<1e-8,'resizing must not accumulate zoom');}
+});
+
+test('Ceiling and pendant fixtures stay invisible while their light contribution stays active',()=>{
+ const scene=new THREE.Scene(),lighting=buildRoomLighting(scene,initialFurnishing()),state=initialState();setAllLights(state,true);lighting.update(state);
+ for(const source of lighting.sources){const fixture=scene.getObjectByName('light:'+source.id);assert.equal(fixture.visible,!['ceiling','pendant'].includes(source.kind),source.id);assert.equal(fixture.userData.strength,sourceStrength(source,state),source.id);assert.ok(fixture.userData.strength>0);}
+});
+test('Shed walls and door retain full height and black cladding in the house cutaway',()=>{
+ const scene=new THREE.Scene(),structure=buildStructure(scene);structure.setCutaway(true);
+ for(const name of ['shed-north','shed-east','carport-west','carport-south']){
+  const group=structure.root.getObjectByName('wall:'+name),solid=group.getObjectByName('solid:'+name);assert.ok(solid);assert.equal(solid.material.clippingPlanes?.length||0,0);assert.ok(solid.material.color.getHex()<0x404040);assert.ok(group.children.some(c=>c.name==='cladding:'+name));
+ }
+ const door=structure.root.getObjectByName('leaf:shed-door');assert.equal(door.material.clippingPlanes?.length||0,0);assert.ok(door.material.color.getHex()<0x404040);
+ const roof=buildCarportRoof(scene).root.getObjectByName('carport-roof-slab');assert.ok(roof.material.transparent&&roof.material.opacity<.2);assert.equal(roof.castShadow,false);
+});
+test('Black boards stop exactly at the shed doorway, including partial end boards',()=>{
+ const scene=new THREE.Scene(),structure=buildStructure(scene),wall=structure.root.getObjectByName('wall:shed-east');structure.root.updateMatrixWorld(true);
+ const door=structure.root.getObjectByName('opening:shed-door'),x=door.position.x,start=door.position.z,end=start+door.userData.width;
+ for(const z of [start+.002,start+.03,end-.03,end-.002]){const ray=new THREE.Raycaster(new THREE.Vector3(x+1,1,z),new THREE.Vector3(-1,0,0),0,2);assert.equal(ray.intersectObject(wall,true).length,0,'board obstructs doorway at '+z);}
 });

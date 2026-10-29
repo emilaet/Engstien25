@@ -32,9 +32,9 @@ På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle 
 
 I **Rum** folder pilen ved hvert rum en menu ud med separate lamper, lysstyrke, varme og eventuelle gardiner. Rumnavnet markerer rummet og folder enhederne ud. **Alle muligheder** åbner den fulde rummenu.
 
-Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes.
+Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes. Laderen vises på skurets sorte, lodrette beklædning. Nærbilledet bruger en blød præsentationsbelysning, så det sorte kabinet kan aflæses; dette er ikke en tilkoblet udendørslampe.
 
-- Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et gulvtryk markerer rummet og folder enhederne ud i listen. **Aa** viser eller skjuler alle rumnavne manuelt.
+- Rum markeres på gulvet og i højre side, hvor enhederne foldes ud. Der vises ingen mærkater oven på modellen. Loftarmaturer er usynlige i snitvisningen; deres lysbidrag er bevaret. Carportens tag vises som et gennemsigtigt snit med synlig tagkant, så det oprindelige skur kan ses.
 - Lamper viser lokal glød og afstandsafhængigt lys på gulve, vægge og møbler. Loftslys har større styrke/rækkevidde end sengelamper. Ravfarvede felter viser tændte enheder; tekst og kontaktstilling viser også tilstanden. Rumlisten viser delvist tændte rum, fx **1/3 tændt** i soveværelset.
 - **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og ikke-nul dæmpning bevares. Tænd gendanner en nul-dæmpet lampe til synligt lys.
 - Kort tryk på gulvet: markér rummet og åbn dets enheder i højremenuen. Trykket ændrer ingen enhedstilstand.
