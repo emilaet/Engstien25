@@ -59,3 +59,8 @@ Efter ejerens rettelse er den midterste stolpe på carportens åbne side fjernet
 Menuen består nu af Hjem, Rum og Billader. Lys og varme betjenes inde i Rum. Ældre links med `#lights` og `#heat` åbner også Rum. Billader animerer kamera og fokuspunkt frem til boksen over ca. 1,45 sekund og gendanner de fulde skurvægge under nærbilledet. Ved retur til Rum gendannes snit-/væghøjdevalget. Under simuleret opladning pulserer ringen grønt; på pause er den afdæmpet. Med systemindstillingen reduceret bevægelse er kameraskiftet øjeblikkeligt og den grønne ring konstant.
 
 Alle væggrupper bevares i både møbleret og tom model. Snitvisningen klipper vægge og åbninger ensartet ved 1,2 m; fuld væghøjde viser hele facaderne. Ingen facade skjules automatisk for at vise møbler. Automatisk møbelkontrol verificerer afgrænsning til de tilknyttede rum og frie dør-/passagemidter; den er ikke en fuldstændig kollisionskontrol af alle dørslag, skabslåger og ganglinjer. Se [indretningsdokumentationen](furnishing.md).
+
+
+## Godkendt redesign · 29. oktober 2026
+
+Husets væg-/åbningsdata og møbelplaceringer er bevaret uændret under redesignet. Konceptbilledernes forskudte ladeboks, gårdrum og ekstra walk-in-væg er ikke indført. Carportens oprindelige omrids har fået et synligt, fladt tag, mens endestolper og skurvægge er bevaret. Tag-knappen, planvisning og ladeboksens nærbillede giver mulighed for at se under taget. Taghøjde og detaljering er foreløbige illustrationstal. Se [designimplementeringen](design-implementation.md).

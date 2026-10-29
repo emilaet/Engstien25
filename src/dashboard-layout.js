@@ -1,6 +1,7 @@
 import {safeStorage} from './storage.js';
 export const layoutKey='engstien-home-layout-v1';
 export const widgetDefinitions=[
+ {id:'house',name:'Husoversigt',selector:'#house-overview',width:8,height:5},
  {id:'lights',name:'Belysning',selector:'#lights-summary',width:3,height:2},
  {id:'climate',name:'Indeklima',selector:'#climate-summary',width:3,height:2},
  {id:'curtains',name:'Gardiner',selector:'#curtain-summary',width:3,height:2},
@@ -9,13 +10,14 @@ export const widgetDefinitions=[
  {id:'shopping',name:'Handleliste',selector:'.shopping-card',width:4,height:7},
  {id:'waste',name:'Tømmekalender',selector:'.waste-card',width:4,height:7},
 ];
-export const defaultLayout=()=>widgetDefinitions.map(({id,width,height})=>({id,width,height}));
+export const defaultLayout=()=>[['house',8,5],['waste',4,5],['tasks',4,5],['shopping',4,5],['car',4,5],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height}));
 export function validLayout(value){return Array.isArray(value)&&value.length===widgetDefinitions.length&&new Set(value.map(w=>w?.id)).size===widgetDefinitions.length&&value.every(w=>w&&widgetDefinitions.some(d=>d.id===w.id)&&[3,4,6,8,12].includes(w.width)&&[2,3,4,5,7,9].includes(w.height));}
+export function migrateLayout(value){if(validLayout(value))return value;if(Array.isArray(value)&&value.length===7&&!value.some(w=>w?.id==='house')){const next=[{id:'house',width:8,height:5},...value];if(validLayout(next))return next;}return defaultLayout();}
 export function moveWidget(layout,id,target){const next=structuredClone(layout),from=next.findIndex(w=>w.id===id);if(from<0)return next;const [widget]=next.splice(from,1);next.splice(Math.max(0,Math.min(next.length,target)),0,widget);return next;}
 export function setupDashboardLayout({notify=()=>{},storage}={}){
- const disk=safeStorage(storage);let saved=defaultLayout();try{const value=JSON.parse(disk.getItem(layoutKey));if(validLayout(value))saved=value;}catch{}
+ const disk=safeStorage(storage);let saved=defaultLayout();try{saved=migrateLayout(JSON.parse(disk.getItem(layoutKey)));}catch{}
  let draft=structuredClone(saved),editing=false,home=false,gesture=null;
- const summary=document.querySelector('.summary'),stats=[...summary.children];
+ const summary=document.querySelector('.summary'),stats=[...summary.children],house=document.querySelector('#house-overview'),parking=document.querySelector('#home-overview-parking');
  const area=document.createElement('div');area.className='home-layout-menu';area.hidden=true;area.innerHTML='<button id="home-options" aria-label="Tilpas Hjem" aria-expanded="false" aria-controls="home-options-menu">•••</button><div id="home-options-menu" hidden><button id="edit-home-layout">Rediger dashboard</button></div>';document.querySelector('.header-right').append(area);
  const toolbar=document.createElement('section');toolbar.className='layout-editor';toolbar.hidden=true;toolbar.setAttribute('aria-label','Rediger dashboard');toolbar.innerHTML='<div><b>Tilpas Hjem</b><p>Træk i håndtaget eller brug pilene. Vælg bredde og højde i det faste grid.</p></div><div class="layout-editor-actions"><button id="reset-home-layout">Gendan standard</button><button id="cancel-home-layout">Annuller</button><button id="save-home-layout" class="primary">Gem layout</button></div>';document.querySelector('#family-dashboard').before(toolbar);
  const status=document.createElement('p');status.className='layout-status';status.setAttribute('role','status');status.hidden=true;toolbar.after(status);
@@ -23,9 +25,10 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
  function controls(widget,index){const definition=widgetDefinitions.find(w=>w.id===widget.id);return `<div class="widget-editor" role="group" aria-label="Tilpas ${definition.name}"><button type="button" class="widget-drag" data-widget-drag="${widget.id}" aria-label="Træk ${definition.name} eller flyt med piletaster" title="Træk for at flytte">⠿</button><span class="widget-editor-name">${definition.name}</span><button type="button" data-widget-move="${widget.id}" data-direction="-1" aria-label="Flyt ${definition.name} tidligere" ${index===0?'disabled':''}>←</button><button type="button" data-widget-move="${widget.id}" data-direction="1" aria-label="Flyt ${definition.name} senere" ${index===draft.length-1?'disabled':''}>→</button><div class="widget-dimensions"><label>Bredde<select data-widget-width="${widget.id}" aria-label="Bredde for ${definition.name}">${[[3,'¼'],[4,'⅓'],[6,'½'],[8,'⅔'],[12,'Fuld']].map(([value,label])=>`<option value="${value}" ${widget.width===value?'selected':''}>${label}</option>`).join('')}</select></label><label>Højde<select data-widget-height="${widget.id}" aria-label="Højde for ${definition.name}">${[[2,'2 felter'],[3,'3 felter'],[4,'4 felter'],[5,'5 felter'],[7,'7 felter'],[9,'9 felter']].map(([value,label])=>`<option value="${value}" ${widget.height===value?'selected':''}>${label}</option>`).join('')}</select></label></div></div>`;}
  function refresh(){
   const grid=document.querySelector('.family-grid');summary.hidden=home&&!!grid;
-  if(!home||!grid){for(const stat of stats)summary.append(stat);if(grid){grid.classList.remove('dashboard-grid','is-editing');grid.querySelectorAll('.widget-editor,.summary-widget').forEach(el=>el.remove());grid.querySelectorAll('.dashboard-widget').forEach(el=>{el.classList.remove('dashboard-widget');el.style.removeProperty('order');});}return;}
+  if(!home||!grid){for(const stat of stats)summary.append(stat);if(house)parking.append(house);if(grid){grid.classList.remove('dashboard-grid','is-editing');grid.querySelectorAll('.widget-editor,.summary-widget').forEach(el=>el.remove());grid.querySelectorAll('.dashboard-widget').forEach(el=>{el.classList.remove('dashboard-widget');el.style.removeProperty('order');});}return;}
   const active=document.activeElement,focus=active?.dataset,selection=focus&&Object.keys(focus).find(k=>k.startsWith('widget'));
   grid.classList.add('dashboard-grid');grid.classList.toggle('is-editing',editing);
+  if(house)grid.append(house);
   for(const stat of stats){let wrapper=stat.closest('.summary-widget');if(!wrapper){wrapper=document.createElement('section');wrapper.className='summary-widget';wrapper.append(stat);}grid.append(wrapper);}
   const layout=editing?draft:saved;
   layout.forEach((widget,index)=>{

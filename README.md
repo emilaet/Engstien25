@@ -28,18 +28,18 @@ I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. He
 
 ## Betjening
 
-På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle syv kort kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
+På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle otte kort, inklusive husoversigten, kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
 
-I **Rum** folder pilen ved hvert rum en menu ud med separate lamper, lysstyrke, varme og eventuelle gardiner. Rumnavnet åbner fortsat den fulde rummenu.
+I **Rum** folder pilen ved hvert rum en menu ud med separate lamper, lysstyrke, varme og eventuelle gardiner. Rumnavnet markerer rummet og folder enhederne ud. **Alle muligheder** åbner den fulde rummenu.
 
 Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes.
 
 - Rumlabels er skjult som standard. Et valgt rum får sin egen label under justering; et gulvtryk markerer rummet og folder enhederne ud i listen. **Aa** viser eller skjuler alle rumnavne manuelt.
-- Gyldne gulve og gule statusfelter viser tændt lys. Afdæmpede gulve og grå statusfelter viser slukket lys. Rumlisten viser også delvist tændte rum, fx **1/2 tændt**.
-- **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og gemt lysstyrke ændres ikke.
+- Lamper viser lokal glød og afstandsafhængigt lys på gulve, vægge og møbler. Loftslys har større styrke/rækkevidde end sengelamper. Ravfarvede felter viser tændte enheder; tekst og kontaktstilling viser også tilstanden. Rumlisten viser delvist tændte rum, fx **1/3 tændt** i soveværelset.
+- **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og ikke-nul dæmpning bevares. Tænd gendanner en nul-dæmpet lampe til synligt lys.
 - Kort tryk på gulvet: markér rummet og åbn dets enheder i højremenuen. Trykket ændrer ingen enhedstilstand.
 - Hold 650 ms, højreklik eller tryk på rumnavn/listen: vælg og fold rummet ud. Alle muligheder åbner den fulde rummenu.
-- Rummenu: separate loftslys og bordlampe, lysstyrke og gulvvarmens måltemperatur.
+- Rummenu: separate loftslys og lamper, individuel dæmpning, fælles rumdæmpning og gulvvarmens måltemperatur. Soveværelset har særskilt venstre og højre sengelampe.
 - Stuemenu: tre separate rullegardiner med 0 % = lukket og 100 % = åbent.
 - Træk roterer, musehjul/to fingre zoomer. Husknappen nulstiller kameraet.
 - Ladeoversigten demonstrerer pause/start, målprocent og pris. Estimat antager 75 kWh og konstant 11 kW; ingen faktisk telemetri.
@@ -55,7 +55,7 @@ npm run test:browser
 npm run test:preview
 ```
 
-Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Sæt `CHROMIUM_PATH` ved en anden lokal browserinstallation. CI installerer Playwright Chromium. De verificerer WebGL, betjening, bevaret tilstand, rumtryk/hold/rotation samt responsive layouts. Enhedstestene kontrollerer lysgrupper, isolation mellem rum, modeloverlap og ladeberegning.
+Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Sæt `CHROMIUM_PATH` ved en anden lokal browserinstallation. CI bruger runnerens Chrome og installerer kun Playwright Chromium som fallback. De verificerer WebGL, betjening, bevaret tilstand, rumtryk/hold/rotation samt responsive layouts. Enhedstestene kontrollerer lysgrupper, isolation mellem rum, modeloverlap og ladeberegning.
 
 ## Model og begrænsninger
 
@@ -64,6 +64,10 @@ Modellen vises nu med et første møbeludkast og den faste billader ved skuret. 
 `src/architecture.js` samler vægforløb, åbninger og rumkonturer, aflæst fra `Floorplan.png`. `src/structure.js` genererer vægge med rigtige huller, dørblade, bueslag og vinduesrammer. `src/house.js` gemmer rumidentitet og testtilstand. Forskydninger ved kontor/entré og depot er med i gulvpolygonerne. Højden går fra 2,4 til 3,1 m efter facadetegningen. De almindelige vinduers præcise højder og karmmål er stadig omtrentlige; se [geometrigennemgangen](docs/geometry-review.md) for kilder, adgangsveje og usikkerheder.
 
 `src/scene.js` samler visningen. Modellen er genereret fra data, ikke et færdigt GLB-aktiv. Møbelredigering er implementeret på de parametriske modeller. GLB-eksport og egentlig rumvandring kommer senere. Enhedens faktiske ydelse bør prøves før valg af vægtablet. Gardinbetjening er bevaret som testdata, men fysiske gardiner er fjernet sammen med inventaret.
+
+## Godkendt design og lokal belysning
+
+Dag/aften-menuen øverst følger solens højde i Hørning eller et manuelt valg. Hjem og Rum bruger samme levende husmodel; ingen AI-konceptbilleder bruges som model. Ladeboksens placering og husets oprindelige geometri er bevaret. Carporten har nu synligt tag, som kan skjules med **Tag**; det skjules automatisk i planvisning og ladeboksens nærbillede. Se [implementering, lyskilder og tekniske begrænsninger](docs/design-implementation.md).
 
 ## Videre plan
 

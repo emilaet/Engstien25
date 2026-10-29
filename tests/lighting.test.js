@@ -1,0 +1,49 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {initialState,setAllLights} from '../src/house.js';
+import {initialFurnishing} from '../src/furnishing-data.js';
+import {lightLayout,sourceStrength,lightFalloff} from '../src/lighting-data.js';
+import {buildRoomLighting} from '../src/room-lighting.js';
+import {createDemoHome} from '../src/home-data.js';
+import {solarAltitude,resolveAppearance} from '../src/appearance.js';
+import {carportRoof,buildCarportRoof} from '../src/carport.js';
+import {chargerPlacement} from '../src/charger.js';
+import {toPlan} from '../src/architecture.js';
+import {buildStructure} from '../src/structure.js';
+import {frameOverview} from '../src/camera-framing.js';
+const storage=()=>{const map=new Map();return {get length(){return map.size;},key:i=>[...map.keys()][i],getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v)};};
+
+test('Solar appearance follows actual season and UTC time without changing lamp state',()=>{
+ assert.ok(solarAltitude(new Date('2026-06-21T11:00:00Z'))>50);assert.ok(solarAltitude(new Date('2026-12-21T23:00:00Z'))<0);
+ assert.equal(resolveAppearance('auto',new Date('2026-10-29T11:00:00Z')).theme,'light');assert.equal(resolveAppearance('auto',new Date('2026-10-29T19:00:00Z')).theme,'dark');assert.equal(resolveAppearance('day',new Date('2026-10-29T19:00:00Z')).daylight,1);assert.equal(resolveAppearance('night',new Date('2026-10-29T11:00:00Z')).daylight,0);
+});
+test('Bedroom lamps are independent, follow their actual bedside tables and have local falloff',()=>{
+ const snapshot=initialFurnishing(),layout=lightLayout(snapshot),left=layout.find(s=>s.id==='sove:lampe'),right=layout.find(s=>s.id==='sove:lampeRight'),ceiling=layout.find(s=>s.id==='sove:loft');assert.ok(left.position[0]<right.position[0]);assert.ok(ceiling.radius>left.radius);assert.ok(ceiling.power>left.power);
+ assert.ok(lightFalloff(left,[left.position[0],.12,left.position[2]])>5*lightFalloff(left,[right.position[0],.12,right.position[2]]));
+ const table=snapshot.items.find(i=>i.id==='sove-bedside-left');table.x+=.3;assert.ok(Math.abs(lightLayout(snapshot).find(s=>s.id===left.id).position[0]-left.position[0]-.3)<1e-8);assert.deepEqual(lightLayout(snapshot).find(s=>s.id===right.id),right);
+ const state=initialState();setAllLights(state,false);state.sove.lights.lampe=true;assert.ok(sourceStrength(left,state)>0);assert.equal(sourceStrength(right,state),0);state.sove.levels.lampe=0;assert.equal(sourceStrength(left,state),0);
+});
+test('Rendered light materials receive only their own room lights; off bulbs and halos stop emitting',()=>{
+ const scene=new THREE.Scene(),model=buildRoomLighting(scene,initialFurnishing()),bedroom=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshStandardMaterial()),living=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshStandardMaterial());scene.add(bedroom,living);model.bindArchitecture({root:new THREE.Group()},{sove:bedroom,stue:living});
+ const state=initialState();setAllLights(state,false);state.sove.lights.lampe=true;model.update(state);const sove=model.bindings.find(b=>b.mesh===bedroom),stue=model.bindings.find(b=>b.mesh===living);assert.ok(sove.uniforms.roomLightPower.value[0]>0);assert.ok([...stue.uniforms.roomLightPower.value].every(p=>p===0));assert.ok(scene.getObjectByName('light:sove:lampe').userData.strength>0);assert.equal(scene.getObjectByName('glow:sove:lampeRight').visible,false);assert.equal(bedroom.material.emissiveIntensity,1);assert.equal(bedroom.material.emissive.getHex(),0);
+ state.sove.lights.lampe=false;state.sove.lights.loft=true;model.update(state);assert.equal(scene.getObjectByName('glow:sove:lampe').visible,false);assert.ok(scene.getObjectByName('light:sove:loft').userData.strength>0);
+});
+test('Old saved homes gain the right bedside lamp and per-device dimming without losing settings',()=>{
+ const disk=storage(),old=initialState();delete old.sove.lights.lampeRight;for(const s of Object.values(old))delete s.levels;old.sove.lights.lampe=true;old.sove.target=23;disk.setItem('engstien-v1',JSON.stringify(old));const a=createDemoHome(disk),b=createDemoHome(disk),left=a.load(),right=b.load();assert.equal(left.sove.lights.lampe,true);assert.equal(left.sove.lights.lampeRight,false);assert.equal(left.sove.target,23);left.sove.levels.lampe=35;a.save(left);right.sove.lights.lampeRight=true;b.save(right);const saved=createDemoHome(disk).load();assert.equal(saved.sove.levels.lampe,35);assert.equal(saved.sove.lights.lampeRight,true);assert.equal(saved.sove.lights.lampe,true);
+});
+test('Open-plan zones share light, while bedrooms remain isolated and zero dimming can be switched on again',()=>{
+ const scene=new THREE.Scene(),model=buildRoomLighting(scene,initialFurnishing()),living=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshStandardMaterial()),bedroom=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshStandardMaterial());scene.add(living,bedroom);model.bindArchitecture({root:new THREE.Group()},{stue:living,sove:bedroom});const state=initialState();setAllLights(state,false);state.kokken.lights.loft=true;model.update(state);assert.ok(model.bindings.find(b=>b.mesh===living).uniforms.roomLightPower.value[0]>0);assert.ok([...model.bindings.find(b=>b.mesh===bedroom).uniforms.roomLightPower.value].every(v=>v===0));state.sove.levels.lampe=0;setAllLights(state,true);assert.ok(state.sove.levels.lampe>0);
+});
+test('Carport roof covers the original footprint and never moves the shed charger',()=>{
+ assert.deepEqual(carportRoof.from,toPlan([1717,739]));assert.deepEqual(carportRoof.to,toPlan([2247,1267]));const before=chargerPlacement(),roof=buildCarportRoof(new THREE.Scene());assert.equal(roof.root.visible,true);roof.setView({plan:true});assert.equal(roof.root.visible,false);roof.setView({charger:true});assert.equal(roof.root.visible,false);roof.setView({});assert.equal(roof.root.visible,true);assert.deepEqual(chargerPlacement(),before);assert.ok(roof.root.getObjectByName('carport-roof-slab'));
+});
+test('Lit architectural materials follow the actual wall clipping planes in both viewing modes',()=>{
+ const scene=new THREE.Scene(),structure=buildStructure(scene),lights=buildRoomLighting(scene,initialFurnishing());lights.bindArchitecture(structure,{});const clipped=lights.bindings.filter(b=>b.original.clippingPlanes?.length);assert.ok(clipped.length>10);for(const enabled of [false,true]){structure.setCutaway(enabled);lights.syncClipping();for(const b of clipped){assert.equal(b.material.clippingPlanes,b.original.clippingPlanes);assert.equal(b.material.clippingPlanes.length,enabled?1:0);}}
+});
+test('Furniture shares lit materials within a room, while keeping unrelated bedrooms isolated',()=>{
+ const scene=new THREE.Scene(),lights=buildRoomLighting(scene,initialFurnishing()),root=new THREE.Group(),material=new THREE.MeshStandardMaterial(),meshes=[];for(const room of ['sove','sove','v1']){const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);mesh.userData.room=room;root.add(mesh);meshes.push(mesh);}scene.add(root);lights.bindFurniture(root);assert.equal(meshes[0].material,meshes[1].material);assert.notEqual(meshes[0].material,meshes[2].material);const state=initialState();setAllLights(state,false);state.sove.lights.lampe=true;lights.update(state);assert.ok(lights.bindings.find(b=>b.material===meshes[0].material).uniforms.roomLightPower.value[0]>0);assert.ok([...lights.bindings.find(b=>b.material===meshes[2].material).uniforms.roomLightPower.value].every(v=>v===0));
+});
+test('Overview framing keeps the house and carport inside desktop, tablet and narrow preview cameras',()=>{
+ for(const aspect of [.6,.85,1.2,1.8,2.4]){const camera=new THREE.PerspectiveCamera(35,aspect,.1,150);const framed=frameOverview(camera);assert.ok(framed.extent<.93,'cropped overview at aspect '+aspect);const first=camera.position.clone();frameOverview(camera);assert.ok(camera.position.distanceTo(first)<1e-8,'resizing must not accumulate zoom');}
+});

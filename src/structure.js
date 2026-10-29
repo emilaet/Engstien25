@@ -4,11 +4,11 @@ import {walls,openings,wallSections,openingPosition,ceilingHeight,finishedFloor}
 export function buildStructure(scene){
  const root=new THREE.Group();root.name='architecture';scene.add(root);
  const clip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+1.2);
- const wallMaterial=new THREE.MeshStandardMaterial({color:'#f5f2e8',roughness:.85,side:THREE.DoubleSide,clipShadows:true,clippingPlanes:[clip]});
- const leafMaterial=new THREE.MeshStandardMaterial({color:'#eeece3',roughness:.7,clipShadows:true,clippingPlanes:[clip]});
- const oakMaterial=new THREE.MeshStandardMaterial({color:'#c3ab84',roughness:.8,clipShadows:true,clippingPlanes:[clip]});
- const frameMaterial=new THREE.MeshStandardMaterial({color:'#666f68',roughness:.55,clipShadows:true,clippingPlanes:[clip]});
- const jambMaterial=new THREE.MeshStandardMaterial({color:'#d7d6ca',roughness:.6,clipShadows:true,clippingPlanes:[clip]});
+ const wallMaterial=new THREE.MeshStandardMaterial({color:'#f5f2e8',roughness:.85,side:THREE.DoubleSide,clipShadows:false,clippingPlanes:[clip]});
+ const leafMaterial=new THREE.MeshStandardMaterial({color:'#eeece3',roughness:.7,clipShadows:false,clippingPlanes:[clip]});
+ const oakMaterial=new THREE.MeshStandardMaterial({color:'#c3ab84',roughness:.8,clipShadows:false,clippingPlanes:[clip]});
+ const frameMaterial=new THREE.MeshStandardMaterial({color:'#666f68',roughness:.55,clipShadows:false,clippingPlanes:[clip]});
+ const jambMaterial=new THREE.MeshStandardMaterial({color:'#d7d6ca',roughness:.6,clipShadows:false,clippingPlanes:[clip]});
  const capMaterial=new THREE.MeshStandardMaterial({color:'#a8b09c',roughness:.85});
  const cutCaps=[];
  const capFrameMaterial=new THREE.MeshStandardMaterial({color:'#666f68',roughness:.55});

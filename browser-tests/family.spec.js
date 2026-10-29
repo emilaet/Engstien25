@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 test('Hjem is the family landing page; Rum retains the existing house controls and browser history',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible();
- await expect(page.getByRole('heading',{name:'Huskeliste',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Tømmekalender',exact:true})).toBeVisible();await expect(page.locator('#scene canvas')).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'Huskeliste',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Tømmekalender',exact:true})).toBeVisible();await expect(page.locator('#home-model canvas')).toBeVisible();
  await page.screenshot({path:'/tmp/engstien-family-home.png'});
  await page.getByRole('button',{name:'Åbn Rum'}).click();await expect(page.locator('#scene canvas')).toBeVisible();await expect(page.getByRole('heading',{name:'Rum',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Sluk alt lys i huset'}).click();await page.getByRole('button',{name:'Hjem',exact:true}).click();await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible();await expect(page.locator('#rooms-workspace')).toBeHidden();
