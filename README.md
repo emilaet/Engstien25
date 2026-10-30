@@ -44,7 +44,7 @@ Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under R
 - Træk roterer, musehjul/to fingre zoomer. Husknappen nulstiller kameraet.
 - Ladeoversigten demonstrerer pause/start, målprocent og pris. Estimat antager 75 kWh og konstant 11 kW; ingen faktisk telemetri.
 
-Rumindstillinger gemmes i browserens localStorage. Aktuelle temperaturer er testdata. Ladetilstand og pause gemmes separat og kan afprøves via scenarier; ukendte data vises som manglende. Lysstyrke er en fælles simuleret værdi for rummet; individuel lampedæmpning er ikke implementeret. Rummene har to eksempellamper hver, som senere skal erstattes af en faktisk enhedsliste.
+Rumindstillinger gemmes i browserens localStorage. Aktuelle temperaturer er testdata. Ladetilstand og pause gemmes separat og kan afprøves via scenarier; ukendte data vises som manglende. Lysstyrke kan styres både samlet i rummet og separat for de enkelte simulerede lamper. Enhederne er eksempler, som senere skal erstattes af den faktiske enhedsliste fra Home Assistant.
 
 ## Kontrol
 
