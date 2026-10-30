@@ -30,16 +30,16 @@ I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. He
 
 På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle otte kort, inklusive husoversigten, kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
 
-I **Rum** folder pilen ved hvert rum en menu ud med separate lamper, lysstyrke, varme og eventuelle gardiner. Rumnavnet markerer rummet og folder enhederne ud. **Alle muligheder** åbner den fulde rummenu.
+I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum**, søgning og pilene skifter rum. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
 
 Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes. Laderen vises på skurets sorte, lodrette beklædning. Nærbilledet bruger en blød præsentationsbelysning, så det sorte kabinet kan aflæses; dette er ikke en tilkoblet udendørslampe.
 
-- Rum markeres på gulvet og i højre side, hvor enhederne foldes ud. Der vises ingen mærkater oven på modellen. Loftarmaturer er usynlige i snitvisningen; deres lysbidrag er bevaret. Carportens tag vises som et gennemsigtigt snit med synlig tagkant, så det oprindelige skur kan ses.
+- Det valgte rum vises i højresidens fokuspanel. Der vises ingen mærkater oven på modellen. Loftarmaturer er usynlige i snitvisningen; deres lysbidrag er bevaret. Carportens tagbjælker vises kun i Full.
 - Lamper viser lokal glød og afstandsafhængigt lys på gulve, vægge og møbler. Loftslys har større styrke/rækkevidde end sengelamper. Ravfarvede felter viser tændte enheder; tekst og kontaktstilling viser også tilstanden. Rumlisten viser delvist tændte rum, fx **1/3 tændt** i soveværelset.
 - **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og ikke-nul dæmpning bevares. Tænd gendanner en nul-dæmpet lampe til synligt lys.
 - Kort tryk på gulvet: markér rummet og åbn dets enheder i højremenuen. Trykket ændrer ingen enhedstilstand.
-- Hold 650 ms, højreklik eller tryk på rumnavn/listen: vælg og fold rummet ud. Alle muligheder åbner den fulde rummenu.
-- Rummenu: separate loftslys og lamper, individuel dæmpning, fælles rumdæmpning og gulvvarmens måltemperatur. Soveværelset har særskilt venstre og højre sengelampe.
+- Hold 650 ms, højreklik eller tryk på gulvet/rumnavnet: vælg rummet og åbn fokusvisningen.
+- Rummenu: separate loftslys og lamper, individuel dæmpning og gulvvarmens måltemperatur. Soveværelset har særskilt venstre og højre sengelampe.
 - Stuemenu: tre separate rullegardiner med 0 % = lukket og 100 % = åbent.
 - Træk roterer, musehjul/to fingre zoomer. Husknappen nulstiller kameraet.
 - Ladeoversigten demonstrerer pause/start, målprocent og pris. Estimat antager 75 kWh og konstant 11 kW; ingen faktisk telemetri.
@@ -99,7 +99,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 Den nye standardforside har fem paneler i referenceopstillingen. Den bruger sit eget layoutlager (`engstien-home-layout-v2`), så gamle opsætninger ikke skjuler redesignet. Tidligere opsætninger i v1-lageret kan hentes med **Tidligere layout** under **Rediger dashboard**; v1-lageret bliver ikke overskrevet. Ekstra statuskort kan vises i redigeringen.
 
-Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumlisten ruller under en fast overskrift. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
+Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
 Udendørs lys er en separat demogruppe under Entré. Den starter slukket ved migration, tælles ikke som et indendørs rum og ændrer ikke tilstand ved skift mellem dag og aften. Udendørs lysmaterialer er afgrænset fra de indendørs gulve og møbler. Kun fysisk understøttede gulv- og bordlamper vises; øvrige armaturer skjules med deres lysbidrag bevaret.
 
@@ -110,3 +110,7 @@ Billaderens nærbillede bruger samme 3D-model og samme placering. Skurdøren vis
 Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum** kan der skiftes mellem **3D** (åben indretning), **Plan** og **Full** (lukket hus udefra). Full genbruger plantegningens væg- og vinduesåbninger, med gyldne mursten efter facadevisualiseringen, mørke rammer, et ensidigt skrånende tag og et dækkende sort carporttag. Dørene vises lukkede i Full og vender tilbage til deres oprindelige dørslag i de åbne visninger. Valg af rum vises i sidepanelet uden gule gulvkonturer; de tegnede åbningsbuer er fjernet. Scrollbjælker er skjult, men rulning med touch, hjul og tastatur bevares.
 
 3D, Plan og Full bruger samme native rendering uden et senere skift til skærmbaseret skyggebehandling. Derfor bevares opløsning og kantudjævning, når kameraet stopper, og møblers skygger projiceres ikke gennem vægge. Facadernes mursten er synlige i alle visninger; de følger snithøjden i den åbne model og dækker hjørnerne over de tilstødende vægges fulde tykkelse.
+
+### Rum: fokuspanel og enheder
+
+Den godkendte [rumstyring](docs/room-controls.md) er implementeret med selvstændigt fokuspanel, enhedskort, kategori-faner, hurtig rumvælger, temperaturforvalg og gardinernes åbning/lukning/stop. Alle rumenheder er fortsat dummydata. Hver ændring gemmes i samme browserjournal som før, og husmodellen opdateres fra samme tilstand.
