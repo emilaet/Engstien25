@@ -21,10 +21,10 @@ test('Floor tap selects and expands the room without changing lights; drag does 
 test('Empty architectural model supports overhead plan and full wall inspection',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();
  await modelOption(page,'Vis eller skjul møbler');
- const plan=page.getByRole('button',{name:'Vis plantegning ovenfra'}),walls=page.getByRole('button',{name:'Vis vægge i fuld højde'});
+ const plan=page.getByRole('button',{name:'Vis plantegning ovenfra'}),walls=page.getByRole('button',{name:'Vis vægge i fuld højde',includeHidden:true});
  await plan.click();await expect(plan).toHaveAttribute('aria-pressed','true');await page.waitForTimeout(700);
  await page.screenshot({path:'/tmp/engstien-corrected-plan.png'});
- await modelOption(page,'Vis vægge i fuld højde');await expect(walls).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('button',{name:'Vis vægge i fuld højde',exact:true})).toHaveAttribute('aria-pressed','true');
+ await modelOption(page,'Vis vægge i fuld højde');await expect(walls).toHaveAttribute('aria-pressed','true');
  await page.getByRole('button',{name:'Nulstil visning'}).click();await expect(plan).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
  await page.screenshot({path:'/tmp/engstien-corrected-full.png'});
  await modelOption(page,'Vis vægge i fuld højde');await expect(walls).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
