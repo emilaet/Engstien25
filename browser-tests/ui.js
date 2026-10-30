@@ -7,4 +7,4 @@ export async function selectFurniture(page,id){const picker=page.locator('.furni
 export async function chargeScenario(page,value){const details=page.locator('.charge-advanced');if(!await details.evaluate(el=>el.open))await details.locator('summary').click();await page.getByLabel('Ladetilstand i demo').selectOption(value);}
 export async function wasteScenario(page,value){const details=page.locator('.waste-calendar');if(!await details.evaluate(el=>el.open))await details.locator('summary').click();await page.getByLabel('Affaldsscenarie').selectOption(value);}
 export async function clearList(page,key){const details=page.locator(`.${key}-card .list-card-menu`);if(!await details.evaluate(el=>el.open))await details.locator('summary').click();await details.getByRole('button',{name:key==='tasks'?'Fjern klarede':'Fjern købte',exact:true}).click();}
-export async function readyScene(page){await expect(page.locator('#scene')).toHaveAttribute('data-render-finish','contact-shadows',{timeout:30000});}
+export async function readyScene(page){await expect(page.locator('#scene')).toHaveAttribute('data-render-finish','native',{timeout:30000});}

@@ -83,8 +83,8 @@ test('Outdoor light is independent, migrates off, and never illuminates an indoo
  assert.ok(active.some(id=>id.startsWith('entre:ude:')));assert.ok([...lighting.bindings.find(b=>b.mesh===bedroom).uniforms.roomLightPower.value].every(v=>v===0));assert.ok([...lighting.bindings.find(b=>b.mesh===deck).uniforms.roomLightPower.value].some(v=>v>0));
  const disk=storage(),old=initialState();delete old.entre.lights.ude;delete old.entre.levels.ude;disk.setItem('engstien-v1',JSON.stringify(old));const migrated=createDemoHome(disk).load();assert.equal(migrated.entre.lights.ude,false);assert.equal(migrated.entre.levels.ude,100);
 });
-test('Rear walls support their windows while the garden walls retain the open cutaway',()=>{
+test('All house walls share the same lower cutaway height',()=>{
  const model=buildStructure(new THREE.Scene());
- for(const enabled of [false,true]){model.setCutaway(enabled);for(const [id,height]of [['rear',2.25],['west',2.25],['garden',1.2]]){const material=model.root.getObjectByName('solid:'+id).material;assert.equal(material.clippingPlanes.length,enabled?1:0);if(enabled)assert.equal(material.clippingPlanes[0].constant,finishedFloor+height);}}
+ for(const enabled of [false,true]){model.setCutaway(enabled);for(const [id,height]of [['rear',1.05],['west',1.05],['garden',1.05],['east',1.05],['bedrooms',1.05]]){const material=model.root.getObjectByName('solid:'+id).material;assert.equal(material.clippingPlanes.length,enabled?1:0);if(enabled)assert.equal(material.clippingPlanes[0].constant,finishedFloor+height);}}
  const leaf=model.root.getObjectByName('door-leaf:shed-door'),before=leaf.rotation.y;model.setChargerView(true);assert.equal(leaf.rotation.y,0);model.setChargerView(false);assert.equal(leaf.rotation.y,before);
 });

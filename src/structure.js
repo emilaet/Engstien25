@@ -2,9 +2,11 @@ import * as THREE from 'three';
 import {walls,openings,wallSections,openingPosition,ceilingHeight,finishedFloor} from './architecture.js';
 import {blackTimberMaterial} from './visual-materials.js';
 
+export const cutawayHeight=1.05;
+
 export function buildStructure(scene){
  const root=new THREE.Group();root.name='architecture';scene.add(root);
- const clip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+1.2);
+ const clip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+cutawayHeight);
  const wallMaterial=new THREE.MeshStandardMaterial({color:'#f5f2e8',roughness:.85,side:THREE.DoubleSide,clipShadows:false,clippingPlanes:[clip]});
  const leafMaterial=new THREE.MeshStandardMaterial({color:'#eeece3',roughness:.7,clipShadows:false,clippingPlanes:[clip]});
  const oakMaterial=new THREE.MeshStandardMaterial({color:'#c3ab84',roughness:.8,clipShadows:false,clippingPlanes:[clip]});
@@ -12,10 +14,9 @@ export function buildStructure(scene){
  const jambMaterial=new THREE.MeshStandardMaterial({color:'#d7d6ca',roughness:.6,clipShadows:false,clippingPlanes:[clip]});
  const capMaterial=new THREE.MeshStandardMaterial({color:'#a8b09c',roughness:.85});
  const cutCaps=[];
- const rearClip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+2.25),stagedMaterials=new Map();
- const cutHeight=id=>['rear','west'].includes(id)?2.25:1.2;
+ const cutHeight=()=>cutawayHeight;
  function parentWall(parent){for(let node=parent;node;node=node.parent){if(node.userData.wall)return node.userData.wall;if(node.userData.kind==='wall')return node.userData.id;}}
- function staged(material,id){if(cutHeight(id)===1.2||!material.clippingPlanes?.includes(clip))return material;const key=material.uuid;if(!stagedMaterials.has(key)){const variant=material.clone();variant.clippingPlanes=[rearClip];stagedMaterials.set(key,variant);}return stagedMaterials.get(key);}
+ function staged(material){return material;}
  const shedMaterial=blackTimberMaterial();
  const capFrameMaterial=new THREE.MeshStandardMaterial({color:'#666f68',roughness:.55});
  const glassMaterial=new THREE.MeshPhysicalMaterial({color:'#bdd4d2',roughness:.12,transparent:true,opacity:.17,depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[clip]});
@@ -73,7 +74,7 @@ export function buildStructure(scene){
   else box(pivot,localSign*width/2,(head-sill)/2,0,width-.025,head-sill-.025,.038,o.id==='shed-door'?shedMaterial:o.finish==='oak'?oakMaterial:leafMaterial,`leaf:${o.id}`);
   if(o.id==='shed-door')for(const side of [-1,1])for(let n=0;n<7;n++)box(pivot,localSign*(n+.5)*width/7,(head-sill)/2,side*.024,width/7-.006,head-sill-.03,.008,shedMaterial,'shed-door-board');
   box(pivot,localSign*(width-.1),1, .04,.11,.025,.025,frameMaterial);
-  if(o.id!=='shed-door'&&!glazed&&head>1.2){const cap=box(pivot,localSign*width/2,1.2,0,width-.025,.008,.038,capMaterial);cutCaps.push(cap);}
+  if(o.id!=='shed-door'&&!glazed&&head>cutawayHeight){const cap=box(pivot,localSign*width/2,cutawayHeight,0,width-.025,.008,.038,capMaterial);cutCaps.push(cap);}
 
  }
  for(const o of openings){
@@ -92,5 +93,5 @@ export function buildStructure(scene){
    }
   }
  }
- return {root,setExteriorMode(enabled){root.traverse(node=>{if(!node.name.startsWith('door-leaf:'))return;const id=node.name.slice(10),o=openings.find(o=>o.id===id);const swing=id==='terrace-door'?openings.find(o=>o.door)?.door.swing:o?.swing;node.rotation.y=enabled?0:THREE.MathUtils.degToRad(swing||0);});},setChargerView(enabled){const pivot=root.getObjectByName('door-leaf:shed-door'),door=openings.find(o=>o.id==='shed-door');if(pivot)pivot.rotation.y=enabled?0:THREE.MathUtils.degToRad(door.swing);},setCutaway(enabled){for(const cap of cutCaps)cap.visible=enabled;for(const material of [wallMaterial,leafMaterial,oakMaterial,jambMaterial,frameMaterial,glassMaterial]){material.clippingPlanes=enabled?[clip]:[];material.needsUpdate=true;}for(const material of stagedMaterials.values()){material.clippingPlanes=enabled?[rearClip]:[];material.needsUpdate=true;}}};
+ return {root,setExteriorMode(enabled){root.traverse(node=>{if(!node.name.startsWith('door-leaf:'))return;const id=node.name.slice(10),o=openings.find(o=>o.id===id);const swing=id==='terrace-door'?openings.find(o=>o.door)?.door.swing:o?.swing;node.rotation.y=enabled?0:THREE.MathUtils.degToRad(swing||0);});},setChargerView(enabled){const pivot=root.getObjectByName('door-leaf:shed-door'),door=openings.find(o=>o.id==='shed-door');if(pivot)pivot.rotation.y=enabled?0:THREE.MathUtils.degToRad(door.swing);},setCutaway(enabled){for(const cap of cutCaps)cap.visible=enabled;for(const material of [wallMaterial,leafMaterial,oakMaterial,jambMaterial,frameMaterial,glassMaterial]){material.clippingPlanes=enabled?[clip]:[];material.needsUpdate=true;}}};
 }

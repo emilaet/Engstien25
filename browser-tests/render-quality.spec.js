@@ -1,0 +1,4 @@
+import {test,expect} from '@playwright/test';
+test('Stationary house keeps the same sharp native image without furniture bleeding through walls',async({page})=>{
+ await page.goto('/#rooms');const scene=page.locator('#scene');await page.getByLabel('Dag- og aftenvisning').selectOption('night');await expect(scene).toHaveAttribute('data-render-finish','native');await page.waitForTimeout(700);const canvas=scene.locator('canvas'),first=await canvas.screenshot(),frames=await scene.getAttribute('data-render-count');await page.waitForTimeout(2200);const stationary=await canvas.screenshot();expect(Buffer.compare(first,stationary)).toBe(0);await expect(scene).toHaveAttribute('data-render-count',frames);await expect(scene).toHaveAttribute('data-render-finish','native');await page.getByRole('button',{name:'Zoom ind'}).click();await expect.poll(()=>scene.getAttribute('data-render-count')).not.toBe(frames);await expect(scene).toHaveAttribute('data-render-finish','native');
+});

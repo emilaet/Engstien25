@@ -59,7 +59,7 @@ Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Sæt `CHROMIUM_PATH` 
 
 ## Model og begrænsninger
 
-Modellen vises nu med et første møbeludkast og den faste billader ved skuret. Møbler-knappen giver fortsat en tom visning til kontrol af vægge og åbninger. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem lave vægge mod terrassen, højere bagvægge og fuld væghøjde.
+Modellen vises nu med et første møbeludkast og den faste billader ved skuret. Møbler-knappen giver fortsat en tom visning til kontrol af vægge og åbninger. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem en fælles lav snithøjde på 1,05 m og fuld væghøjde.
 
 `src/architecture.js` samler vægforløb, åbninger og rumkonturer, aflæst fra `Floorplan.png`. `src/structure.js` genererer vægge med rigtige huller, dørblade, bueslag og vinduesrammer. `src/house.js` gemmer rumidentitet og testtilstand. Forskydninger ved kontor/entré og depot er med i gulvpolygonerne. Højden går fra 2,4 til 3,1 m efter facadetegningen. De almindelige vinduers præcise højder og karmmål er stadig omtrentlige; se [geometrigennemgangen](docs/geometry-review.md) for kilder, adgangsveje og usikkerheder.
 
@@ -108,3 +108,5 @@ Billaderens nærbillede bruger samme 3D-model og samme placering. Skurdøren vis
 ### Plan, 3D og Full
 
 Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum** kan der skiftes mellem **3D** (åben indretning), **Plan** og **Full** (lukket hus udefra). Full genbruger plantegningens væg- og vinduesåbninger, med gyldne mursten efter facadevisualiseringen, mørke rammer, et ensidigt skrånende tag og et dækkende sort carporttag. Dørene vises lukkede i Full og vender tilbage til deres oprindelige dørslag i de åbne visninger. Valg af rum vises i sidepanelet uden gule gulvkonturer; de tegnede åbningsbuer er fjernet. Scrollbjælker er skjult, men rulning med touch, hjul og tastatur bevares.
+
+3D, Plan og Full bruger samme native rendering uden et senere skift til skærmbaseret skyggebehandling. Derfor bevares opløsning og kantudjævning, når kameraet stopper, og møblers skygger projiceres ikke gennem vægge. Facadernes mursten er synlige i alle visninger; de følger snithøjden i den åbne model og dækker hjørnerne over de tilstødende vægges fulde tykkelse.
