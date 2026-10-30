@@ -48,3 +48,12 @@ export function buildCharger(scene){
  }
  return {root,placement,update};
 }
+
+// Finite-range fill stays beside the shed; unlike a directional light it cannot
+// brighten or recolour the house while the camera flies towards the charger.
+export function buildChargerFill(scene,charger){
+ const light=new THREE.SpotLight('#ffdfbd',0,4,Math.PI/6,.65,2);
+ light.name='charger-local-fill';light.position.copy(charger.position).add(new THREE.Vector3(2,1,1));light.target=charger;
+ light.castShadow=false;light.shadow.mapSize.set(1024,1024);light.shadow.bias=-.0001;light.shadow.normalBias=.002;light.shadow.radius=4;
+ scene.add(light);return light;
+}

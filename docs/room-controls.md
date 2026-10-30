@@ -15,3 +15,5 @@ Overskrifter er altid neutral varm grå (`#34332f`) eller varm hvid (`#f2f0e7`).
 Startudsnit i Rum beregnes fra selve husets aftryk, så carporten ikke trækker Plan og 3D væk fra rummene. Full bruger samme hus som centrum med plads til taget. Kameraberegningen bruger det aktuelle modelpanels størrelse, også straks efter navigation fra Hjem; manuel zoom og rotation bevares indtil nulstilling eller et nyt visningsvalg.
 
 Plan bruger nu kun 15 cm vandret frigang omkring husets indvendige aftryk, mens 3D bruger op til 98 % af kamerabredden. Carport og terrasse må beskæres. Hjems separate, lille planoversigt beholder sit eget udsnit.
+
+Kameraturen til billaderen bevarer dagslys, farvetone, eksponering, lampetilstande og husets aktuelle væg-/tagvisning. Nærbilledets supplerende lys er en lokal spot med 4 meters rækkevidde ved skuret; selve huset ligger uden for dens rækkevidde. Billadervisningen ændrer derfor ingen af husets lys for at gøre ladeboksen synlig.

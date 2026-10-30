@@ -8,7 +8,7 @@ import {buildRoomLighting} from '../src/room-lighting.js';
 import {createDemoHome} from '../src/home-data.js';
 import {solarAltitude,resolveAppearance} from '../src/appearance.js';
 import {carportRoof,buildCarportRoof} from '../src/carport.js';
-import {chargerPlacement} from '../src/charger.js';
+import {chargerPlacement,buildChargerFill} from '../src/charger.js';
 import {toPlan,finishedFloor} from '../src/architecture.js';
 import {buildStructure} from '../src/structure.js';
 import {frameOverview} from '../src/camera-framing.js';
@@ -87,4 +87,12 @@ test('All house walls share the same lower cutaway height',()=>{
  const model=buildStructure(new THREE.Scene());
  for(const enabled of [false,true]){model.setCutaway(enabled);for(const [id,height]of [['rear',1.05],['west',1.05],['garden',1.05],['east',1.05],['bedrooms',1.05]]){const material=model.root.getObjectByName('solid:'+id).material;assert.equal(material.clippingPlanes.length,enabled?1:0);if(enabled)assert.equal(material.clippingPlanes[0].constant,finishedFloor+height);}}
  const leaf=model.root.getObjectByName('door-leaf:shed-door'),before=leaf.rotation.y;model.setChargerView(true);assert.equal(leaf.rotation.y,0);model.setChargerView(false);assert.equal(leaf.rotation.y,before);
+});
+
+test('Charger presentation fill is bounded beside the shed and cannot light the house',()=>{
+ const scene=new THREE.Scene(),charger=new THREE.Group();charger.position.fromArray(chargerPlacement().position);scene.add(charger);
+ const fill=buildChargerFill(scene,charger);assert.ok(fill.isSpotLight);assert.equal(fill.intensity,0);assert.equal(fill.target,charger);
+ const house=new THREE.Box3(new THREE.Vector3(-.5,0,-.5),new THREE.Vector3(20,3.5,7.3));
+ assert.ok(house.distanceToPoint(fill.position)>fill.distance,'no house surface may receive presentation fill');
+ assert.ok(charger.position.distanceTo(fill.position)<fill.distance,'charger must remain inside the fill range');
 });
