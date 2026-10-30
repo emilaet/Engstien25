@@ -9,7 +9,7 @@ import {buildStructure,cutawayHeight} from './structure.js';
 import {buildCharger,carportPostPixels} from './charger.js';
 import {buildRoomLighting} from './room-lighting.js';
 import {buildCarportRoof} from './carport.js';
-import {frameOverview} from './camera-framing.js';
+import {frameOverview,framePlan} from './camera-framing.js';
 import {floorMaterial,oakMaps} from './visual-materials.js';
 import {buildLandscape} from './landscape.js';
 export function createHouse(host,onTap,onHold,options={}){
@@ -25,7 +25,7 @@ export function createHouse(host,onTap,onHold,options={}){
  controls.addEventListener('change',()=>{dirty=true;});
  controls.addEventListener('start',()=>{overview=false;});
  const home=()=>{dirty=true;transition=null;overview=true;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=false;camera=perspective;controls.object=camera;controls.enableRotate=true;camera.position.set(22,27,29);controls.target.set(10,0,6.9);controls.minDistance=6;controls.maxDistance=90;controls.minAzimuthAngle=-Infinity;controls.maxAzimuthAngle=Infinity;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI/2-.08;controls.update();};home();
- const togglePlan=()=>{dirty=true;transition=null;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=!isPlan;if(!isPlan){home();return false;}camera=planCamera;controls.object=camera;controls.enableRotate=false;controls.target.set(10.7,0,6.8);camera.position.set(10.7,40,6.801);camera.zoom=1;camera.updateProjectionMatrix();controls.update();return true;};
+ const togglePlan=()=>{dirty=true;transition=null;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=!isPlan;if(!isPlan){home();return false;}camera=planCamera;controls.object=camera;controls.enableRotate=false;const target=framePlan(planCamera,perspective.aspect);controls.target.copy(target);camera.position.copy(target).add(new THREE.Vector3(0,40,.001));camera.zoom=1;camera.updateProjectionMatrix();controls.update();return true;};
  const ambient=new THREE.HemisphereLight(0xfffcf0,0x64717c,1.8);scene.add(ambient);let roofEnabled=true,daylight=1;
  const sun=new THREE.DirectionalLight(0xfff4df,2.2);sun.position.set(-6,22,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-28,right:28,top:25,bottom:-25});sun.shadow.bias=-.001;scene.add(sun);
  const mats={};function mat(color,roughness=.8){return mats[color]??=new THREE.MeshStandardMaterial({color,roughness});}
@@ -63,7 +63,7 @@ export function createHouse(host,onTap,onHold,options={}){
  function setExterior(value){isFull=value;structure.setExteriorMode(value);structure.setCutaway(value||activeView==='charger'?false:cutaway);exterior.setView({full:value,cutaway:value||activeView==='charger'?false:cutaway});localLights.syncClipping();host.dataset.exterior=String(value);updateRoof();renderer.shadowMap.needsUpdate=true;dirty=true;}
  function setAppearance(value){const t=value.daylight;daylight=t;seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor=value.theme==='dark'?'#1b1e1c':'#e9e5dd';ambient.intensity=activeView==='charger'?.5:.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);dirty=true;renderer.shadowMap.needsUpdate=true;}
  function applyLimits(){
-  const close=activeView==='charger';controls.minDistance=close?.6:furnitureEditing?.7:6;controls.maxDistance=close?5:50;
+  const close=activeView==='charger';controls.minDistance=close?.6:furnitureEditing?.7:6;controls.maxDistance=close?5:90;
   controls.minAzimuthAngle=close?Math.PI*.25:-Infinity;controls.maxAzimuthAngle=close?Math.PI*.75:Infinity;
   controls.minPolarAngle=close?Math.PI/3:0;controls.maxPolarAngle=close?Math.PI/2+.15:Math.PI/2-.08;
  }
@@ -87,7 +87,7 @@ export function createHouse(host,onTap,onHold,options={}){
   if(view===activeView)return;setExterior(false);activeView=view;host.dataset.view=view;ambient.intensity=view==='charger'?.5:.34+daylight*.90;chargerFill.intensity=view==='charger'?3.6:0;chargerFill.castShadow=view==='charger';
   host.setAttribute('aria-label',view==='charger'?'3D-nærbillede af billader':'Interaktiv 3D-model af huset');
   structure.setChargerView(view==='charger');structure.setCutaway(view==='charger'?false:cutaway);exterior.setView({full:isFull,cutaway:view==='charger'?false:cutaway});localLights.syncClipping();updateRoof();renderer.shadowMap.needsUpdate=true;
-  if(view==='home'){home();togglePlan();updateRoof();}else if(view==='charger')focusCharger();else{const preview=perspective.clone(),framing=frameOverview(preview);moveCamera(preview.position,framing.target);}
+  if(view==='home'){home();togglePlan();updateRoof();}else if(view==='charger')focusCharger();else{resize();const preview=perspective.clone(),framing=frameOverview(preview);moveCamera(preview.position,framing.target);overview=true;}
  }
  // Empty carport/shed; no cars, furniture, cabinetry or bathroom fittings.
  const a=toPlan([1717,739]),b=toPlan([2247,1267]);
@@ -111,8 +111,8 @@ export function createHouse(host,onTap,onHold,options={}){
  renderer.domElement.addEventListener('contextmenu',e=>{e.preventDefault();const id=pick(e);if(id)choose(id,true);});
  let selectedRoom=null;
  const project=new THREE.Vector3();
- function fit(){if(isPlan||!overview)return;controls.maxDistance=90;const framing=frameOverview(perspective,isFull?new THREE.Vector3(12,14,26):undefined);if(host.closest('#home-model'))perspective.position.sub(framing.target).multiplyScalar(.8).add(framing.target);controls.target.copy(framing.target);controls.update();host.dataset.overviewExtent=framing.extent.toFixed(3);}
- function resize(){dirty=true;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);perspective.aspect=w/h;perspective.updateProjectionMatrix();const halfH=Math.max(8.5,12.7/(w/h));planCamera.left=-halfH*w/h;planCamera.right=halfH*w/h;planCamera.top=halfH;planCamera.bottom=-halfH;planCamera.updateProjectionMatrix();fit();}new ResizeObserver(resize).observe(host);resize();
+ function fit(){if(isPlan||!overview)return;controls.maxDistance=90;const framing=frameOverview(perspective,isFull?new THREE.Vector3(12,14,26):undefined,{full:isFull});if(host.closest('#home-model'))perspective.position.sub(framing.target).multiplyScalar(.8).add(framing.target);controls.target.copy(framing.target);controls.update();host.dataset.overviewExtent=framing.extent.toFixed(3);}
+ function resize(){dirty=true;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);perspective.aspect=w/h;perspective.updateProjectionMatrix();framePlan(planCamera,w/h);fit();}new ResizeObserver(resize).observe(host);resize();
  function animate(now=performance.now()){
  requestAnimationFrame(animate);if(host.closest('[hidden]')||document.hidden)return;
  if(transition){dirty=true;

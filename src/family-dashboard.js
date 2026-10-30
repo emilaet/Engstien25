@@ -15,6 +15,11 @@ export function createFamilyDashboard(host,{onNavigate,onRender,provider=createD
  }
  function render({resetList,focusKey}={}){
   if(!data){host.innerHTML='<p class="family-loading" role="status">Henter familiens overblik …</p>';return;}
+  // A render rebuilds the grid, temporarily detaching its large model card.
+  // Preserve every scroll container, including the page, across that synchronous rebuild.
+  const ancestors=[];for(let el=host;el;el=el.parentElement)ancestors.push([el,el.scrollLeft,el.scrollTop]);
+  const viewport=[window.scrollX,window.scrollY];
+  const listScroll=Object.fromEntries(['tasks','shopping'].map(key=>[key,host.querySelector(`.${key}-card .family-list`)?.scrollTop||0]));
   const dirty=Object.fromEntries([...host.querySelectorAll('.family-add input')].map(el=>[el.closest('form').dataset.list,el.value]));
   const active=document.activeElement,selection=active?.selectionStart===undefined?null:[active.selectionStart,active.selectionEnd];
   const focus=focusKey??active?.dataset.focus;
@@ -26,6 +31,9 @@ export function createFamilyDashboard(host,{onNavigate,onRender,provider=createD
   if(resetList){host.querySelector(`form[data-list="${resetList}"] input`).focus({preventScroll:true});const list=host.querySelector(`.${resetList}-card .family-list`);list.scrollTop=list.scrollHeight;}
   else if(focus){const input=host.querySelector(`[data-focus="${CSS.escape(focus)}"]`);input?.focus({preventScroll:true});if(selection&&input?.type==='text')input.setSelectionRange(...selection);}
   onRender?.();
+  for(const key of ['tasks','shopping'])if(key!==resetList){const list=host.querySelector(`.${key}-card .family-list`);if(list)list.scrollTop=listScroll[key];}
+  for(const [el,x,y] of ancestors){el.scrollLeft=x;el.scrollTop=y;}
+  window.scrollTo({left:viewport[0],top:viewport[1],behavior:'instant'});
  }
  async function action(operation,{resetList}={}){
   if(busy)return;const focusKey=document.activeElement?.dataset.focus;busy=true;error='';host.setAttribute('aria-busy','true');host.querySelectorAll('input,.family-add button,[data-clear]').forEach(el=>el.disabled=true);

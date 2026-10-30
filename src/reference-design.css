@@ -69,3 +69,6 @@ header{height:90px;min-height:0;align-items:flex-start;margin:0;gap:15px}header 
 /* Hide scrollbar chrome without removing touch, wheel or keyboard scrolling. */
 html,body,body *{scrollbar-width:none!important;-ms-overflow-style:none}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
 .view-controls #full-view{order:3}.view-controls #reset{order:4}.view-controls #zoom-out{order:5}.view-controls #zoom-in{order:6}
+
+/* List updates must never anchor the viewport to a reordered completed item. */
+:root[data-page="home"] body,:root[data-page="home"] main,#family-dashboard,.family-list{overflow-anchor:none}
