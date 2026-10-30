@@ -25,7 +25,7 @@ export function createHouse(host,onTap,onHold,options={}){
  controls.addEventListener('change',()=>{dirty=true;});
  controls.addEventListener('start',()=>{overview=false;});
  const home=()=>{dirty=true;transition=null;overview=true;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=false;camera=perspective;controls.object=camera;controls.enableRotate=true;camera.position.set(22,27,29);controls.target.set(10,0,6.9);controls.minDistance=6;controls.maxDistance=90;controls.minAzimuthAngle=-Infinity;controls.maxAzimuthAngle=Infinity;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI/2-.08;controls.update();};home();
- const togglePlan=()=>{dirty=true;transition=null;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=!isPlan;if(!isPlan){home();return false;}camera=planCamera;controls.object=camera;controls.enableRotate=false;const target=framePlan(planCamera,perspective.aspect);controls.target.copy(target);camera.position.copy(target).add(new THREE.Vector3(0,40,.001));camera.zoom=1;camera.updateProjectionMatrix();controls.update();return true;};
+ const togglePlan=()=>{dirty=true;transition=null;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=!isPlan;if(!isPlan){home();return false;}camera=planCamera;controls.object=camera;controls.enableRotate=false;const target=framePlan(planCamera,perspective.aspect,{home:activeView==='home'});controls.target.copy(target);camera.position.copy(target).add(new THREE.Vector3(0,40,.001));camera.zoom=1;camera.updateProjectionMatrix();controls.update();return true;};
  const ambient=new THREE.HemisphereLight(0xfffcf0,0x64717c,1.8);scene.add(ambient);let roofEnabled=true,daylight=1;
  const sun=new THREE.DirectionalLight(0xfff4df,2.2);sun.position.set(-6,22,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-28,right:28,top:25,bottom:-25});sun.shadow.bias=-.001;scene.add(sun);
  const mats={};function mat(color,roughness=.8){return mats[color]??=new THREE.MeshStandardMaterial({color,roughness});}
@@ -112,7 +112,7 @@ export function createHouse(host,onTap,onHold,options={}){
  let selectedRoom=null;
  const project=new THREE.Vector3();
  function fit(){if(isPlan||!overview)return;controls.maxDistance=90;const framing=frameOverview(perspective,isFull?new THREE.Vector3(12,14,26):undefined,{full:isFull});if(host.closest('#home-model'))perspective.position.sub(framing.target).multiplyScalar(.8).add(framing.target);controls.target.copy(framing.target);controls.update();host.dataset.overviewExtent=framing.extent.toFixed(3);}
- function resize(){dirty=true;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);perspective.aspect=w/h;perspective.updateProjectionMatrix();framePlan(planCamera,w/h);fit();}new ResizeObserver(resize).observe(host);resize();
+ function resize(){dirty=true;const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);perspective.aspect=w/h;perspective.updateProjectionMatrix();framePlan(planCamera,w/h,{home:activeView==='home'});fit();}new ResizeObserver(resize).observe(host);resize();
  function animate(now=performance.now()){
  requestAnimationFrame(animate);if(host.closest('[hidden]')||document.hidden)return;
  if(transition){dirty=true;

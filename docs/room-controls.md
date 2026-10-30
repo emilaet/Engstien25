@@ -13,3 +13,5 @@ Gardinernes demo simulerer bevægelse med 2 procentpoint hvert 200 ms. Åbn/Luk 
 Overskrifter er altid neutral varm grå (`#34332f`) eller varm hvid (`#f2f0e7`). Aktive lamper, udvalgte gardiner og styring anvender ravgult; ingen valgregel må gøre rum- eller enhedsoverskrifter grønne.
 
 Startudsnit i Rum beregnes fra selve husets aftryk, så carporten ikke trækker Plan og 3D væk fra rummene. Full bruger samme hus som centrum med plads til taget. Kameraberegningen bruger det aktuelle modelpanels størrelse, også straks efter navigation fra Hjem; manuel zoom og rotation bevares indtil nulstilling eller et nyt visningsvalg.
+
+Plan bruger nu kun 15 cm vandret frigang omkring husets indvendige aftryk, mens 3D bruger op til 98 % af kamerabredden. Carport og terrasse må beskæres. Hjems separate, lille planoversigt beholder sit eget udsnit.

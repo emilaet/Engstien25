@@ -26,7 +26,7 @@ test('Room views start close to the house and reset consistently after charger n
  await page.getByRole('button',{name:'Vis plantegning ovenfra',exact:true}).click();
  await expect(scene).toHaveAttribute('data-camera-mode','plan');
  const points=JSON.parse(await scene.getAttribute('data-room-points'));
- expect(points.bad1[0]).toBeLessThan(.14);expect(points.v2[0]).toBeGreaterThan(.85);
+ expect(points.bad1[0]).toBeLessThan(.10);expect(points.v2[0]).toBeGreaterThan(.87);
  expect(points.bad1[1]).toBeLessThan(.5);expect(points.kontor[1]).toBeGreaterThan(.5);
  await page.screenshot({path:'/tmp/engstien-room-framing-plan.png',animations:'disabled'});
  await page.getByRole('button',{name:'Vis hele huset udefra',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','full');
