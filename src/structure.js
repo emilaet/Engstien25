@@ -8,7 +8,7 @@ export function buildStructure(scene){
  const wallMaterial=new THREE.MeshStandardMaterial({color:'#f5f2e8',roughness:.85,side:THREE.DoubleSide,clipShadows:false,clippingPlanes:[clip]});
  const leafMaterial=new THREE.MeshStandardMaterial({color:'#eeece3',roughness:.7,clipShadows:false,clippingPlanes:[clip]});
  const oakMaterial=new THREE.MeshStandardMaterial({color:'#c3ab84',roughness:.8,clipShadows:false,clippingPlanes:[clip]});
- const frameMaterial=new THREE.MeshStandardMaterial({color:'#666f68',roughness:.55,clipShadows:false,clippingPlanes:[clip]});
+ const frameMaterial=new THREE.MeshStandardMaterial({color:'#343936',roughness:.55,clipShadows:false,clippingPlanes:[clip]});
  const jambMaterial=new THREE.MeshStandardMaterial({color:'#d7d6ca',roughness:.6,clipShadows:false,clippingPlanes:[clip]});
  const capMaterial=new THREE.MeshStandardMaterial({color:'#a8b09c',roughness:.85});
  const cutCaps=[];
@@ -74,11 +74,7 @@ export function buildStructure(scene){
   if(o.id==='shed-door')for(const side of [-1,1])for(let n=0;n<7;n++)box(pivot,localSign*(n+.5)*width/7,(head-sill)/2,side*.024,width/7-.006,head-sill-.03,.008,shedMaterial,'shed-door-board');
   box(pivot,localSign*(width-.1),1, .04,.11,.025,.025,frameMaterial);
   if(o.id!=='shed-door'&&!glazed&&head>1.2){const cap=box(pivot,localSign*width/2,1.2,0,width-.025,.008,.038,capMaterial);cutCaps.push(cap);}
-  const points=[];const theta=THREE.MathUtils.degToRad(o.swing);
-  for(let i=0;i<=32;i++){
-   const angle=theta*i/32;points.push(new THREE.Vector3(start+(atEnd?width:0)+localSign*width*Math.cos(angle),.014,-localSign*width*Math.sin(angle)));
-  }
-  const arc=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#a29882',transparent:true,opacity:.65}));arc.name=`door-swing:${o.id}`;parent.add(arc);
+
  }
  for(const o of openings){
   const g=openingGroup(o),width=o.end-o.start;
@@ -96,5 +92,5 @@ export function buildStructure(scene){
    }
   }
  }
- return {root,setChargerView(enabled){const pivot=root.getObjectByName('door-leaf:shed-door'),door=openings.find(o=>o.id==='shed-door');if(pivot)pivot.rotation.y=enabled?0:THREE.MathUtils.degToRad(door.swing);},setCutaway(enabled){for(const cap of cutCaps)cap.visible=enabled;for(const material of [wallMaterial,leafMaterial,oakMaterial,jambMaterial,frameMaterial,glassMaterial]){material.clippingPlanes=enabled?[clip]:[];material.needsUpdate=true;}for(const material of stagedMaterials.values()){material.clippingPlanes=enabled?[rearClip]:[];material.needsUpdate=true;}}};
+ return {root,setExteriorMode(enabled){root.traverse(node=>{if(!node.name.startsWith('door-leaf:'))return;const id=node.name.slice(10),o=openings.find(o=>o.id===id);const swing=id==='terrace-door'?openings.find(o=>o.door)?.door.swing:o?.swing;node.rotation.y=enabled?0:THREE.MathUtils.degToRad(swing||0);});},setChargerView(enabled){const pivot=root.getObjectByName('door-leaf:shed-door'),door=openings.find(o=>o.id==='shed-door');if(pivot)pivot.rotation.y=enabled?0:THREE.MathUtils.degToRad(door.swing);},setCutaway(enabled){for(const cap of cutCaps)cap.visible=enabled;for(const material of [wallMaterial,leafMaterial,oakMaterial,jambMaterial,frameMaterial,glassMaterial]){material.clippingPlanes=enabled?[clip]:[];material.needsUpdate=true;}for(const material of stagedMaterials.values()){material.clippingPlanes=enabled?[rearClip]:[];material.needsUpdate=true;}}};
 }

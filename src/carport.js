@@ -14,5 +14,5 @@ export function buildCarportRoof(scene){
  // Edge fascia and rafters make the covered area recognisable without new walls/posts.
  const timber=new THREE.MeshStandardMaterial({color:'#343936',roughness:.9});
  for(let n=0;n<7;n++){const beam=new THREE.Mesh(new THREE.BoxGeometry(w,.09,.055),timber);beam.position.set(x,height-thickness/2-.045,from[1]+.15+n*(d-.30)/6);beam.castShadow=true;root.add(beam);}
- return {root,setView({plan=false,charger=false,enabled=true}={}){root.visible=enabled&&!plan&&!charger;}};
+ return {root,setView({plan=false,charger=false,enabled=true,full=false}={}){root.visible=(full||enabled)&&!plan&&!charger;material.transparent=!full;material.opacity=full?1:.14;material.depthWrite=full;material.color.set(full?'#414642':'#92968a');material.needsUpdate=true;slab.castShadow=full;}};
 }

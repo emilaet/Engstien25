@@ -104,3 +104,7 @@ Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner unde
 Udendørs lys er en separat demogruppe under Entré. Den starter slukket ved migration, tælles ikke som et indendørs rum og ændrer ikke tilstand ved skift mellem dag og aften. Udendørs lysmaterialer er afgrænset fra de indendørs gulve og møbler. Kun fysisk understøttede gulv- og bordlamper vises; øvrige armaturer skjules med deres lysbidrag bevaret.
 
 Billaderens nærbillede bruger samme 3D-model og samme placering. Skurdøren vises lukket i produktnærbilledet og vender tilbage til plantegningens dørslag i husoversigten. Dette er en præsentationsstilling i demoen, ikke en kommando til en fysisk dør.
+
+### Plan, 3D og Full
+
+Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum** kan der skiftes mellem **3D** (åben indretning), **Plan** og **Full** (lukket hus udefra). Full genbruger plantegningens væg- og vinduesåbninger, med gyldne mursten efter facadevisualiseringen, mørke rammer, et ensidigt skrånende tag og et dækkende sort carporttag. Dørene vises lukkede i Full og vender tilbage til deres oprindelige dørslag i de åbne visninger. Valg af rum vises i sidepanelet uden gule gulvkonturer; de tegnede åbningsbuer er fjernet. Scrollbjælker er skjult, men rulning med touch, hjul og tastatur bevares.

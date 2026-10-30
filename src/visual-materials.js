@@ -57,3 +57,12 @@ export function chargerEnvironment(){
  const faces=Array.from({length:6},(_,face)=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),gradient=ctx.createLinearGradient(0,0,128,128);gradient.addColorStop(0,face===0?'#bdb7a9':'#817f7a');gradient.addColorStop(.4,'#545550');gradient.addColorStop(1,'#181c1e');ctx.fillStyle=gradient;ctx.fillRect(0,0,128,128);if(face===0||face===4){const strip=ctx.createLinearGradient(0,0,128,0);strip.addColorStop(0,'#ffffff00');strip.addColorStop(.2,'#ece6d399');strip.addColorStop(.32,'#ece6d3cc');strip.addColorStop(.4,'#ffffff00');ctx.fillStyle=strip;ctx.fillRect(0,0,128,128);}return canvas;});
  const cube=new THREE.CubeTexture(faces);cube.colorSpace=THREE.SRGBColorSpace;cube.needsUpdate=true;return cube;
 }
+
+// Running-bond golden/buff brickwork, sized in metres by the facade UVs.
+export function facadeBrickMaterial(){
+ const sample=(u,v,x,y)=>{const row=Math.floor(v*4),shift=row%2*.5,bx=u*2+shift,col=Math.floor(bx),fx=bx-col,fy=v*4-row;
+  const mortar=fx<.035||fy<.12,tint=(noise(col,row,83)-.5)*22,grain=(noise(x,y,71)-.5)*15;
+  return mortar?[218+grain/3,210+grain/3,191+grain/3]:[195+tint+grain,164+tint+grain,116+tint+grain];};
+ const map=texture(512,sample),bump=texture(512,(u,v,x,y)=>{const row=Math.floor(v*4),fx=(u*2+row%2*.5)%1,fy=v*4-row;return fx<.035||fy<.12?50:175+(noise(x,y,71)-.5)*35;},{color:false});
+ return new THREE.MeshStandardMaterial({map,bumpMap:bump,bumpScale:.006,roughness:.91});
+}
