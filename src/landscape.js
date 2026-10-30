@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import {gravelMaterial} from './visual-materials.js';
+import {siteLights} from './site-lighting.js';
 
 // Decorative planting stays outside the house, door routes and original carport.
-// It has no fictitious light sources or smart-home state.
+// Exterior luminaires are anchored to the ground and controlled by the demo outdoor group.
 export function buildLandscape(scene){
  const root=new THREE.Group();root.name='landscape';scene.add(root);
  const beds=[{x:6,z:11.05,w:12.6,d:.72},{x:-.85,z:4.5,w:.7,d:6.4},{x:14.75,z:11.9,w:.65,d:4.1}];
@@ -20,5 +21,10 @@ export function buildLandscape(scene){
   for(let i=0;i<24;i++){const a=random()*Math.PI*2,r=Math.sqrt(random())*.29,y=.12+random()*.32;dummy.position.set(x+Math.cos(a)*r,y,z+Math.sin(a)*r);dummy.rotation.set(random()*2,random()*6,random()*2);dummy.scale.set(.055+random()*.045,.11+random()*.10,.035);dummy.updateMatrix();leaves.setMatrixAt(leaf,dummy.matrix);color.setHSL(.19+random()*.065,.16+random()*.12,.19+random()*.10);leaves.setColorAt(leaf++,color);}
   for(let i=0;i<18;i++){const a=random()*Math.PI*2,r=random()*.2;dummy.position.set(x+Math.cos(a)*r,.20,z+Math.sin(a)*r);dummy.rotation.set(Math.sin(a)*.35,a,Math.cos(a)*.35);dummy.scale.set(1,.55+random(),1);dummy.updateMatrix();grasses.setMatrixAt(grass++,dummy.matrix);}
  }}
- leaves.count=leaf;grasses.count=grass;leaves.castShadow=grasses.castShadow=true;leaves.receiveShadow=grasses.receiveShadow=true;root.add(leaves,grasses);return {root};
+ leaves.count=leaf;grasses.count=grass;leaves.castShadow=grasses.castShadow=true;leaves.receiveShadow=grasses.receiveShadow=true;root.add(leaves,grasses);
+ const luminaires=[];for(const source of siteLights()){
+  const [x,y,z]=source.position,body=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,y-.04,12),new THREE.MeshStandardMaterial({color:'#333a33',roughness:.8}));body.position.set(x,(y-.04)/2,z);body.castShadow=true;root.add(body);
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),new THREE.MeshStandardMaterial({color:'#e3dac3',emissive:'#ffd3a2',emissiveIntensity:0,roughness:.3}));lamp.position.set(x,y-.025,z);lamp.name=source.id;root.add(lamp);luminaires.push(lamp);
+ }
+ return {root,update(state){const strength=state.entre?.lights.ude?Math.max(0,(state.entre.levels?.ude??100)/100)*state.entre.brightness/100:0;for(const lamp of luminaires)lamp.material.emissiveIntensity=strength*3;}};
 }

@@ -9,3 +9,9 @@ test('Reordering preserves each widget and its dimensions without changing the s
 });
 
 test('Previous seven-widget custom layouts migrate without discarding order or dimensions',()=>{const old=defaultLayout().filter(w=>w.id!=='house').reverse();old[0].width=8;const next=migrateLayout(old);assert.equal(next[0].id,'house');assert.deepEqual(next.slice(1),old);assert.equal(validLayout(next),true);assert.deepEqual(migrateLayout(null),defaultLayout());});
+
+test('The approved default contains five visible panels and keeps optional status widgets available',()=>{
+ const layout=defaultLayout();assert.deepEqual(layout.filter(w=>w.visible!==false).map(w=>w.id),['house','waste','tasks','shopping','car']);
+ const old=layout.map(({visible,...rest})=>rest);assert.deepEqual(migrateLayout(old),layout);
+ const customized=structuredClone(old);customized[2].width=6;assert.deepEqual(migrateLayout(customized),customized);
+});

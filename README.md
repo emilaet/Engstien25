@@ -59,7 +59,7 @@ Browsertestene bruger `/usr/bin/chromium` i cloudmiljøet. Sæt `CHROMIUM_PATH` 
 
 ## Model og begrænsninger
 
-Modellen vises nu med et første møbeludkast og den faste billader ved skuret. Møbler-knappen giver fortsat en tom visning til kontrol af vægge og åbninger. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem snit i 1,2 m og fuld højde.
+Modellen vises nu med et første møbeludkast og den faste billader ved skuret. Møbler-knappen giver fortsat en tom visning til kontrol af vægge og åbninger. **Plan** viser en ortografisk plantegning, og **Vægge** skifter mellem lave vægge mod terrassen, højere bagvægge og fuld væghøjde.
 
 `src/architecture.js` samler vægforløb, åbninger og rumkonturer, aflæst fra `Floorplan.png`. `src/structure.js` genererer vægge med rigtige huller, dørblade, bueslag og vinduesrammer. `src/house.js` gemmer rumidentitet og testtilstand. Forskydninger ved kontor/entré og depot er med i gulvpolygonerne. Højden går fra 2,4 til 3,1 m efter facadetegningen. De almindelige vinduers præcise højder og karmmål er stadig omtrentlige; se [geometrigennemgangen](docs/geometry-review.md) for kilder, adgangsveje og usikkerheder.
 
@@ -93,3 +93,14 @@ Første opsætning på GitHub:
 Fremtidige ændringer i appen på `main` genudgiver automatisk previewet. Efter ændring af adgangskoden i secret skal workflowet køres igen. Ændringen tilbagekalder ikke kopier, som en person allerede har låst op eller downloadet. Dette er krypteret statisk deling, ikke serverbaseret login eller en beskyttelse til live Home Assistant-adgang.
 
 Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW_PASSWORD` er sat sikkert i procesmiljøet. Kommandoen fejler uden kode, og ukrypterede mellemprodukter fjernes. `npm run test:preview` bruger en tilfældig, midlertidig testkode og kontrollerer forkert/rigtig kode, fungerende 3D, ingen eksterne app-assets og afvisning af build uden kode. Testkoden publiceres eller udskrives ikke.
+
+
+### Godkendte referenceflader og iPad
+
+Den nye standardforside har fem paneler i referenceopstillingen. Den bruger sit eget layoutlager (`engstien-home-layout-v2`), så gamle opsætninger ikke skjuler redesignet. Tidligere opsætninger i v1-lageret kan hentes med **Tidligere layout** under **Rediger dashboard**; v1-lageret bliver ikke overskrevet. Ekstra statuskort kan vises i redigeringen.
+
+Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumlisten ruller under en fast overskrift. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
+
+Udendørs lys er en separat demogruppe under Entré. Den starter slukket ved migration, tælles ikke som et indendørs rum og ændrer ikke tilstand ved skift mellem dag og aften. Udendørs lysmaterialer er afgrænset fra de indendørs gulve og møbler. Kun fysisk understøttede gulv- og bordlamper vises; øvrige armaturer skjules med deres lysbidrag bevaret.
+
+Billaderens nærbillede bruger samme 3D-model og samme placering. Skurdøren vises lukket i produktnærbilledet og vender tilbage til plantegningens dørslag i husoversigten. Dette er en præsentationsstilling i demoen, ikke en kommando til en fysisk dør.

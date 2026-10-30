@@ -9,7 +9,7 @@ import {createDemoHome} from '../src/home-data.js';
 import {solarAltitude,resolveAppearance} from '../src/appearance.js';
 import {carportRoof,buildCarportRoof} from '../src/carport.js';
 import {chargerPlacement} from '../src/charger.js';
-import {toPlan} from '../src/architecture.js';
+import {toPlan,finishedFloor} from '../src/architecture.js';
 import {buildStructure} from '../src/structure.js';
 import {frameOverview} from '../src/camera-framing.js';
 const storage=()=>{const map=new Map();return {get length(){return map.size;},key:i=>[...map.keys()][i],getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v)};};
@@ -50,7 +50,7 @@ test('Overview framing keeps the house and carport inside desktop, tablet and na
 
 test('Ceiling and pendant fixtures stay invisible while their light contribution stays active',()=>{
  const scene=new THREE.Scene(),lighting=buildRoomLighting(scene,initialFurnishing()),state=initialState();setAllLights(state,true);lighting.update(state);
- for(const source of lighting.sources){const fixture=scene.getObjectByName('light:'+source.id);assert.equal(fixture.visible,!['ceiling','pendant'].includes(source.kind),source.id);assert.equal(fixture.userData.strength,sourceStrength(source,state),source.id);assert.ok(fixture.userData.strength>0);}
+ for(const source of lighting.sources){const fixture=scene.getObjectByName('light:'+source.id);assert.equal(fixture.visible,source.fixtureVisible===true,source.id);assert.equal(fixture.userData.strength,sourceStrength(source,state),source.id);assert.ok(fixture.userData.strength>0);}
 });
 test('Shed walls and door retain full height and black cladding in the house cutaway',()=>{
  const scene=new THREE.Scene(),structure=buildStructure(scene);structure.setCutaway(true);
@@ -64,4 +64,27 @@ test('Black boards stop exactly at the shed doorway, including partial end board
  const scene=new THREE.Scene(),structure=buildStructure(scene),wall=structure.root.getObjectByName('wall:shed-east');structure.root.updateMatrixWorld(true);
  const door=structure.root.getObjectByName('opening:shed-door'),x=door.position.x,start=door.position.z,end=start+door.userData.width;
  for(const z of [start+.002,start+.03,end-.03,end-.002]){const ray=new THREE.Raycaster(new THREE.Vector3(x+1,1,z),new THREE.Vector3(-1,0,0),0,2);assert.equal(ray.intersectObject(wall,true).length,0,'board obstructs doorway at '+z);}
+});
+
+test('Visible lamps rest on their actual support; hiding a table never leaves a floating fixture',()=>{
+ const snapshot=initialFurnishing(),scene=new THREE.Scene(),lighting=buildRoomLighting(scene,snapshot);
+ for(const source of lighting.sources.filter(s=>s.fixtureVisible)){
+  const fixture=scene.getObjectByName('light:'+source.id),base=fixture.children.find(child=>child.isMesh),bottom=fixture.position.y+base.position.y-.011;
+  assert.ok(Math.abs(bottom-source.supportHeight)<1e-8,source.id+' floats above its support');
+  const support=snapshot.items.find(item=>item.id===source.supportId);assert.ok(support?.visible);
+  if(source.kind==='table')assert.ok(Math.abs(source.supportHeight-(finishedFloor+support.height))<1e-8);
+ }
+ snapshot.items.find(item=>item.id==='sove-bedside-left').visible=false;
+ const updated=buildRoomLighting(new THREE.Scene(),snapshot);assert.equal(updated.root.getObjectByName('light:sove:lampe').visible,false);assert.equal(updated.root.getObjectByName('light:sove:lampeRight').visible,true);
+});
+test('Outdoor light is independent, migrates off, and never illuminates an indoor bedroom',()=>{
+ const scene=new THREE.Scene(),lighting=buildRoomLighting(scene,initialFurnishing()),bedroom=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshStandardMaterial()),outside=new THREE.Group(),deck=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshStandardMaterial());outside.add(deck);scene.add(bedroom,outside);lighting.bindArchitecture({root:new THREE.Group()},{sove:bedroom});lighting.bindOutdoor(outside);
+ const state=initialState();setAllLights(state,false);state.entre.lights.ude=true;const active=lighting.update(state);
+ assert.ok(active.some(id=>id.startsWith('entre:ude:')));assert.ok([...lighting.bindings.find(b=>b.mesh===bedroom).uniforms.roomLightPower.value].every(v=>v===0));assert.ok([...lighting.bindings.find(b=>b.mesh===deck).uniforms.roomLightPower.value].some(v=>v>0));
+ const disk=storage(),old=initialState();delete old.entre.lights.ude;delete old.entre.levels.ude;disk.setItem('engstien-v1',JSON.stringify(old));const migrated=createDemoHome(disk).load();assert.equal(migrated.entre.lights.ude,false);assert.equal(migrated.entre.levels.ude,100);
+});
+test('Rear walls support their windows while the garden walls retain the open cutaway',()=>{
+ const model=buildStructure(new THREE.Scene());
+ for(const enabled of [false,true]){model.setCutaway(enabled);for(const [id,height]of [['rear',2.25],['west',2.25],['garden',1.2]]){const material=model.root.getObjectByName('solid:'+id).material;assert.equal(material.clippingPlanes.length,enabled?1:0);if(enabled)assert.equal(material.clippingPlanes[0].constant,finishedFloor+height);}}
+ const leaf=model.root.getObjectByName('door-leaf:shed-door'),before=leaf.rotation.y;model.setChargerView(true);assert.equal(leaf.rotation.y,0);model.setChargerView(false);assert.equal(leaf.rotation.y,before);
 });

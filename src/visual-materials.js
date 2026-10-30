@@ -43,3 +43,17 @@ export function softContactTexture(){
  const map=texture(64,()=>255);const data=map.image.data;
  for(let y=0;y<64;y++)for(let x=0;x<64;x++){const r=Math.max(Math.abs(x-31.5),Math.abs(y-31.5))/31.5,p=(y*64+x)*4;data[p]=data[p+1]=data[p+2]=0;data[p+3]=Math.round(255*Math.pow(Math.max(0,1-r*r),2));}map.wrapS=map.wrapT=THREE.ClampToEdgeWrapping;map.generateMipmaps=false;map.minFilter=THREE.LinearFilter;map.needsUpdate=true;return map;
 }
+
+// A small studio reflection probe used only by the matte charger materials.
+// It does not add artificial room lights or depend on a network image.
+export function chargerSurfaceMaps(){
+ const map=texture(256,(u,v,x,y)=>239+(noise(x,y,29)-.5)*13);
+ const bump=texture(256,(u,v,x,y)=>130+(noise(x,y,29)-.5)*100,{color:false});
+ const roughness=texture(256,(u,v,x,y)=>193+(noise(x,y,43)-.5)*19,{color:false});
+ return {map,bumpMap:bump,roughnessMap:roughness};
+}
+export function chargerEnvironment(){
+ if(typeof document==='undefined')return null;
+ const faces=Array.from({length:6},(_,face)=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),gradient=ctx.createLinearGradient(0,0,128,128);gradient.addColorStop(0,face===0?'#bdb7a9':'#817f7a');gradient.addColorStop(.4,'#545550');gradient.addColorStop(1,'#181c1e');ctx.fillStyle=gradient;ctx.fillRect(0,0,128,128);if(face===0||face===4){const strip=ctx.createLinearGradient(0,0,128,0);strip.addColorStop(0,'#ffffff00');strip.addColorStop(.2,'#ece6d399');strip.addColorStop(.32,'#ece6d3cc');strip.addColorStop(.4,'#ffffff00');ctx.fillStyle=strip;ctx.fillRect(0,0,128,128);}return canvas;});
+ const cube=new THREE.CubeTexture(faces);cube.colorSpace=THREE.SRGBColorSpace;cube.needsUpdate=true;return cube;
+}

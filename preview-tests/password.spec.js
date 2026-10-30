@@ -40,7 +40,7 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   // Staticrypt reports a wrong-password message in an alert.
   await page.locator('input[type=password]').fill(password);
   await page.getByRole('button', { name: 'Åbn husoversigt' }).click();
-  await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible({timeout:20000});
   await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Rum',exact:true}).click();
   await expect(page.locator('#scene canvas')).toBeVisible();

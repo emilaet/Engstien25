@@ -5,8 +5,8 @@ import {carportRoof} from './carport.js';
 const target=new THREE.Vector3(10.2,0,6.6),offset=new THREE.Vector3(12,24,24);
 const corners=[];
 // Fit the two real footprints, rather than the large empty rectangle behind them.
-for(const [minX,maxX,minZ,maxZ] of [[-.9,interior.width+.6,-.6,11.2],[carportRoof.from[0]-.4,carportRoof.to[0]+.3,carportRoof.from[1]-.2,carportRoof.to[1]+.3]])
- for(const x of [minX,maxX])for(const y of [0,2.45])for(const z of [minZ,maxZ])corners.push(new THREE.Vector3(x,y,z));
+for(const [minX,maxX,minZ,maxZ,height] of [[-.9,interior.width+.4,-.4,interior.depth+.2,2.4],[-.9,13.6,7,11.6,.4],[carportRoof.from[0]-.3,carportRoof.to[0]+.2,carportRoof.from[1]-.2,carportRoof.to[1]+.2,2.45]])
+ for(const x of [minX,maxX])for(const y of [0,height])for(const z of [minZ,maxZ])corners.push(new THREE.Vector3(x,y,z));
 export function frameOverview(camera){
  let low=.15,high=6;
  for(let pass=0;pass<22;pass++){

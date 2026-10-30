@@ -1,7 +1,8 @@
+import {openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 test('Navigation has one Rum entry, and legacy light/heat links still open room controls',async({page})=>{
  await page.goto('/');await expect(page.locator('.rail .nav')).toHaveCount(3);await expect(page.getByRole('button',{name:'Rum',exact:true})).toHaveCount(1);await expect(page.getByRole('button',{name:'Billader',exact:true})).toHaveCount(1);await expect(page.locator('.nav[data-tab="lights"],.nav[data-tab="heat"]')).toHaveCount(0);
- await page.locator('#lights-summary').click();await expect(page.getByRole('heading',{name:'Rum',exact:true})).toBeVisible();await page.locator('[data-room="stue"]').click();await page.locator('[data-room-details="stue"]').click();await expect(page.getByRole('switch',{name:'Loftslys'})).toBeVisible();await expect(page.getByRole('button',{name:'Hæv temperatur'})).toBeVisible();
+ await page.getByRole('button',{name:'Åbn Rum',exact:true}).click();await expect(page.getByRole('heading',{name:'Rum',exact:true})).toBeVisible();await page.locator('[data-room="stue"]').click();await page.locator('[data-room-details="stue"]').click();await expect(page.getByRole('switch',{name:'Loftslys'})).toBeVisible();await expect(page.getByRole('button',{name:'Hæv temperatur'})).toBeVisible();
  await page.goto('/#heat');await expect(page.getByRole('heading',{name:'Rum',exact:true})).toBeVisible();
 });
 test('Billader smoothly focuses the mounted charger, pulses while charging and returns to the house',async({page})=>{
@@ -19,7 +20,7 @@ test('Billader smoothly focuses the mounted charger, pulses while charging and r
  // Observe rendered frames, rather than assuming a software GPU draws every 170 ms.
  const samples=[];for(let i=0;i<3;i++){const frame=await scene.getAttribute('data-render-count');await expect.poll(()=>scene.getAttribute('data-render-count'),{timeout:10000}).not.toBe(frame);samples.push(Number(await scene.getAttribute('data-charger-pulse')));}expect(new Set(samples).size).toBeGreaterThan(1);
  await page.screenshot({path:'/tmp/engstien-charger-closeup.png'});
- await page.getByRole('switch',{name:'Opladning',exact:true}).click();await expect.poll(async()=>Number(await scene.getAttribute('data-charger-pulse'))).toBe(0);await expect(page.locator('.charge-details')).toContainText('På pause');
+ await page.getByRole('switch',{name:'Opladning',exact:true}).click();await expect.poll(async()=>Number(await scene.getAttribute('data-charger-pulse'))).toBe(0);await expect(page.locator('.charge-controls')).toContainText('På pause');
  await page.getByRole('button',{name:'Rum',exact:true}).click();await expect(scene).toHaveAttribute('data-view','rooms');await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});await expect.poll(async()=>Number(await scene.getAttribute('data-camera-distance'))).toBeGreaterThan(20);await expect(page.locator('.house-light-controls')).toBeVisible();expect(errors).toEqual([]);
 });
 test('Direct charger link, plan-to-charger transition and reduced motion work on tablet',async({page})=>{
