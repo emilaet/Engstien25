@@ -1,0 +1,13 @@
+Engstien 25 · Designforslag til nye widgets
+
+Åbn index.html for at se alle syv billeder. PNG-filerne ligger enkeltvis i samme mappe.
+
+Der er ikke ændret noget i den eksisterende app. Ingen nye integrationer er tilsluttet.
+
+Forslaget viser fem dages vejr, et hoveddørskamera mod vejen og Google Kalender for de kommende syv dage. Kalenderen viser kun dage med aktiviteter i den kompakte udgave. Den store udgave har også en ugeoversigt. Kameraudsigten er en illustration, ikke et virkeligt kamerabillede.
+
+Alle widgets kan i det foreslåede redigeringspanel vises eller skjules. De eksisterende widgets bevares. Størrelser og placering følger et fast grid. Appens eksisterende design, farver, skrifter og faktiske husmodel er brugt som grundlag.
+
+Husets plantegning er en browseroptagelse af den nuværende model. Affaldspiktogrammernes licens ligger i assets/affald-LICENSE.txt.
+
+Implementering afventer godkendelse af designet. Kameramærke/model og datakilder skal afklares ved integration.
