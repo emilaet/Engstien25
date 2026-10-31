@@ -1,17 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {defaultLayout,validLayout,moveWidget,migrateLayout} from '../src/dashboard-layout.js';
-test('Saved grid accepts each known widget once, with only supported fixed sizes',()=>{
- const layout=defaultLayout();assert.equal(validLayout(layout),true);assert.equal(validLayout(null),false);assert.equal(validLayout([...layout.slice(1),null]),false);assert.equal(validLayout([...layout.slice(1),layout[1]]),false);assert.equal(validLayout(layout.map(w=>w.id==='tasks'?{...w,width:13}:w)),false);assert.equal(validLayout(layout.map(w=>w.id==='tasks'?{...w,height:0}:w)),false);
-});
-test('Reordering preserves each widget and its dimensions without changing the saved layout',()=>{
- const original=defaultLayout();original.find(w=>w.id==='shopping').width=8;const moved=moveWidget(original,'shopping',0);assert.equal(moved[0].id,'shopping');assert.equal(moved[0].width,8);assert.equal(original[0].id,'house');assert.equal(validLayout(moved),true);assert.equal(moveWidget(moved,'shopping',99).at(-1).id,'shopping');assert.equal(moveWidget(original,'waste',-5)[0].id,'waste');
-});
-
-test('Previous seven-widget custom layouts migrate without discarding order or dimensions',()=>{const old=defaultLayout().filter(w=>w.id!=='house').reverse();old[0].width=8;const next=migrateLayout(old);assert.equal(next[0].id,'house');assert.deepEqual(next.slice(1),old);assert.equal(validLayout(next),true);assert.deepEqual(migrateLayout(null),defaultLayout());});
-
-test('The approved default contains five visible panels and keeps optional status widgets available',()=>{
- const layout=defaultLayout();assert.deepEqual(layout.filter(w=>w.visible!==false).map(w=>w.id),['house','waste','tasks','shopping','car']);
- const old=layout.map(({visible,...rest})=>rest);assert.deepEqual(migrateLayout(old),layout);
- const customized=structuredClone(old);customized[2].width=6;assert.deepEqual(migrateLayout(customized),customized);
-});
+const legacy=()=>[['house',8,5],['waste',4,5],['tasks',4,5],['shopping',4,5],['car',4,5],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
+test('Grid validates known widgets, visibility and fixed sizes',()=>{const a=defaultLayout();assert.ok(validLayout(a));for(const x of [null,[...a.slice(1),null],[...a.slice(1),a[1]],a.map(w=>w.id==='tasks'?{...w,width:13}:w),a.map(w=>w.id==='tasks'?{...w,visible:'yes'}:w)])assert.equal(validLayout(x),false);});
+test('Reordering preserves saved dimensions without mutating the original',()=>{const a=defaultLayout();a.find(w=>w.id==='shopping').width=8;const b=moveWidget(a,'shopping',0);assert.equal(b[0].width,8);assert.equal(a[0].id,'house');assert.ok(validLayout(b));assert.equal(moveWidget(b,'shopping',99).at(-1).id,'shopping');});
+test('Unmodified old defaults receive the approved eight visible cards',()=>{assert.deepEqual(migrateLayout(legacy()),defaultLayout());assert.deepEqual(migrateLayout(legacy().map(({visible,...w})=>w)),defaultLayout());assert.deepEqual(defaultLayout().filter(w=>w.visible).map(w=>w.id),['house','camera','weather','calendar','waste','car','tasks','shopping']);});
+test('Eight and seven widget custom layouts retain order, sizes and visibility, adding new widgets once',()=>{for(const old of [legacy().reverse(),legacy().filter(w=>w.id!=='house').reverse()]){old[0].width=8;const b=migrateLayout(old);assert.deepEqual(b.slice(old.length===7?1:0,8),old);assert.ok(validLayout(b));assert.deepEqual(b.slice(8).map(w=>w.id),['camera','weather','calendar']);assert.deepEqual(migrateLayout(b),b);}});
+test('Malformed legacy layouts do not become partial saved layouts',()=>{assert.deepEqual(migrateLayout([{id:'unknown',width:4,height:5}]),defaultLayout());assert.deepEqual(migrateLayout([...legacy().slice(1),legacy()[1]]),defaultLayout());});

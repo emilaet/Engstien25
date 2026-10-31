@@ -28,7 +28,7 @@ I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. He
 
 ## Betjening
 
-På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle otte kort, inklusive husoversigten, kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
+På **Hjem** åbner **••• → Rediger dashboard** et fast grid, hvor alle 11 widgets, inklusive husoversigten, kan flyttes og få ny bredde/højde. Brug trækhåndtag, pileknapper eller piletaster. Gem, annuller eller gendan standardlayoutet; indstillingerne gemmes på denne enhed.
 
 I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum**, søgning og pilene skifter rum. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
 
@@ -97,7 +97,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 ### Godkendte referenceflader og iPad
 
-Den nye standardforside har fem paneler i referenceopstillingen. Den bruger sit eget layoutlager (`engstien-home-layout-v2`), så gamle opsætninger ikke skjuler redesignet. Tidligere opsætninger i v1-lageret kan hentes med **Tidligere layout** under **Rediger dashboard**; v1-lageret bliver ikke overskrevet. Ekstra statuskort kan vises i redigeringen.
+Den godkendte standardforside har otte synlige kort med vejr, hoveddørskamera og Google Kalender. **Rediger dashboard** åbner et panel med vis/skjul for alle 11 widgets samt rækkefølge og størrelser. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
 
 Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
