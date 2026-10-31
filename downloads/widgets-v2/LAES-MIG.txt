@@ -1,0 +1,15 @@
+Engstien 25 · Widgetforslag 2
+
+Ni separate PNG-renderinger til godkendelse. Åbn index.html for en lokal oversigt. Appen er ikke ændret.
+
+Nyt i forslag 2:
+- Fotorealistisk AI-illustration af kameraudsigten, baseret på brugerens reference. Ikke et virkeligt kamerabillede eller en liveforbindelse.
+- Fyldte vejrsymboler med gylden sol, blå regn og lyse gråblå skyer. Farverne understøtter betydningen.
+- Fem dages udsigt og en særskilt timevisning med lokal dansk tid.
+- Mulighed for større kamerabillede med tydelig luk-knap, lyd fra og fuld skærm.
+- Større trykflader i redigeringspanelet; listen over widgets kan rulles uden synlige scrollbjælker.
+- Samme husmodel, grundplan, skrifter og dag-/aftenfarver som tidligere.
+
+Alle kalenderaftaler, målinger og vejrdata er eksempler. Google Kalender er valgt som fremtidig kalenderkilde. Integrationer er ikke tilsluttet.
+
+Implementering afventer brugerens godkendelse.
