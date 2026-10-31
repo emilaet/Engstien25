@@ -1,0 +1,206 @@
+/* Dashboard cards adapt to their own dimensions, including saved custom layouts. */
+:root[data-page=home] .family-grid.dashboard-grid:not(.reference-layout){grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:60px;gap:14px;padding:0;height:auto;overflow:visible}
+:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{container:widget / size;grid-column:span var(--widget-width)!important;grid-row:span var(--widget-height);min-width:0;min-height:0;width:auto!important;max-width:none;overflow:hidden;border-radius:22px;position:relative}
+:root[data-page=home] .family-grid.reference-layout>.dashboard-widget{grid-row:auto!important}
+:root[data-page=home] .dashboard-grid>.home-widget,:root[data-page=home] .dashboard-grid>.family-card{padding:14px;display:flex;flex-direction:column;justify-content:flex-start}
+:root[data-page=home] .dashboard-grid>.camera-card{padding:0}
+.dashboard-grid .hw-head{min-height:30px;gap:6px}
+.dashboard-grid .hw-head h2{font-size:18px;min-width:0;white-space:normal;line-height:1.15}
+.dashboard-grid .hw-badge{font-size:9px;max-width:46%;white-space:normal;text-align:right}
+.dashboard-grid .hw-current{margin:6px 0;min-height:40px}
+.dashboard-grid .hw-current strong{font-size:44px}
+.dashboard-grid .hw-forecast{flex:1;min-height:86px;gap:3px}
+.dashboard-grid .hw-forecast.hourly{grid-template-columns:repeat(6,minmax(0,1fr))}
+.dashboard-grid .hw-weather-foot{min-height:44px;margin-top:2px;gap:5px;flex-wrap:wrap}
+.dashboard-grid .hw-weather-foot button,.dashboard-grid .hw-calendar-foot button{min-height:44px;font-size:11px;white-space:nowrap}
+.dashboard-grid .hw-source{font-size:9px;line-height:1.3}
+.dashboard-grid .hw-camera-foot{flex-wrap:wrap;gap:4px;min-height:52px}
+.dashboard-grid .hw-camera-foot>span:first-child{font-size:12px}
+.dashboard-grid .hw-camera-image{min-height:0}
+.dashboard-grid .hw-camera-image img{object-fit:cover}
+.dashboard-grid .hw-calendar-range{font-size:10px;margin:4px 0}
+.dashboard-grid .hw-agenda{min-height:0;overflow:auto;scrollbar-width:thin;gap:4px}
+.dashboard-grid .hw-event{flex:0 0 auto;min-height:44px;padding:3px 0;gap:9px}
+.dashboard-grid .hw-event>div>b{font-size:12px;overflow-wrap:anywhere}
+.dashboard-grid .hw-event p{font-size:10px;line-height:1.4}
+.dashboard-grid .hw-calendar-foot{margin-top:4px;min-height:44px;flex-wrap:wrap;line-height:1.3}
+.dashboard-grid .hw-calendar-foot>span{font-size:9px}
+/* Lists keep a fixed add action and a scrollable, readable list at every height. */
+:root[data-page=home] .dashboard-grid .family-card-top{display:none!important}
+:root[data-page=home] .dashboard-grid .family-card-title{margin:0!important;padding:0!important;min-height:36px!important;height:auto;flex:none;gap:6px}
+.dashboard-grid .family-card-title h2{font-size:20px;line-height:1.2;min-width:0;overflow-wrap:anywhere}
+.dashboard-grid .family-card-subtitle,.dashboard-grid .family-card-foot{display:none}
+:root[data-page=home] .dashboard-grid .family-list{flex:1;min-height:0!important;height:auto!important;max-height:none;overflow:auto;scrollbar-width:thin}
+.dashboard-grid .family-item{height:auto;min-height:44px;padding:0;gap:2px;flex:none}
+.dashboard-grid .family-item-main{min-width:0;min-height:44px;flex:1;gap:7px;flex-wrap:wrap}
+.dashboard-grid .family-item-copy{min-width:0;flex:1;font-size:12px;overflow-wrap:anywhere}
+.dashboard-grid .family-item-copy small{font-size:11px}
+.dashboard-grid .family-item .due-tag{font-size:9px;white-space:normal;margin-left:29px}
+.dashboard-grid .family-item .edit-item{display:block;min-height:44px;min-width:32px;opacity:1}
+.dashboard-grid .list-card-menu>summary{min-width:44px;min-height:44px;display:grid;place-items:center}
+.dashboard-grid .family-add{margin:0;padding:0;min-height:44px;height:44px;flex:none;gap:2px}
+.dashboard-grid .family-add input{font-size:12px;min-width:0;min-height:44px;height:44px;padding:0}
+.dashboard-grid .family-add button{height:44px;min-height:44px;min-width:44px;width:44px}
+/* Tesla: a single column replaces the old horizontal stat layout. */
+:root[data-page=home] .dashboard-grid>.summary-widget{padding:14px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border)}
+:root[data-page=home] .dashboard-grid>.summary-widget:has(#car-summary.is-charging){background:var(--green-soft)}
+:root[data-page=home] .dashboard-grid .summary-widget>.stat{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;padding:0!important;width:100%;height:100%;min-height:0;min-width:0;border:0;background:none;position:relative;text-align:left;overflow:auto;scrollbar-width:thin;white-space:normal}
+.dashboard-grid .summary-widget>.stat>div{width:100%;min-width:0;flex:none}
+.dashboard-grid .summary-widget>.stat>.stat-icon{display:none!important}
+.dashboard-grid .summary-widget .stat small{font-size:11px;letter-spacing:1px;margin:0;display:block}
+.dashboard-grid .summary-widget .stat strong{font-size:42px;line-height:1.1;letter-spacing:-1.8px;display:block;margin:8px 0}
+.dashboard-grid .summary-widget .stat .unit{font-size:22px}
+.dashboard-grid .summary-widget .stat div>span{display:block;font-size:11px;line-height:1.4}
+:root[data-page=home] .dashboard-grid #car-summary{justify-content:flex-start;gap:0;overflow:auto}
+:root[data-page=home] .dashboard-grid #car-summary>div>small{font-size:0!important;min-height:25px;margin:0!important;letter-spacing:0}
+:root[data-page=home] .dashboard-grid #car-summary>div>small:after{content:'Tesla';font-size:20px!important;color:var(--text);letter-spacing:-.5px}
+:root[data-page=home] .dashboard-grid #car-summary:after{position:static;order:-1;align-self:flex-end;max-width:100%;font-size:10px;line-height:1.3;white-space:normal;margin-bottom:-18px;pointer-events:none}
+:root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:clamp(32px,12cqi,56px)!important;line-height:1.15!important;letter-spacing:-1.5px;margin:12px 0 10px!important;white-space:normal}
+:root[data-page=home] .dashboard-grid #charge-summary .unit{font-size:22px}
+:root[data-page=home] .dashboard-grid #charge-summary .home-target{font-size:21px;letter-spacing:-.6px;display:inline-block;white-space:nowrap}
+:root[data-page=home] .dashboard-grid #car-summary .home-car-details{display:flex;flex-direction:column;flex:1;min-height:70px;width:100%;margin:0;gap:9px}
+.dashboard-grid #car-summary .home-car-progress{height:6px;min-height:6px}
+:root[data-page=home] .dashboard-grid .home-car-meta{margin:0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px 9px;line-height:1.3}
+:root[data-page=home] .dashboard-grid .home-car-meta span{font-size:10px;min-width:0;overflow-wrap:anywhere}
+:root[data-page=home] .dashboard-grid #car-summary .home-car-link{font-size:11px;min-height:28px;height:auto;margin-top:auto;border:0;justify-content:flex-start;background:none}
+.dashboard-grid #car-summary #charge-subtitle,.dashboard-grid #car-summary .mini-battery{display:none!important}
+/* Waste retains the date, fractions, source and calendar in compact cards. */
+:root[data-page=home] .dashboard-grid>.waste-card{background:var(--alert-soft);overflow:auto;scrollbar-width:thin}
+:root[data-page=home] .dashboard-grid .waste-card .family-card-top{display:flex!important;height:auto!important;min-height:14px!important;gap:4px;flex-wrap:wrap}
+.dashboard-grid .waste-callout{font-size:9px;letter-spacing:1.3px}
+:root[data-page=home] .dashboard-grid .waste-card .source-badge{position:static;font-size:8px!important;padding:0!important;white-space:normal;max-width:100%;text-align:left;background:none}
+:root[data-page=home] .dashboard-grid .waste-card .family-card-title{display:none}
+.dashboard-grid .next-collection{flex:1;margin:8px 0 0;min-height:0}
+:root[data-page=home] .dashboard-grid .next-collection>p{font-size:clamp(18px,6.5cqi,30px)!important;line-height:1.2!important;max-width:none;margin:0 0 10px!important}
+.dashboard-grid .next-collection-body{margin:0;gap:8px;min-width:0;flex-wrap:wrap}
+.dashboard-grid .next-collection-body>div{min-width:0}
+.dashboard-grid .next-collection-body strong{font-size:12px;letter-spacing:0;overflow-wrap:anywhere}
+.dashboard-grid .next-collection-body>div>span{font-size:10px}
+.dashboard-grid .waste-icons{gap:5px}
+.dashboard-grid .waste-icons img{width:32px;height:32px}
+.dashboard-grid .waste-calendar{font-size:10px;min-width:0;margin-top:10px;padding-top:3px}
+.dashboard-grid .waste-calendar>summary{min-height:44px;gap:8px;overflow-wrap:anywhere}
+.dashboard-grid .collection-row{flex-wrap:wrap;gap:5px}
+.dashboard-grid .collection-row b{font-size:11px}
+/* The real model keeps its canvas and framing; only the card chrome adapts. */
+:root[data-page=home] .dashboard-grid .house-overview-copy{position:absolute;inset:0;width:100%;padding:14px!important;background:none!important;pointer-events:none}
+.dashboard-grid .house-overview-copy .eyebrow,.dashboard-grid .home-model-caption{display:none}
+.dashboard-grid .house-overview-copy h2{font-size:18px}
+:root[data-page=home] .dashboard-grid .house-overview-copy .home-light-status{position:absolute;right:14px;top:0;margin:17px 0 0!important;font-size:10px;max-width:48%;line-height:1.3}
+.dashboard-grid .house-overview-copy .home-light-status svg{display:none}
+:root[data-page=home] .dashboard-grid .house-overview-copy .home-climate-status{position:absolute;left:14px;bottom:20px;margin:0!important;font-size:10px;max-width:44%;line-height:1.3}
+.dashboard-grid .house-overview-copy .home-climate-status svg{display:none}
+:root[data-page=home] .dashboard-grid .house-overview-copy .open-rooms{pointer-events:auto;position:absolute;right:10px;bottom:10px;min-height:44px;height:44px;font-size:11px;padding:0 10px}
+:root[data-page=home] .dashboard-grid .home-model{inset:44px 0 55px!important}
+/* Width and height queries are independent of viewport and layout presets. */
+@container widget (width < 270px){
+ .hw-head h2{font-size:16px!important;gap:5px}.hw-head h2>svg{width:16px;height:16px}.hw-badge{font-size:8px!important;padding:4px 6px}
+ .hw-current>div{gap:6px}.hw-current span b{font-size:11px}.hw-current span small{font-size:9px}.hw-current>.hw-weather-art{width:30px;height:30px}
+ .hw-forecast.hourly{grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:150px!important}.hw-day{gap:3px;font-size:9px}.hw-day>b{font-size:14px}.hw-day>b small{display:block;margin:0;font-size:10px}.hw-day em{font-size:8px}.hw-day>.hw-weather-art{width:22px;height:22px}
+ .hw-weather-foot>span{font-size:9px}.hw-weather-foot button{font-size:10px!important}.hw-source{font-size:8px!important}
+ .hw-calendar-foot>span{flex-basis:100%}.hw-calendar-foot button{margin-left:auto}.hw-event{gap:6px!important}.hw-date{width:23px}.hw-event>div>b{font-size:11px!important}.hw-event p{font-size:9px!important}
+ .hw-camera-foot>span:first-child{font-size:10px!important}.hw-camera-foot button{font-size:10px;padding:0 6px}.hw-camera-foot .hw-audio{display:none}
+ .family-card-title h2{font-size:18px!important}.family-item-copy{font-size:11px!important}.family-item-copy small{display:block!important;margin:0!important}.family-item-copy small:before{content:none}.family-item .due-tag{flex-basis:100%}
+ .house-overview-copy h2{font-size:16px!important}.house-overview-copy .home-light-status{font-size:8px!important}.house-overview-copy .home-climate-status{font-size:9px!important}
+}
+@container widget (width > 460px) and (height < 280px){
+ .hw-agenda{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));align-content:center;gap:12px!important}.hw-event{align-items:flex-start!important}.hw-event>div>b{font-size:12px!important}
+ .hw-current{margin:0 0 4px!important}.hw-current strong{font-size:36px!important}.hw-day{gap:2px;padding:2px}.hw-forecast{min-height:65px!important}
+ .home-car-meta{flex-wrap:nowrap!important}.home-car-details{min-height:50px!important}
+}
+@container widget (height < 230px){
+ .hw-current strong{font-size:32px!important}.hw-current{min-height:32px!important;margin:0 0 4px!important}.hw-current>.hw-weather-art{height:28px!important;width:28px!important}
+ .hw-forecast{min-height:72px!important}.hw-day{gap:2px;padding:2px 0}.hw-weather-foot{margin-top:0!important}.hw-source{font-size:8px!important}
+ .hw-calendar-range{margin:2px 0!important}.hw-event{min-height:38px!important;padding:0!important}.hw-calendar-foot{margin-top:2px!important}
+ #car-summary #charge-summary{margin:5px 0!important;font-size:34px!important}.home-car-details{gap:5px!important;min-height:58px!important}.home-car-meta span{font-size:9px!important}
+ .next-collection>p{font-size:18px!important;margin-bottom:6px!important}.waste-calendar{margin-top:4px!important}.waste-icons img{width:26px!important;height:26px!important}
+}
+@container widget (height < 175px){
+ .hw-head{min-height:24px!important}.hw-head h2{font-size:15px!important}.hw-calendar-range{font-size:9px!important}.hw-calendar-foot>span{display:none}.hw-calendar-foot{min-height:44px!important}
+ .family-card-title{min-height:26px!important}.family-card-title h2{font-size:16px!important}.family-item-copy{font-size:11px!important}.family-item .edit-item{min-width:28px!important}
+ #car-summary>div>small:after{font-size:16px!important}#car-summary>div>small{min-height:20px!important}#car-summary #charge-summary{font-size:28px!important;margin:3px 0!important}.home-car-details{min-height:48px!important;gap:3px!important}.home-car-link{min-height:18px!important;font-size:10px!important}
+ .house-overview-copy .home-light-status{display:none}.house-overview-copy .home-climate-status{bottom:14px!important;font-size:9px!important}
+}
+@container widget (height > 380px){
+ .hw-event{min-height:62px!important}.hw-event>div>b{font-size:14px!important}.hw-event p{font-size:11px!important}.hw-agenda{justify-content:flex-start;padding-top:8px}
+ .hw-current{margin:18px 0!important}.hw-current strong{font-size:58px!important}.hw-day{gap:10px}.hw-day>.hw-weather-art{height:32px;width:32px}.hw-day>b{font-size:19px}.hw-day em{font-size:10px}
+ .family-item{min-height:54px!important}.family-item-copy{font-size:13px!important}.home-car-details{margin-top:14px!important}.home-car-progress{height:8px!important}
+}
+/* A compact dock leaves the dashboard at its real width during editing. */
+.home-layout-editing #family-dashboard{margin-right:0!important;padding-bottom:280px}
+.home-layout-editing .family-grid{padding-right:0!important;overflow:visible!important}
+.layout-editor{inset:auto 18px 16px calc(var(--ref-rail,90px) + 18px);width:auto;max-width:none;height:auto;max-height:310px;border:1px solid var(--border);border-radius:22px;box-shadow:0 12px 60px #0005;padding:16px;display:grid;grid-template-columns:180px minmax(280px,1fr) 260px;gap:8px 18px;align-items:start;justify-content:stretch;overflow:auto}
+.layout-panel-head{grid-column:1;grid-row:1}.layout-panel-head h2{font-size:21px}.layout-panel-head .eyebrow{display:none}.layout-panel-head button{width:36px;height:44px;flex:none}
+.layout-intro{grid-column:1;grid-row:2;font-size:11px!important;margin:0!important;line-height:1.5!important}.layout-intro br{display:none}
+.layout-history{grid-column:1;grid-row:3;display:flex;gap:5px}.layout-history button{font-size:10px;min-height:44px;border:1px solid var(--border);border-radius:9px;padding:0 8px}.layout-editor button:disabled{opacity:.4}
+.layout-selected{grid-column:2;grid-row:1 / span 4;padding:12px;background:var(--soft);border:1px solid var(--border);border-radius:14px}
+.layout-selection-title{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.layout-selection-title b{font-size:14px;font-weight:500}.layout-selection-title span{font-size:9px;color:var(--muted)}
+.layout-presets{display:flex;gap:5px;margin:7px 0}.layout-presets button{flex:1;min-height:44px;border:1px solid var(--border);border-radius:9px;font-size:11px;padding:0 6px}
+.layout-selected .widget-dimensions{gap:8px}.layout-selected label{font-size:10px}.layout-selected select{font-size:12px;min-height:44px;margin-top:3px}
+.layout-move{gap:8px;margin-top:7px}.layout-move button{min-height:44px;font-size:11px}
+.layout-list-heading{grid-column:3;grid-row:1;margin:0;height:30px}.layout-widget-list{grid-column:3;grid-row:2 / span 3;max-height:177px;overflow:auto;scrollbar-width:thin;min-height:0}
+.layout-widget-option{padding:0 6px;min-height:44px}.layout-widget-option>button{font-size:11px;display:flex;justify-content:space-between;align-items:center;gap:7px}.layout-widget-option small{font-size:9px;color:var(--muted);font-weight:400;white-space:nowrap}
+.layout-reset-actions{grid-column:1;grid-row:4;flex-wrap:wrap;padding:0;gap:0}.layout-reset-actions button{min-height:44px;font-size:10px;padding:0 6px}
+.layout-editor-actions{grid-column:2 / span 2;margin:0;padding-top:9px;flex-wrap:nowrap}.layout-editor-actions button{flex:0 1 auto;min-height:44px;padding:0 16px}.layout-editor-actions .primary{margin-left:auto;min-width:150px}
+:root[data-page=home] .family-grid.is-editing>.dashboard-widget{padding-top:14px!important;outline:1px dashed var(--border);outline-offset:0;overflow:hidden;min-height:0}
+:root[data-page=home] .family-grid.is-editing>.camera-card,:root[data-page=home] .family-grid.is-editing>.house-overview{padding-top:0!important}
+.dashboard-grid.is-editing>.dashboard-widget>*:not(.widget-editor){opacity:1;pointer-events:none}
+.dashboard-grid.is-editing>.widget-selected{outline:2px solid var(--amber)!important;outline-offset:3px!important}
+.dashboard-grid.is-editing .widget-editor{position:absolute!important;inset:4px 4px auto auto!important;margin:0!important;padding:0!important;width:44px;min-height:44px;display:flex;border-radius:12px;border:1px solid var(--border);background:var(--surface);box-shadow:0 2px 10px #0002;z-index:5}
+.dashboard-grid.is-editing .widget-editor>[data-widget-select]{display:none}.dashboard-grid.is-editing .widget-drag{width:44px;height:44px;min-height:44px;border-radius:12px;cursor:grab}
+.dashboard-grid.is-editing .widget-is-hidden{opacity:.45}.dashboard-grid.is-editing .is-dragging{opacity:.6}.dashboard-grid.is-editing .drop-target{outline:3px solid var(--green)!important}
+@media(max-width:1100px){.layout-editor{grid-template-columns:155px minmax(220px,1fr) 210px;gap:8px 12px}.layout-selection-title span{display:none}.layout-widget-option small{display:none}}
+@media(max-width:950px){.layout-editor{grid-template-columns:1fr 1fr;max-height:340px;left:calc(var(--ref-rail,76px) + 12px);right:12px;bottom:12px;padding:12px}.layout-panel-head{grid-row:1;grid-column:1}.layout-panel-head h2{font-size:19px}.layout-intro{display:none}.layout-selected{grid-column:1;grid-row:2 / span 3}.layout-history{grid-column:2;grid-row:1;justify-content:flex-end}.layout-list-heading{grid-column:2;grid-row:2}.layout-widget-list{grid-column:2;grid-row:3 / span 2;max-height:160px}.layout-reset-actions{grid-column:1;grid-row:5}.layout-editor-actions{grid-column:2;grid-row:5;border:0;padding:0;gap:4px}.layout-editor-actions button{font-size:11px;padding:0 8px}.layout-editor-actions .primary{min-width:0}.home-layout-editing #family-dashboard{padding-bottom:370px}}
+@media(max-width:760px){
+ :root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:span 12!important}
+ .layout-editor{left:8px;right:8px;bottom:78px;max-height:48dvh;border-radius:18px;padding:10px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 8px}.layout-panel-head h2{font-size:17px}.layout-panel-head button{width:30px}.layout-selected{padding:8px}.layout-selection-title b{font-size:12px}.layout-presets{gap:3px;margin:4px 0}.layout-presets button{font-size:10px;padding:0 3px}.layout-selected select{font-size:10px;padding:4px}.layout-move{gap:4px}.layout-move button{font-size:9px}.layout-widget-option{padding:0 3px}.layout-widget-option>button{font-size:10px}.layout-widget-option .widget-visibility{width:36px}.layout-list-heading>b{font-size:12px}.layout-visible-count{font-size:8px}.layout-editor-actions{flex-wrap:wrap}.layout-editor-actions button{flex:1;min-width:0;min-height:44px;font-size:10px;padding:0 6px}.layout-editor-actions .primary{margin:0}.layout-history{gap:4px}.layout-history button{font-size:9px;padding:0 6px}.layout-reset-actions button{font-size:9px}.layout-widget-list{max-height:146px}.home-layout-editing #family-dashboard{padding-bottom:440px}
+}
+/* Never clip a forecast at the shortest saved height; details stay scrollable. */
+:root[data-page=home] .dashboard-grid>.weather-card{overflow:auto;scrollbar-width:thin}
+.dashboard-grid .hw-current{margin:3px 0}.dashboard-grid .hw-forecast{min-height:72px}
+:root[data-page=home] .dashboard-grid>.tasks-card,:root[data-page=home] .dashboard-grid>.shopping-card{padding:8px 14px}
+.dashboard-grid .family-item-main{display:grid;grid-template-columns:22px minmax(0,1fr);height:auto;min-height:44px;column-gap:7px;row-gap:0;align-content:center}
+.dashboard-grid .family-item-main .family-check{grid-column:1;grid-row:1 / span 2;align-self:center}
+.dashboard-grid .family-item .family-item-copy{grid-column:2;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
+.dashboard-grid .family-item .due-tag{grid-column:2;margin:1px 0 0;justify-self:start;padding:2px 5px;line-height:1.2}
+.home-layout-editing #family-dashboard{height:calc(100dvh - 440px);min-height:230px;overflow:auto;overscroll-behavior:contain;padding-bottom:24px;scrollbar-width:thin}
+@media(max-width:950px){.home-layout-editing #family-dashboard{height:calc(100dvh - 470px);padding-bottom:24px}}
+@media(max-width:760px){.home-layout-editing #family-dashboard{height:calc(52dvh - 195px);min-height:180px;padding-bottom:24px}}
+.layout-presets button[aria-pressed=true]{background:var(--amber-soft);border-color:var(--amber);color:var(--text)}
+/* Preserve a usable first row even at the minimum height. */
+:root[data-page=home] .dashboard-grid>.calendar-card,:root[data-page=home] .dashboard-grid>.tasks-card,:root[data-page=home] .dashboard-grid>.shopping-card{overflow:auto;scrollbar-width:thin}
+.dashboard-grid .hw-agenda{min-height:38px}
+:root[data-page=home] .dashboard-grid .family-list{min-height:44px!important}
+/* Optional cards need real preview rows when revealed by the editor. */
+:root[data-page=home] .family-grid.reference-layout.is-editing{grid-auto-rows:180px}
+@media(max-width:760px){:root[data-page=home] .family-grid.reference-layout.is-editing{grid-auto-rows:minmax(250px,auto)}}
+/* Legacy stat wrapping otherwise starts a second column at very low heights. */
+:root[data-page=home] .dashboard-grid .summary-widget>.stat{flex-wrap:nowrap!important}
+:root[data-page=home] .dashboard-grid>.summary-widget:has(#car-summary){padding:12px}
+@container widget (width < 190px){.hw-forecast{grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:154px!important;row-gap:7px!important}.hw-day{gap:4px}}
+@container widget (height < 175px){
+ :root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:28px!important;margin:3px 0!important}
+ :root[data-page=home] .dashboard-grid #car-summary>div>small{min-height:20px!important}
+ :root[data-page=home] .dashboard-grid #car-summary>div>small:after{font-size:16px!important}
+}
+.dashboard-grid .family-item .edit-item{min-width:44px}
+.dashboard-grid .next-collection{flex:1 0 auto;min-height:min-content}
+:root[data-page=home] .dashboard-grid .summary-widget>.stat{justify-content:safe center;border-radius:0}
+:root[data-page=home] .dashboard-grid #car-summary{justify-content:flex-start}
+.hw-weather-layout{display:contents}
+@container widget (height < 175px){
+ :root[data-page=home] .dashboard-grid .next-collection>p{font-size:18px!important;margin-bottom:6px!important}
+ :root[data-page=home] .dashboard-grid .home-model{inset:28px 0 20px!important}
+ .dashboard-grid .summary-widget>.stat:not(#car-summary) strong{font-size:32px;line-height:1.1;margin:5px 0}
+}
+@container widget (height < 175px) and (width > 400px){
+ .hw-weather-layout{display:grid;grid-template-columns:130px minmax(0,1fr);grid-template-rows:60px 44px;column-gap:12px;flex:1;min-height:0}
+ .dashboard-grid .hw-weather-layout .hw-head{grid-column:1;grid-row:1;align-self:start;min-height:44px!important;gap:4px}
+ .dashboard-grid .hw-weather-layout .hw-head h2{font-size:15px!important}.hw-weather-layout .hw-head h2>svg{display:none}.hw-weather-layout .hw-mode{font-size:8px;min-height:44px;padding:0 6px;white-space:nowrap}
+ .dashboard-grid .hw-weather-layout .hw-current{grid-column:1;grid-row:2;margin:0!important;min-height:32px!important;align-self:center}
+ .dashboard-grid .hw-weather-layout .hw-current strong{font-size:30px!important}.hw-weather-layout .hw-current strong small{font-size:20px}.hw-weather-layout .hw-current span b{font-size:9px}.hw-weather-layout .hw-current span small{font-size:8px}.hw-weather-layout .hw-current>.hw-weather-art{display:none}
+ .dashboard-grid .hw-weather-layout .hw-forecast{grid-column:2;grid-row:1;min-height:60px!important;height:60px;align-self:center;gap:3px}
+ .dashboard-grid .hw-weather-layout .hw-day{font-size:9px;gap:1px;padding:0}.hw-weather-layout .hw-day>.hw-weather-art{width:18px;height:18px}.hw-weather-layout .hw-day>b{font-size:14px}.hw-weather-layout .hw-day>b small{font-size:9px}.hw-weather-layout .hw-day em{font-size:7px}
+ .dashboard-grid .hw-weather-layout .hw-weather-foot{grid-column:2;grid-row:2;min-height:44px;margin:0;flex-wrap:nowrap}
+ .dashboard-grid .hw-weather-layout .hw-source{position:absolute;left:14px;top:54px;max-width:130px;font-size:7px!important;line-height:1.2}
+}

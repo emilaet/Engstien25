@@ -97,7 +97,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 ### Godkendte referenceflader og iPad
 
-Den godkendte standardforside har otte synlige kort med vejr, hoveddørskamera og Google Kalender. **Rediger dashboard** åbner et panel med vis/skjul for alle 11 widgets samt rækkefølge og størrelser. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
+Den godkendte standardforside har otte synlige kort med vejr, hoveddørskamera og Google Kalender. **Rediger dashboard** åbner en værktøjslinje med Kompakt/Standard/Bred, individuelle bredde- og højdevalg, Fortryd/Gentag og vis/skjul for alle 11 widgets. Forhåndsvisningen beholder dashboardets bredde, og kortene tilpasser indholdet efter deres egen størrelse. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
 
 Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
