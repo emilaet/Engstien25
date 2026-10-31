@@ -204,3 +204,19 @@
  .dashboard-grid .hw-weather-layout .hw-weather-foot{grid-column:2;grid-row:2;min-height:44px;margin:0;flex-wrap:nowrap}
  .dashboard-grid .hw-weather-layout .hw-source{position:absolute;left:14px;top:54px;max-width:130px;font-size:7px!important;line-height:1.2}
 }
+/* Half of a former third-width card: six columns on a spacious dashboard. */
+@media(min-width:761px) and (max-width:1000px){:root[data-page=home] .family-grid.dashboard-grid:not(.reference-layout)>.dashboard-widget{grid-column:span max(3,var(--widget-width))!important}}
+@container widget (width < 190px){
+ .hw-head h2{font-size:14px!important;overflow-wrap:anywhere}.hw-badge{font-size:7px!important;max-width:38%}
+ .calendar-card .hw-head .hw-badge{display:none}
+ :root[data-page=home] .dashboard-grid .house-overview-copy .home-climate-status{bottom:63px!important;max-width:100%;font-size:9px!important}
+ :root[data-page=home] .dashboard-grid .house-overview-copy .open-rooms{left:10px;right:10px;justify-content:center}
+ :root[data-page=home] .dashboard-grid .home-model{inset:44px 0 85px!important}
+}
+@container widget (width < 190px) and (height < 175px){
+ :root[data-page=home] .dashboard-grid .home-model{inset:26px 0 45px!important}
+ :root[data-page=home] .dashboard-grid .house-overview-copy .home-light-status{display:none}
+ :root[data-page=home] .dashboard-grid .house-overview-copy .home-climate-status{bottom:17px!important;max-width:calc(100% - 78px);font-size:8px!important}
+ :root[data-page=home] .dashboard-grid .house-overview-copy .open-rooms{left:auto;width:44px;padding:0;font-size:0}
+ .house-overview-copy .open-rooms svg{width:20px;height:20px}
+}
