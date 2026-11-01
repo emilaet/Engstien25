@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 async function edit(page){await page.locator('#home-options').click();await page.getByRole('button',{name:'Rediger dashboard',exact:true}).click();}
 const card=(page,id)=>page.locator(`[data-widget-id=${id}]`);
 async function resize(page,id,axis,dx,dy,{release=true}={}){
- const h=page.locator(`[data-widget-resize=${id}][data-axis=${axis}]`);await h.scrollIntoViewIfNeeded();const b=await h.boundingBox();await page.mouse.move(b.x+b.width/2,b.y+b.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2+dx,b.y+b.height/2+dy,{steps:8});if(release)await page.mouse.up();
+ await card(page,id).click({position:{x:8,y:8}});const h=page.locator(`[data-widget-resize=${id}][data-axis=${axis}]`);await h.scrollIntoViewIfNeeded();const b=await h.boundingBox();await page.mouse.move(b.x+b.width/2,b.y+b.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2+dx,b.y+b.height/2+dy,{steps:8});if(release)await page.mouse.up();
 }
 async function geometry(page){return page.locator('.dashboard-widget:visible').evaluateAll(els=>els.map(e=>{const b=e.getBoundingClientRect();return {id:e.dataset.widgetId,x:b.x,y:b.y,w:b.width,h:b.height}}));}
 test('Editing unlocks the real dashboard without shrinking it or revealing hidden widgets',async({page})=>{
@@ -21,9 +21,9 @@ test('Resize controls work with the keyboard and device actions stay locked duri
 });
 test('Touch resizes the real card on tablet; phone resizing preserves full width',async({browser})=>{
  const context=await browser.newContext({hasTouch:true,viewport:{width:1024,height:768}}),page=await context.newPage();try{
- await page.goto('http://127.0.0.1:5173/');await edit(page);const h=page.locator('[data-widget-resize=camera][data-axis=both]');await h.scrollIntoViewIfNeeded();const b=await h.boundingBox(),before=await card(page,'camera').boundingBox(),cdp=await context.newCDPSession(page);const x=b.x+b.width/2,y=b.y+b.height/2;
+ await page.goto('http://127.0.0.1:5173/');await edit(page);await card(page,'camera').click({position:{x:8,y:8}});const h=page.locator('[data-widget-resize=camera][data-axis=both]');await h.scrollIntoViewIfNeeded();const b=await h.boundingBox(),before=await card(page,'camera').boundingBox(),cdp=await context.newCDPSession(page);const x=b.x+b.width/2,y=b.y+b.height/2;
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x-80,y:y+48}]});expect((await card(page,'camera').boundingBox()).width).toBeLessThan(before.width);expect((await card(page,'camera').boundingBox()).height).toBeGreaterThan(before.height);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.getByRole('button',{name:'Gem dashboard',exact:true}).click();
- await page.setViewportSize({width:390,height:844});await edit(page);const p=await card(page,'camera').boundingBox();await resize(page,'camera','height',0,48);const after=await card(page,'camera').boundingBox();expect(after.width).toBe(p.width);expect(after.height).toBeGreaterThan(p.height);expect((await page.locator('.layout-editor').boundingBox()).height).toBeLessThan(80);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.setViewportSize({width:390,height:844});await edit(page);const p=await card(page,'camera').boundingBox();await resize(page,'camera','height',0,48);const after=await card(page,'camera').boundingBox();expect(after.width).toBe(p.width);expect(after.height).toBeGreaterThan(p.height);expect((await page.locator('.layout-editor').boundingBox()).height).toBeLessThan(125);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  }finally{await context.close()}
 });
 

@@ -9,10 +9,12 @@ Redigeringen bygger på den placering, brugeren ser, i stedet for kun at ændre 
 - Automatisk rulning virker både op og ned. Ugyldige slip uden for dashboardet, Escape, pointercancel og mistet pointer capture gendanner udgangspunktet. Et afsluttet træk er én fortrydelse.
 - Piletaster på flyttehåndtaget samt klikbare pile i Widgets giver alternativer til at trække. Tab-rækkefølgen følger den visuelle læserækkefølge efter et slip. Telefon bruger én kolonne og bevarer en uafhængig rækkefølge, når brugeren flytter kort på mobil.
 
-Gamle layouts får en automatisk placering, der svarer til det tidligere grid. Nye placeringer gemmes som `column` og `row` sammen med de eksisterende mål i v3-lageret. `mobileOrder` bruges kun til mobilflytning. Ingen ændring skrives før Gem dashboard.
+Gamle layouts får en automatisk placering, der svarer til det tidligere grid. Nye placeringer gemmes som `column` og `row` sammen med de eksisterende mål i v3-lageret. `mobileOrder` gemmer mobilrækkefølgen, og `mobileHeightPx` gemmer en selvstændig mobilhøjde. Det vedvarende layout ændres først ved Gem dashboard. Ændrede udkast og historik gemmes særskilt i sessionStorage for at kunne gendannes i samme fane.
 
 Geometritestene kontrollerer retninger, kantgrænser, bytning, kollisioner, tomme områder og gentagne vilkårlige flytninger/størrelsesændringer. Browsertestene kontrollerer selve kortets bevægelse under trækket, pladsholderen, gemning/genindlæsning, berøring opad/til venstre, automatisk rulning opad, fortrydelse, afbrydelse, tastatur, klikbare pile og mobilrækkefølge. Den responsive matrix og de eksisterende 3D-/familietest bevares.
 
 Interaktionen følger principperne i W3C’s [Dragging Movements, SC 2.5.7](https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html): flytning kan også udføres med enkelte klik på pile. Håndtagenes berøringsmål er 44 × 44 CSS-pixels, som beskrevet i [Target Size (Enhanced), SC 2.5.5](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html). Kildeteksterne er verificeret i W3C’s officielle `w3c/wcag`-repository.
 
 Ved mobilflytning bestemmer markørens placering landingsstedet, uafhængigt af kortets højde; klik på op/ned flytter præcis én plads, også mellem kort med forskellige højder. Geometrien for desktop, tablet og telefon beregnes sammen. CSS skifter direkte mellem disse projektioner ved et skærmskift, så gamle desktopceller ikke vises som flere kolonner på en smal telefon, mens DOM-rækkefølgen opdateres.
+
+Editorens lave linje bruger nu headerområdet. Den bevarer udkastet ved intern navigation; Annuller/Escape forkaster det. Se [UX-opdateringen](ux-upgrade.md).

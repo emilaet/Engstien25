@@ -115,4 +115,8 @@ Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum
 
 Den godkendte [rumstyring](docs/room-controls.md) er implementeret med selvstændigt fokuspanel, enhedskort, kategori-faner, hurtig rumvælger, temperaturforvalg og gardinernes åbning/lukning/stop. Alle rumenheder er fortsat dummydata. Hver ændring gemmes i samme browserjournal som før, og husmodellen opdateres fra samme tilstand.
 
-Vejret har en særlig minimumsvisning med aktuel temperatur og hele prognosen uden afskæring. Musikkortets **Udvid** åbner den officielle Apple Music-afspiller; eget album-/spillelistelink kan vælges og gemmes på enheden. Apple Music indlæses først ved udvidelse, og afspilleren fjernes ved lukning. Eksisterende layouts med 11 widgets bevares, når musik tilføjes.
+Vejrets mindste visning viser læsbar temperatur og vejrtype; hele prognosen åbnes ved udvidelse. Musikkortets **Udvid** åbner den officielle Apple Music-afspiller; eget album-/spillelistelink kan vælges og gemmes på enheden. Apple Music indlæses først ved udvidelse, og afspilleren fjernes ved lukning. Eksisterende layouts med 11 widgets bevares, når musik tilføjes.
+
+## UX-opdatering
+
+De ti godkendte forbedringspunkter er beskrevet i [UX-opdateringen](docs/ux-upgrade.md): læsbare mini-/standardvisninger, separat mobilprioritering og højde, tilgængelig Fortryd, bevarede layoutudkast, rumlinks med tilbage-kontekst, forbedret kontrast, tydelig datastatus, en kontekstuel editor, mobil billader og valgfrit dagsblik.

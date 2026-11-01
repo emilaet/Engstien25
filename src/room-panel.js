@@ -14,7 +14,7 @@ export function setLightLevel(state,key,value){
  state.levels[key]=Math.max(0,Math.min(100,value));
 }
 export function setRoomLights(state,on){if(on&&state.brightness===0)state.brightness=100;for(const key of Object.keys(state.lights)){state.lights[key]=on;if(on&&state.levels[key]===0)state.levels[key]=100;}}
-export function createRoomPanel(host,{getState,onSelect,onClear,onChange,onInput,onPersist}){
+export function createRoomPanel(host,{getState,onSelect,onClear,onChange,onInput,onPersist,onViewChange=()=>{}}){
  const tabs=new Map(),expanded=new Map(),motors=new Map();let selected=null,query='';
  const activeTab=id=>tabs.get(id)||availableRoomTabs(rooms.find(r=>r.id===id),getState()[id])[0];
  const focusToken=el=>el?.closest('#panel')?el.dataset.ruFocus:null;
@@ -38,7 +38,7 @@ export function createRoomPanel(host,{getState,onSelect,onClear,onChange,onInput
   const room=rooms.find(r=>r.id===id),s=state[id],available=availableRoomTabs(room,s);let tab=activeTab(id);if(!available.includes(tab))tab=available[0];tabs.set(id,tab);host.dataset.category=tab;const status=roomLightStatus(s),at=rooms.findIndex(r=>r.id===id),caption=`${decimal(s.current)} °C · ${status.on} af ${status.total} lamper tændt`;
   host.innerHTML=`<div class="ru-room-nav"><button class="ru-back" aria-label="Alle rum" data-ru-back>${icon('left')} Alle rum</button><div class="ru-arrows"><button data-ru-select="${rooms[(at+rooms.length-1)%rooms.length].id}" aria-label="Forrige rum">${icon('left')}</button><button data-ru-select="${rooms[(at+1)%rooms.length].id}" aria-label="Næste rum">${icon('right')}</button></div></div><div class="ru-title"><div><h2 tabindex="-1">${text(room.name)}</h2><p>${caption}</p></div><span class="ru-marker">${icon(tab==='lights'?'sun':tab)}</span></div><div class="ru-tabs" role="tablist" aria-label="Styring af ${text(room.name)}">${available.map(key=>`<button role="tab" id="room-tab-${key}" aria-controls="room-controls" aria-selected="${key===tab}" tabindex="${key===tab?0:-1}" data-ru-tab="${key}" data-ru-focus="tab-${key}">${icon(key==='lights'?'sun':key)} ${names[key]} ${key==='heat'?'':`<small>${key==='lights'?Object.keys(s.lights).length:room.curtains.length}</small>`}</button>`).join('')}</div><div class="ru-content" id="room-controls" role="tabpanel" aria-labelledby="room-tab-${tab}" tabindex="0">${body(room,tab)}</div><footer class="ru-footer">${footer(room,tab)}</footer>`;
   host.querySelector('[data-ru-back]').onclick=onClear;host.querySelectorAll('[data-ru-select]').forEach(el=>el.onclick=()=>onSelect(el.dataset.ruSelect));
-  const chooseTab=key=>{tabs.set(id,key);render(getState(),id);host.querySelector(`[data-ru-tab="${key}"]`).focus({preventScroll:true});};
+  const chooseTab=key=>{tabs.set(id,key);render(getState(),id);host.querySelector(`[data-ru-tab="${key}"]`).focus({preventScroll:true});onViewChange(key);};
   host.querySelectorAll('[data-ru-tab]').forEach(el=>{el.onclick=()=>chooseTab(el.dataset.ruTab);el.onkeydown=e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const index=available.indexOf(el.dataset.ruTab),next=e.key==='Home'?0:e.key==='End'?available.length-1:(index+(e.key==='ArrowRight'?1:available.length-1))%available.length;chooseTab(available[next]);};});
   host.querySelectorAll('[data-ru-light]').forEach(el=>el.onclick=()=>{const current=getState()[id],key=el.dataset.ruLight;current.lights[key]=!current.lights[key];if(current.lights[key]&&effectiveLightLevel(current,key)===0)setLightLevel(current,key,100);onChange();});
   host.querySelectorAll('[data-ru-all]').forEach(el=>el.onclick=()=>{setRoomLights(getState()[id],el.dataset.ruAll==='on');onChange();});
@@ -51,5 +51,5 @@ export function createRoomPanel(host,{getState,onSelect,onClear,onChange,onInput
   host.querySelectorAll('[data-ru-move-all]').forEach(el=>el.onclick=()=>room.curtains.forEach((_,i)=>move(id,i,Number(el.dataset.ruMoveAll))));
   if(previousRoom===id&&previousTab===tab)host.querySelector('.ru-content').scrollTop=scroll;if(previousRoom!==id)host.querySelector('.ru-title h2').focus({preventScroll:true});else if(focused){const target=host.querySelector(`[data-ru-focus="${focused}"]`);(target&&!target.disabled?target:host.querySelector('.ru-title h2'))?.focus({preventScroll:true});}
  }
- return {render};
+ return {render,category:id=>id?activeTab(id):'lights',restore(id,category){if(id&&rooms.some(r=>r.id===id)&&availableRoomTabs(rooms.find(r=>r.id===id),getState()[id]).includes(category))tabs.set(id,category);}};
 }
