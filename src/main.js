@@ -4,6 +4,7 @@ import './reference-design.css';
 import './room-panel.css';
 import './home-widgets.css';
 import './dashboard-responsive.css';
+import './dashboard-editing.css';
 import {createRoomPanel} from './room-panel.js';
 import {renderChargePanel} from './charge-panel.js';
 import {createAppearance} from './appearance.js';

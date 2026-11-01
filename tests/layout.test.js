@@ -9,3 +9,7 @@ test('Eight and seven widget custom layouts retain order, sizes and visibility, 
 test('Malformed legacy layouts do not become partial saved layouts',()=>{assert.deepEqual(migrateLayout([{id:'unknown',width:4,height:5}]),defaultLayout());assert.deepEqual(migrateLayout([...legacy().slice(1),legacy()[1]]),defaultLayout());});
 
 test('Sixth-width widgets remain valid and retain their dimensions through storage migration',()=>{const a=defaultLayout().map(w=>({...w,width:2}));assert.ok(validLayout(a));assert.deepEqual(migrateLayout(a),a);});
+test('Direct resize sizes survive reload migration while malformed pixel heights are rejected',()=>{
+ const layout=defaultLayout().map(w=>({...w,width:5,heightPx:340}));assert.ok(validLayout(layout));assert.deepEqual(migrateLayout(layout),layout);
+ for(const heightPx of [null,'340',0,131,1093,NaN,Infinity,200.5])assert.equal(validLayout(layout.map(w=>({...w,heightPx}))),false);
+});

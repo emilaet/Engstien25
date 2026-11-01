@@ -1,0 +1,51 @@
+/* One grid for viewing and editing: resizing never swaps the preview layout. */
+:root[data-page=home] .family-grid.dashboard-grid{grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:none!important;grid-auto-rows:4px!important;gap:12px!important;height:auto!important;padding:0!important;overflow:visible!important;background:none}
+:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:span var(--widget-width)!important;grid-row:span var(--widget-rows)!important}
+:root.home-layout-editing #family-dashboard{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding:0 0 100px!important;margin-right:0!important}
+:root[data-page=home] .family-grid.is-editing>.dashboard-widget{outline:1px dashed var(--border);border-style:solid!important;cursor:default}
+:root[data-page=home] .family-grid.is-editing>.widget-selected{outline:2px solid var(--amber);outline-offset:2px}
+/* The dock is only one row; extra settings are closed until requested. */
+.layout-editor{position:fixed;inset:auto 16px 16px auto;width:max-content;max-width:calc(100vw - var(--ref-rail,80px) - 32px);height:auto;min-height:0;max-height:none;display:block;margin:0;padding:8px;border:1px solid var(--border);border-radius:18px;overflow:visible;background:var(--surface);box-shadow:0 8px 30px #0003;z-index:200}
+.layout-editor[hidden],.layout-editor [hidden]{display:none!important}
+.layout-bar{display:flex;align-items:center;gap:6px;min-width:0}
+.layout-bar-copy{padding:0 12px 0 6px}.layout-bar h2{font-size:14px;font-weight:500;line-height:1.2;letter-spacing:-.3px;color:var(--text);margin:0}.layout-bar p{font-size:10px;line-height:1.3;margin:4px 0 0;color:var(--muted)}
+.layout-bar>button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;height:44px;min-width:44px;width:auto;padding:0 12px;border:1px solid var(--border);border-radius:11px;background:none;color:var(--text);font-size:12px;white-space:nowrap}
+.layout-bar #undo-home-layout,.layout-bar #redo-home-layout{width:44px;padding:0;font-size:22px}.layout-bar button:disabled{opacity:.35}.layout-bar #save-home-layout{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.layout-details{position:absolute;right:0;bottom:calc(100% + 10px);width:360px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 125px);overflow:auto;overscroll-behavior:contain;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 10px 45px #0004;scrollbar-width:thin}
+.layout-details-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.layout-details-head h3{font-size:18px;font-weight:500;color:var(--text)}.layout-details-head button{width:44px;height:44px;min-height:44px;border:0;background:none;font-size:24px;padding:0}
+.layout-details .layout-selected{display:block;padding:12px;margin:0;border:1px solid var(--border);border-radius:14px;background:var(--soft)}.layout-details .layout-selected>b{font-size:14px;font-weight:500}.layout-details .layout-selected>p{font-size:10px;line-height:1.4;margin:5px 0 8px}
+.layout-details .layout-presets{display:flex;gap:5px;margin:0 0 8px}.layout-details .layout-presets button{min-height:44px;flex:1;border:1px solid var(--border);border-radius:9px;padding:0 6px;font-size:11px;background:var(--surface)}
+.layout-details .widget-dimensions{display:flex;gap:8px}.layout-details .widget-dimensions label{flex:1;min-width:0;font-size:10px}.layout-details .widget-dimensions select{min-height:44px;width:100%;font-size:12px;padding:6px}
+.layout-details .layout-move{display:flex;gap:6px;margin:8px 0 0}.layout-details .layout-move button{min-height:44px;flex:1;font-size:11px}
+.layout-details .layout-list-heading{display:flex;justify-content:space-between;height:auto;margin:16px 0 6px}.layout-details .layout-widget-list{max-height:none;overflow:visible;display:block}.layout-details .layout-widget-option{display:flex;min-height:44px}.layout-details .layout-widget-option>button{font-size:12px;min-height:44px}.layout-details .layout-reset-actions{display:flex;flex-wrap:wrap;padding-top:10px;margin-top:8px;border-top:1px solid var(--border)}.layout-details .layout-reset-actions button{min-height:44px;font-size:11px}
+/* Controls float over the real cards; they never consume card height. */
+.dashboard-grid.is-editing .widget-editor{position:absolute!important;inset:4px 4px auto auto!important;width:44px;min-height:44px!important;z-index:6}
+.dashboard-grid.is-editing .widget-resize{position:absolute!important;z-index:7;display:grid;place-items:center;min-width:44px!important;min-height:44px!important;width:44px;height:44px;padding:0;border:0;background:none;color:var(--text);border-radius:10px;touch-action:none;pointer-events:auto!important;opacity:1!important;user-select:none;box-shadow:none}
+.widget-resize-width{right:0;top:calc(50% - 22px);cursor:ew-resize}.widget-resize-height{bottom:0;left:calc(50% - 22px);cursor:ns-resize}.widget-resize-both{bottom:0;right:0;cursor:nwse-resize;font-size:26px!important;line-height:1}
+.widget-resize-width:after{content:'';height:28px;width:5px;border-radius:6px;background:var(--amber);box-shadow:0 0 0 2px var(--surface)}.widget-resize-height:after{content:'';width:28px;height:5px;border-radius:6px;background:var(--amber);box-shadow:0 0 0 2px var(--surface)}
+.dashboard-grid.is-editing .widget-resize-both{background:var(--surface);border:1px solid var(--border);border-radius:12px 0 18px 0}
+.widget-resize:focus-visible,.widget-drag:focus-visible{outline:2px solid var(--text);outline-offset:-3px}
+.widget-size-label{display:none;position:absolute;left:8px;bottom:6px;z-index:6;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 7px;font-size:9px;color:var(--muted);pointer-events:none!important;line-height:1.2}
+.widget-selected .widget-size-label,.is-resizing .widget-size-label{display:block}.dashboard-grid.is-editing>.dashboard-widget.is-resizing{outline:2px solid var(--amber)!important;outline-offset:2px}.dashboard-grid.is-editing .is-dragging{opacity:.65}
+.layout-status{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+/* The shortest wide forecasts retain both their forecast and action. */
+@container widget (height < 175px) and (width > 400px){.hw-weather-layout{grid-template-rows:58px 44px}.dashboard-grid .hw-weather-layout .hw-forecast{min-height:58px!important;height:58px}}
+@media(min-width:761px) and (max-width:1000px){:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:span max(3,var(--widget-width))!important}}
+@media(max-width:950px){.layout-bar-copy{display:none}.layout-editor{left:auto;right:12px;bottom:12px;max-width:calc(100vw - var(--ref-rail,76px) - 24px);padding:7px}}
+@media(max-width:760px){
+ :root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:span 12!important}
+ :root.home-layout-editing #family-dashboard{padding-bottom:160px!important}
+ .layout-editor{left:auto;right:8px;bottom:78px;max-width:calc(100vw - 16px);border-radius:15px;padding:6px}
+ .layout-bar{gap:3px}.layout-bar>button{padding:0 8px;font-size:11px;min-width:44px}.layout-widgets-text{display:none}.layout-bar #toggle-layout-details{font-size:22px;width:44px;padding:0}.layout-bar #save-home-layout{padding:0 10px}.layout-bar #cancel-home-layout{padding:0 7px}
+ .layout-details{right:0;width:350px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 175px);padding:12px}.layout-details .layout-selected{padding:10px}
+ /* Phone cards keep full width; the vertical and corner handles resize height. */
+ .dashboard-grid.is-editing .widget-resize-width{display:none}.dashboard-grid.is-editing .widget-resize-both{cursor:ns-resize}
+}
+:root[data-page=home] .family-grid.is-editing>.tasks-card,:root[data-page=home] .family-grid.is-editing>.shopping-card{padding-top:8px!important}
+:root[data-page=home] .family-grid.is-editing>.summary-widget:has(#car-summary){padding-top:12px!important}
+.home-layout-menu{display:flex;align-items:center;gap:6px}.home-layout-menu #quick-edit-home{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 12px;font-size:12px;letter-spacing:0;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px}.home-layout-menu #quick-edit-home[hidden]{display:none}.home-layout-menu #quick-edit-home>span:first-child{font-size:21px}
+.dashboard-grid.is-editing .widget-editor{inset:3px auto auto calc(50% - 22px)!important;border:0!important;box-shadow:none!important;background:transparent!important}
+.dashboard-grid.is-editing .widget-editor .widget-drag{color:var(--muted);background:transparent!important}.dashboard-grid.is-editing .widget-editor .widget-drag:hover{background:var(--surface)!important}
+.dashboard-grid.is-editing .widget-resize-both{border:0;background:none;color:var(--amber);font-size:25px!important;border-radius:10px}
+@media(max-width:760px){.home-layout-menu #quick-edit-home{width:44px;min-width:44px;padding:0}.quick-edit-label{display:none}}
+@media(max-width:360px){.header-right .appearance-control{padding:2px 4px;gap:2px}.header-right .appearance-control select{max-width:66px;font-size:9px}.home-layout-menu{gap:3px}.layout-bar{gap:2px}.layout-bar #save-home-layout{padding:0 5px;font-size:10px}.layout-bar #cancel-home-layout{padding:0 4px;font-size:10px}}
