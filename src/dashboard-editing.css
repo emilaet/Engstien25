@@ -72,3 +72,8 @@
 :root[data-page=home] .dashboard-grid .waste-card .next-collection-body{flex-wrap:nowrap}
 :root[data-page=home] .dashboard-grid .waste-card .next-collection-body>div:first-child{flex:1;min-width:0}
 @container widget (width < 190px){.waste-next-preview{flex-wrap:nowrap}.waste-next-preview>div:last-child{flex-basis:auto}}
+
+/* All projections are prepared together, so a breakpoint switch never paints stale desktop cells. */
+:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:var(--widget-desktop-column,auto) / span var(--widget-desktop-span,var(--widget-width))!important;grid-row:var(--widget-desktop-row,auto) / span var(--widget-rows)!important}
+@media(min-width:761px) and (max-width:1000px){:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:var(--widget-tablet-column,auto) / span var(--widget-tablet-span,var(--widget-width))!important;grid-row:var(--widget-tablet-row,auto) / span var(--widget-rows)!important}}
+@media(max-width:760px){:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:1 / span 12!important;grid-row:var(--widget-mobile-row,auto) / span var(--widget-rows)!important}}

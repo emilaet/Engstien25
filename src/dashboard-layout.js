@@ -1,4 +1,4 @@
-import {arrangeGrid,relocateGrid,reorderStack,snapGridRow} from './dashboard-grid.js';
+import {arrangeGrid,relocateGrid,reorderStack,snapGridRow,shiftStack} from './dashboard-grid.js';
 import {safeStorage} from './storage.js';
 export const layoutKey='engstien-home-layout-v3';
 export const legacyLayoutKey='engstien-home-layout-v2';
@@ -73,17 +73,18 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
   toolbar.querySelector('#undo-home-layout').disabled=!undoStack.length;toolbar.querySelector('#redo-home-layout').disabled=!redoStack.length;
   toolbar.querySelector('.layout-visible-count').textContent=`${draft.filter(w=>w.visible!==false).length} af ${draft.length}`;
  }
- function rectangles(layout){const standard=sameDefault(layout);return arrangeGrid(layout.map(w=>({...w,rows:Math.round((cardHeight(w,standard)+12)/16)})),{minimum:innerWidth<=1000?3:2,stack:innerWidth<=760});}
+ function rectangles(layout,{minimum=innerWidth<=1000?3:2,stack=innerWidth<=760}={}){const standard=sameDefault(layout);return arrangeGrid(layout.map(w=>({...w,rows:Math.round((cardHeight(w,standard)+12)/16)})),{minimum,stack});}
  function writePositions(layout,rects,{mobileOrder=false}={}){
   const byId=new Map(rects.map(r=>[r.id,r])),reading=[...rects].sort((a,b)=>a.row-b.row||a.column-b.column);
   if(innerWidth<=760){if(mobileOrder||gesture?.kind==='move')for(const [index,r] of reading.entries())layout.find(w=>w.id===r.id).mobileOrder=index;}
   else {for(const w of layout){const r=byId.get(w.id);if(r){w.column=r.column;w.row=r.row;}}layout.sort((a,b)=>{const x=byId.get(a.id),y=byId.get(b.id);return x&&y?x.row-y.row||x.column-y.column:x?-1:y?1:0;});}
  }
  function applySizes(layout,rects=rectangles(layout)){
-  const byId=new Map(rects.map(r=>[r.id,r]));
+  const byId=new Map(rects.map(r=>[r.id,r])),profiles={desktop:rectangles(layout,{minimum:2,stack:false}),tablet:rectangles(layout,{minimum:3,stack:false}),mobile:rectangles(layout,{stack:true})};
   for(const widget of layout){
    const card=cardFor(widget.id),rect=byId.get(widget.id);if(!card||!rect)continue;
    card.style.setProperty('--widget-width',widget.width);card.style.setProperty('--widget-span',rect.width);card.style.setProperty('--widget-height',widget.height);card.style.setProperty('--widget-rows',rect.rows);card.style.setProperty('--widget-column',rect.column+1);card.style.setProperty('--widget-row',rect.row+1);
+   for(const [name,rectangles] of Object.entries(profiles)){const projected=rectangles.find(r=>r.id===widget.id);card.style.setProperty(`--widget-${name}-column`,projected.column+1);card.style.setProperty(`--widget-${name}-row`,projected.row+1);card.style.setProperty(`--widget-${name}-span`,projected.width);}
    card.classList.toggle('widget-selected',editing&&widget.id===selectedWidget);
    const label=card.querySelector('.widget-size-label');if(label)label.textContent=gesture?.kind==='move'&&gesture.started?'Slip på den markerede plads':`${widget.width}/12 · ${rect.rows*16-12} px`;
    card.querySelector('[data-axis=width]')?.setAttribute('aria-valuenow',widget.width);
@@ -93,7 +94,7 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
  }
  function nudge(id,x,y){
   const rects=rectangles(draft),r=rects.find(r=>r.id===id);if(!r)return;
-  const next=innerWidth<=760?reorderStack(rects,id,r.row+(y||x)*Math.max(1,r.rows)):relocateGrid(rects,id,{column:r.column+x,row:r.row+y});
+  const next=innerWidth<=760?shiftStack(rects,id,y||x):relocateGrid(rects,id,{column:r.column+x,row:r.row+y});
   if(!next.some(v=>{const before=rects.find(b=>b.id===v.id);return v.column!==before.column||v.row!==before.row;}))return;
   remember();selectedWidget=id;writePositions(draft,next,{mobileOrder:true});refresh();announce('Kortet er flyttet. Ændringen er ikke gemt endnu.');
  }
@@ -199,7 +200,7 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
    next=innerWidth<=760?rectangles(draft):relocateGrid(g.rects,g.id,{width:Math.max(innerWidth<=1000?3:2,widget.width),rows:Math.round((cardHeight(widget,sameDefault(draft))+12)/16)});
   }else{
    const left=x-g.offsetX,top=y-g.offsetY;g.card.style.setProperty('left',left+'px');g.card.style.setProperty('top',top+'px');g.inBounds=x>=grid.left-24&&x<=grid.right+24&&y>=grid.top-64;
-   const column=Math.round((left-grid.left)/g.column),row=snapGridRow((top-grid.top)/16,g.rects);next=innerWidth<=760?reorderStack(g.rects,g.id,row):relocateGrid(g.rects,g.id,{column,row});g.placeholder.classList.toggle('drop-invalid',!g.inBounds);
+   const column=Math.round((left-grid.left)/g.column),row=snapGridRow((top-grid.top)/16,g.rects);next=innerWidth<=760?reorderStack(g.rects,g.id,(y-grid.top)/16):relocateGrid(g.rects,g.id,{column,row});g.placeholder.classList.toggle('drop-invalid',!g.inBounds);
   }
   g.changed=next.some(r=>{const old=g.rects.find(v=>v.id===r.id);return r.column!==old.column||r.row!==old.row||r.width!==old.width||r.rows!==old.rows;});writePositions(draft,next);applySizes(draft,next);
  }

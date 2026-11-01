@@ -40,11 +40,16 @@ export function relocateGrid(rectangles,id,{column,row,width,rows}){
 }
 export function reorderStack(rectangles,id,top){
  const picked=rectangles.find(rect=>rect.id===id);if(!picked)return rectangles.map(rect=>({...rect}));
- const rest=rectangles.filter(rect=>rect.id!==id).sort((a,b)=>a.row-b.row),center=top+picked.rows/2;
+ const rest=rectangles.filter(rect=>rect.id!==id).sort((a,b)=>a.row-b.row),center=top;
  let index=rest.findIndex(rect=>center<=rect.row+rect.rows/2);if(index<0)index=rest.length;rest.splice(index,0,picked);
  let row=0;return rest.map(rect=>{const next={...rect,column:0,row};row+=rect.rows;return next;});
 }
 export function snapGridRow(row,rectangles){
  const edges=[0,...rectangles.flatMap(r=>[r.row,r.row+r.rows])],nearest=edges.reduce((a,b)=>Math.abs(b-row)<Math.abs(a-row)?b:a);
  return Math.max(0,Math.abs(nearest-row)<=2?nearest:Math.round(row));
+}
+
+export function shiftStack(rectangles,id,direction){
+ const ordered=[...rectangles].sort((a,b)=>a.row-b.row),from=ordered.findIndex(r=>r.id===id);if(from<0)return ordered.map(r=>({...r}));
+ const [picked]=ordered.splice(from,1);ordered.splice(Math.max(0,Math.min(ordered.length,from+direction)),0,picked);let row=0;return ordered.map(r=>{const next={...r,row,column:0};row+=r.rows;return next;});
 }

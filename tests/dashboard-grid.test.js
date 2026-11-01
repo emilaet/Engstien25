@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {arrangeGrid,relocateGrid,reorderStack,overlaps,snapGridRow} from '../src/dashboard-grid.js';
+import {arrangeGrid,relocateGrid,reorderStack,overlaps,snapGridRow,shiftStack} from '../src/dashboard-grid.js';
 const base=()=>arrangeGrid([{id:'a',width:4,rows:17},{id:'b',width:4,rows:17},{id:'c',width:4,rows:17},{id:'d',width:6,rows:15},{id:'e',width:6,rows:15}]);
 function clear(rects){for(const a of rects){assert.ok(a.column>=0&&a.column+a.width<=12&&a.row>=0);for(const b of rects)if(a!==b)assert.equal(overlaps(a,b),false,`${a.id} and ${b.id} overlap`);}}
 test('Legacy automatic layout keeps its rows, and explicit empty spaces remain empty',()=>{const b=base();assert.deepEqual(b.map(r=>[r.column,r.row]),[[0,0],[4,0],[8,0],[0,17],[6,17]]);const moved=relocateGrid(b,'a',{column:2,row:55});assert.equal(moved[0].row,55);assert.deepEqual(moved.slice(1),b.slice(1));clear(moved);assert.deepEqual(arrangeGrid(moved),moved);});
@@ -13,3 +13,8 @@ test('Repeated arbitrary moves and resizes never overlap, including edge clamps 
 });
 
 test('Drag alignment tolerates slight hand movement near row edges without preventing distant empty placements',()=>{assert.equal(snapGridRow(1.6,base()),0);assert.equal(snapGridRow(18.5,base()),17);assert.equal(snapGridRow(25,base()),25);assert.equal(snapGridRow(80,base()),80);});
+
+test('Tall phone cards can move above short cards, and one-click arrows move exactly one place both ways',()=>{
+ const original=[{id:'small',width:12,column:0,row:0,rows:9},{id:'tall',width:12,column:0,row:9,rows:50},{id:'last',width:12,column:0,row:59,rows:13}];
+ const up=reorderStack(original,'tall',1);assert.equal(up[0].id,'tall');clear(up);const down=shiftStack(up,'tall',1);assert.deepEqual(down,original);assert.deepEqual(shiftStack(down,'tall',-1),up);assert.equal(reorderStack(up,'tall',100)[2].id,'tall');
+});
