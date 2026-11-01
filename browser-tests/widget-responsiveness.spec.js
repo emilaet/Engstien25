@@ -1,8 +1,8 @@
 import {test,expect} from '@playwright/test';
-const ids=['camera','weather','calendar','car','waste','shopping','tasks','house','lights','climate','curtains'];
-async function custom(page){await page.addInitScript(ids=>{if(!localStorage.getItem('engstien-home-layout-v3'))localStorage.setItem('engstien-home-layout-v3',JSON.stringify(ids.map(id=>({id,width:3,height:3,visible:true}))))},ids);await page.goto('/');await expect(page.locator('.dashboard-widget')).toHaveCount(11);}
+const ids=['camera','weather','calendar','car','waste','shopping','tasks','house','lights','climate','curtains','music'];
+async function custom(page){await page.addInitScript(ids=>{if(!localStorage.getItem('engstien-home-layout-v3'))localStorage.setItem('engstien-home-layout-v3',JSON.stringify(ids.map(id=>({id,width:3,height:3,visible:true}))))},ids);await page.goto('/');await expect(page.locator('.dashboard-widget')).toHaveCount(12);}
 async function edit(page){await page.locator('#home-options').click();await page.getByRole('button',{name:'Rediger dashboard',exact:true}).click();}
-test('All eleven widgets contain their content across narrow, wide, short and tall saved sizes',async({page})=>{
+test('All twelve widgets contain their content across narrow, wide, short and tall saved sizes',async({page})=>{
  test.setTimeout(240_000);await custom(page);const failures=[];
  for(const [vw,vh]of [[1194,834],[834,1194],[390,844]]){await page.setViewportSize({width:vw,height:vh});await page.evaluate(()=>new Promise(requestAnimationFrame));
   for(const width of [2,3,4,6,8,12])for(const height of [2,3,4,5,7,9]){
@@ -18,7 +18,7 @@ test('Compact Tesla retains charging information and compact calendar and weathe
  await page.setViewportSize({width:1194,height:834});await custom(page);
  await expect(page.locator('#charge-summary')).toContainText('80');await expect(page.locator('.home-car-meta')).toContainText('kW');await expect(page.locator('.home-car-meta')).toContainText(/min/);
  const calendar=page.locator('.calendar-card');await calendar.getByRole('button',{name:/Se hele ugen/}).click();await expect(page.locator('.hw-calendar-dialog')).toBeVisible();await page.keyboard.press('Escape');
- const weather=page.locator('.dashboard-widget.weather-card');await weather.getByRole('button',{name:'Skift vejrudsigt til time for time'}).click();await expect(weather.locator('.hw-day')).toHaveCount(6);expect(await weather.evaluate(c=>c.scrollWidth<=c.clientWidth+1)).toBe(true);await weather.getByRole('button',{name:'Se timer'}).click();await expect(page.locator('.hw-weather-dialog')).toBeVisible();await page.keyboard.press('Escape');
+ const weather=page.locator('.dashboard-widget.weather-card');await weather.getByRole('button',{name:'Skift vejrudsigt til time for time'}).click();await expect(weather.locator('.hw-day')).toHaveCount(6);expect(await weather.evaluate(c=>c.scrollWidth<=c.clientWidth+1)).toBe(true);await weather.getByRole('button',{name:'Udvid vejret'}).click();await expect(page.locator('.hw-weather-dialog')).toBeVisible();await page.keyboard.press('Escape');
  await page.locator('#car-summary').click();await expect(page.locator('#rooms-workspace')).toHaveAttribute('data-view','charger');
 });
 test('Editor keeps the actual preview width and supports size presets, undo, redo, visibility and cancellation',async({page})=>{

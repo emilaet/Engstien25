@@ -1,0 +1,38 @@
+/* Weather prioritises current temperature and the forecast in short cards. */
+.hw-weather-head-actions{display:flex;align-items:center;gap:4px;flex:none}.hw-weather-head-actions .hw-mode{max-width:none;white-space:nowrap}.hw-weather-expand{display:grid;place-items:center;width:44px;min-width:44px;height:44px;padding:0;border:0;border-radius:12px;background:none;color:var(--muted)}.hw-weather-expand:hover{background:var(--soft);color:var(--text)}
+.hw-weather-title small,.hw-mini-current{display:none}.hw-weather-title{min-width:0}.hw-rain-word{display:inline}
+@container widget (width < 190px){
+ .dashboard-grid .weather-card .hw-mode{display:none}.dashboard-grid .weather-card .hw-current strong{font-size:32px!important}.dashboard-grid .weather-card .hw-current>.hw-weather-art{display:none}
+}
+@container widget (height < 230px){
+ .dashboard-grid .weather-card .hw-weather-layout{display:flex!important;flex-direction:column;flex:1;min-height:0;gap:0}
+ .dashboard-grid .weather-card .hw-head{grid-area:auto;flex:none;min-height:44px!important;height:44px;padding:0;gap:6px;align-items:center}
+ .dashboard-grid .weather-card .hw-head h2{display:flex;align-items:center;gap:6px;min-width:0;line-height:1.1;white-space:normal}
+ .dashboard-grid .weather-card .hw-head h2>svg{display:none}.dashboard-grid .weather-card .hw-weather-title{font-size:11px;line-height:1.2}.dashboard-grid .weather-card .hw-weather-title small{display:block;color:var(--muted);font-size:7px;letter-spacing:0;margin-top:2px;font-weight:400}
+ .dashboard-grid .weather-card .hw-mini-current{display:block;font-size:27px;line-height:1;font-weight:500;letter-spacing:-1px;white-space:nowrap}
+ .dashboard-grid .weather-card .hw-current,.dashboard-grid .weather-card .hw-weather-foot,.dashboard-grid .weather-card .hw-source{display:none!important}
+ .dashboard-grid .weather-card .hw-forecast{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-area:auto;min-height:58px!important;height:auto!important;flex:1;gap:2px!important;margin:0;align-self:stretch}
+ .dashboard-grid .weather-card .hw-forecast.hourly{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+ .dashboard-grid .weather-card .hw-day{font-size:9px;line-height:1.1;gap:2px;padding:2px 0;justify-content:center}
+ .dashboard-grid .weather-card .hw-day>.hw-weather-art{width:22px;height:22px}.dashboard-grid .weather-card .hw-day>b{font-size:14px!important;line-height:1;font-weight:500}.dashboard-grid .weather-card .hw-day>b small{display:block;font-size:9px;margin:2px 0 0;line-height:1}.dashboard-grid .weather-card .hw-day em{font-size:7px;line-height:1.1;white-space:nowrap}.dashboard-grid .weather-card .hw-rain-word{display:none}
+}
+@container widget (height < 175px){
+ .dashboard-grid .weather-card .hw-day{font-size:8px;line-height:1;gap:0;padding:0;min-height:0}
+ .dashboard-grid .weather-card .hw-day>span{line-height:10px}.dashboard-grid .weather-card .hw-day>.hw-weather-art{width:16px;height:16px}
+ .dashboard-grid .weather-card .hw-day>b{font-size:12px!important;line-height:13px}.dashboard-grid .weather-card .hw-day>b small{font-size:8px;line-height:9px;margin:0}.dashboard-grid .weather-card .hw-day em{font-size:7px;line-height:9px}
+ .dashboard-grid .weather-card .hw-weather-expand{width:44px;min-width:44px}.dashboard-grid .weather-card .hw-mini-current{font-size:24px}
+}
+/* Compact entry point; the official Apple Music player is created only on expansion. */
+.music-card .hw-head h2{font-size:18px}.music-summary{display:flex;align-items:center;gap:12px;flex:1;min-height:36px;margin:8px 0;min-width:0}.music-summary>div:last-child{min-width:0}.music-summary strong{font-weight:500;font-size:17px;line-height:1.2;display:block;overflow-wrap:anywhere}.music-summary p{font-size:11px;line-height:1.4;color:var(--muted);margin:5px 0 0}
+.music-art{width:64px;height:64px;min-width:36px;flex:none;border-radius:17px;background:linear-gradient(145deg,#bf526d,#773e67 65%,#423b59);display:grid;place-items:center;color:#fff;box-shadow:inset 0 1px 1px #fff2}.music-art svg{width:30px;height:30px;stroke-width:1.4}
+.music-open{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none;width:100%;background:none;border:1px solid var(--border);border-radius:11px;padding:0 12px;font-size:12px;color:var(--text)}.music-open svg{height:17px;width:17px}
+@container widget (width < 230px){.music-summary{gap:8px}.music-art{width:40px;height:40px;border-radius:12px}.music-art svg{width:23px;height:23px}.music-summary strong{font-size:14px}.music-summary p{font-size:9px}.music-card .hw-head h2{font-size:16px}.music-card .hw-badge{font-size:8px}}
+@container widget (height < 175px){.music-summary{min-height:30px;margin:2px 0;gap:8px}.music-art{width:30px;height:30px;border-radius:9px;min-width:30px}.music-art svg{width:20px;height:20px}.music-summary strong{font-size:12px}.music-summary p{display:none}.music-card .hw-head{height:26px;min-height:26px}.music-card .hw-head h2{font-size:15px}.music-open{height:44px;min-height:44px;font-size:11px;padding:0 8px}}
+.hw-music-dialog{width:min(880px,calc(100vw - 30px))}.music-player{min-height:200px;background:var(--soft);border-radius:16px;overflow:hidden}.music-player iframe{display:block;border:0;width:100%;height:450px;background:var(--soft)}.music-player>p{padding:24px;font-size:14px;line-height:1.6;color:var(--muted)}
+.music-links{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}.music-links a{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:11px;color:var(--text);text-decoration:none;font-size:12px}.music-links .primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}.music-links svg{width:16px;height:16px}
+.music-settings{border-top:1px solid var(--border);padding-top:4px}.music-settings summary{display:flex;align-items:center;min-height:44px;font-size:12px;cursor:pointer;color:var(--muted)}.music-link-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0}.music-link-form label{font-size:11px;color:var(--muted);min-width:0}.music-link-form input{display:block;width:100%;min-height:44px;margin-top:5px;padding:8px 10px;font-size:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text)}.music-link-form button{min-height:44px;align-self:end;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);padding:0 14px;font-size:12px}.music-link-status{grid-column:1/-1;font-size:11px;color:var(--muted);margin:0;line-height:1.4}.music-note{font-size:11px;color:var(--muted);line-height:1.5;margin:12px 0 20px}
+@media(max-width:500px){.hw-music-dialog .hw-detail-body{padding:0 12px}.music-link-form{grid-template-columns:1fr}.music-link-form button{justify-self:start}.music-player iframe{height:450px}.music-links{gap:6px}.music-links a{font-size:11px;padding:0 10px}}
+@container widget (height < 175px){.music-summary{margin:0;min-height:28px}}
+@container widget (height < 175px) and (width > 270px){
+ .dashboard-grid .weather-card .hw-day{font-size:9px}.dashboard-grid .weather-card .hw-day>span{line-height:11px}.dashboard-grid .weather-card .hw-day>.hw-weather-art{width:20px;height:20px}.dashboard-grid .weather-card .hw-day>b{font-size:14px!important;line-height:16px}.dashboard-grid .weather-card .hw-day>b small{display:inline;font-size:10px;line-height:16px;margin-left:3px}.dashboard-grid .weather-card .hw-day em{font-size:8px;line-height:10px}
+}

@@ -4,6 +4,7 @@ export const layoutKey='engstien-home-layout-v3';
 export const legacyLayoutKey='engstien-home-layout-v2';
 export const previousLayoutKey='engstien-home-layout-v1';
 export const widgetDefinitions=[
+ {id:'music',name:'Musik',selector:'.music-card',width:3,height:3},
  {id:'weather',name:'Vejrudsigt',selector:'.weather-card',width:4,height:5},
  {id:'camera',name:'Hoveddørskamera',selector:'.camera-card',width:4,height:5},
  {id:'calendar',name:'Familiens kalender',selector:'.calendar-card',width:6,height:4},
@@ -17,23 +18,25 @@ export const widgetDefinitions=[
  {id:'waste',name:'Tømmekalender',selector:'.waste-card',width:4,height:7},
 ];
 const oldIds=['house','waste','tasks','shopping','car','lights','climate','curtains'];
-const positioned=w=>(w.column===undefined&&w.row===undefined||Number.isInteger(w.column)&&w.column>=0&&w.column<=11&&Number.isInteger(w.row)&&w.row>=0&&w.row<=10000)&&(w.mobileOrder===undefined||Number.isInteger(w.mobileOrder)&&w.mobileOrder>=0&&w.mobileOrder<11);
+const positioned=w=>(w.column===undefined&&w.row===undefined||Number.isInteger(w.column)&&w.column>=0&&w.column<=11&&Number.isInteger(w.row)&&w.row>=0&&w.row<=10000)&&(w.mobileOrder===undefined||Number.isInteger(w.mobileOrder)&&w.mobileOrder>=0&&w.mobileOrder<widgetDefinitions.length);
 const sizes=w=>w&&typeof w.id==='string'&&(w.visible===undefined||typeof w.visible==='boolean')&&Number.isInteger(w.width)&&w.width>=2&&w.width<=12&&[2,3,4,5,7,9].includes(w.height)&&(w.heightPx===undefined||Number.isInteger(w.heightPx)&&w.heightPx>=132&&w.heightPx<=1092)&&positioned(w);
 const legacyDefault=()=>[['house',8,5],['waste',4,5],['tasks',4,5],['shopping',4,5],['car',4,5],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
-export const defaultLayout=()=>[['house',4,5],['camera',4,5],['weather',4,5],['calendar',6,4],['waste',3,4],['car',3,4],['tasks',6,4],['shopping',6,4],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
+export const defaultLayout=()=>[['house',4,5],['camera',4,5],['weather',4,5],['calendar',6,4],['waste',3,4],['car',3,4],['tasks',6,4],['shopping',6,4],['music',3,3],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
+const validPreviousWidgets=value=>Array.isArray(value)&&value.length===11&&new Set(value.map(w=>w?.id)).size===11&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id&&d.id!=='music'));
 export function validLayout(value){return Array.isArray(value)&&value.length===widgetDefinitions.length&&new Set(value.map(w=>w?.id)).size===widgetDefinitions.length&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id));}
 export function migrateLayout(value){
  if(validLayout(value))return value;
+ if(validPreviousWidgets(value)){const original=defaultLayout().filter(w=>w.id!=='music'),untouched=value.every((w,i)=>w.id===original[i].id&&w.width===original[i].width&&w.height===original[i].height&&(w.visible!==false)===(original[i].visible!==false)&&w.column===undefined&&w.heightPx===undefined&&w.mobileOrder===undefined);return untouched?defaultLayout():[...structuredClone(value),defaultLayout().find(w=>w.id==='music')];}
  if(!Array.isArray(value)||![7,8].includes(value.length)||!value.every(w=>sizes(w)&&oldIds.includes(w.id))||new Set(value.map(w=>w.id)).size!==value.length)return defaultLayout();
  const legacy=value.length===7&&!value.some(w=>w.id==='house')?[{id:'house',width:8,height:5},...value]:value;
  if(legacy.length!==8||!oldIds.every(id=>legacy.some(w=>w.id===id)))return defaultLayout();
  const original=legacyDefault(),untouched=legacy.every((w,i)=>w.id===original[i].id&&w.width===original[i].width&&w.height===original[i].height&&(w.visible===undefined||w.visible===original[i].visible));
  if(untouched)return defaultLayout();
- return [...structuredClone(legacy),...defaultLayout().filter(w=>['camera','weather','calendar'].includes(w.id))];
+ return [...structuredClone(legacy),...defaultLayout().filter(w=>['camera','weather','calendar','music'].includes(w.id))];
 }
 export function moveWidget(layout,id,target){const next=structuredClone(layout),from=next.findIndex(w=>w.id===id);if(from<0)return next;const [widget]=next.splice(from,1);next.splice(Math.max(0,Math.min(next.length,target)),0,widget);return next;}
 const presetSize=(id,size)=>size==='compact'?(['weather','calendar'].includes(id)?{width:2,height:5}:id==='car'?{width:2,height:3}:['lights','climate','curtains'].includes(id)?{width:2,height:2}:{width:3,height:4}):size==='wide'?{width:6,height:3}:{width:4,height:4};
-const defaultHeights={house:260,camera:260,weather:260,calendar:228,waste:228,car:228,tasks:196,shopping:196,lights:134,climate:134,curtains:134};
+const defaultHeights={music:212,house:260,camera:260,weather:260,calendar:228,waste:228,car:228,tasks:196,shopping:196,lights:134,climate:134,curtains:134};
 const heightSteps=[2,3,4,5,7,9];
 const snapHeight=value=>Math.max(132,Math.min(1092,Math.round((value+12)/16)*16-12));
 const sameDefault=layout=>layout.every((w,i)=>{const d=defaultLayout()[i];return w.id===d.id&&w.width===d.width&&w.height===d.height&&(w.visible!==false)===(d.visible!==false);});
@@ -44,7 +47,7 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
  let saved=defaultLayout();
  try{saved=migrateLayout(JSON.parse(disk.getItem(layoutKey)??disk.getItem(legacyLayoutKey)));}catch{}
  let previous=null;
- try{const value=JSON.parse(disk.getItem(previousLayoutKey));if(Array.isArray(value)&&[7,8,11].includes(value.length))previous=migrateLayout(value);}catch{}
+ try{const value=JSON.parse(disk.getItem(previousLayoutKey));if(Array.isArray(value)&&[7,8,11,12].includes(value.length))previous=migrateLayout(value);}catch{}
  let draft=structuredClone(saved),editing=false,home=false,gesture=null,selectedWidget='weather',undoStack=[],redoStack=[],autoScroll=0,resizeFrame=0;
  const summary=document.querySelector('.summary'),stats=[...summary.children],house=document.querySelector('#house-overview'),parking=document.querySelector('#home-overview-parking');
  const area=document.createElement('div');area.className='home-layout-menu';

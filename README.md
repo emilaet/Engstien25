@@ -97,7 +97,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 ### Godkendte referenceflader og iPad
 
-Den godkendte standardforside har otte synlige kort med vejr, hoveddørskamera og Google Kalender. **Rediger** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger og klikbare flyttepile for alle 11 widgets. Tømmekalenderen viser de to kommende tømninger direkte. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
+Den godkendte standardforside har ni synlige kort med vejr, hoveddørskamera, Google Kalender og musik. **Rediger** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger og klikbare flyttepile for alle 12 widgets. Tømmekalenderen viser de to kommende tømninger direkte. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
 
 Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
@@ -114,3 +114,5 @@ Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum
 ### Rum: fokuspanel og enheder
 
 Den godkendte [rumstyring](docs/room-controls.md) er implementeret med selvstændigt fokuspanel, enhedskort, kategori-faner, hurtig rumvælger, temperaturforvalg og gardinernes åbning/lukning/stop. Alle rumenheder er fortsat dummydata. Hver ændring gemmes i samme browserjournal som før, og husmodellen opdateres fra samme tilstand.
+
+Vejret har en særlig minimumsvisning med aktuel temperatur og hele prognosen uden afskæring. Musikkortets **Udvid** åbner den officielle Apple Music-afspiller; eget album-/spillelistelink kan vælges og gemmes på enheden. Apple Music indlæses først ved udvidelse, og afspilleren fjernes ved lukning. Eksisterende layouts med 11 widgets bevares, når musik tilføjes.
