@@ -13,3 +13,7 @@ test('Direct resize sizes survive reload migration while malformed pixel heights
  const layout=defaultLayout().map(w=>({...w,width:5,heightPx:340}));assert.ok(validLayout(layout));assert.deepEqual(migrateLayout(layout),layout);
  for(const heightPx of [null,'340',0,131,1093,NaN,Infinity,200.5])assert.equal(validLayout(layout.map(w=>({...w,heightPx}))),false);
 });
+test('Saved grid cells and independent mobile order validate and migrate without losing old layouts',()=>{
+ const layout=defaultLayout().map((w,i)=>({...w,column:0,row:i*30,mobileOrder:i}));assert.ok(validLayout(layout));assert.deepEqual(migrateLayout(layout),layout);
+ for(const bad of [{column:12,row:0},{column:-1,row:0},{column:0,row:-1},{column:0,row:0.5},{column:0},{row:0},{mobileOrder:11},{mobileOrder:'1'}])assert.equal(validLayout(defaultLayout().map((w,i)=>i? w:{...w,...bad})),false);
+});

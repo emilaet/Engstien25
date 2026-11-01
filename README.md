@@ -28,7 +28,7 @@ I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. He
 
 ## Betjening
 
-På **Hjem** låser **Rediger** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. Indstillingerne gemmes på denne enhed.
+På **Hjem** låser **Rediger** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte til en vilkårlig ledig plads i gridet. Kortet følger hånden, og en pladsholder viser landingsstedet. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. Indstillingerne gemmes på denne enhed.
 
 I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum**, søgning og pilene skifter rum. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
 
@@ -97,7 +97,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 ### Godkendte referenceflader og iPad
 
-Den godkendte standardforside har otte synlige kort med vejr, hoveddørskamera og Google Kalender. **Rediger** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger for alle 11 widgets. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
+Den godkendte standardforside har otte synlige kort med vejr, hoveddørskamera og Google Kalender. **Rediger** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger og klikbare flyttepile for alle 11 widgets. Tømmekalenderen viser de to kommende tømninger direkte. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
 
 Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
