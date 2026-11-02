@@ -14,7 +14,9 @@ Til lokal udvikling kan en allerede signeret developer-token lægges i den git-i
 
 ## Spotify
 
-Opret en Spotify Web API-app og registrer den nøjagtige redirect URI `https://emilaet.github.io/Engstien25/`. Sæt repository-variablen `SPOTIFY_CLIENT_ID` til dens offentlige client ID (lokalt: `VITE_SPOTIFY_CLIENT_ID`). Der bruges ingen Spotify client secret i browseren.
+Spotify-appen **Engstien 25** er konfigureret med det offentlige client ID `b17f4a1abb3546f299d0204bdb50156c` og redirect URI `https://emilaet.github.io/Engstien25/`. Brugeren kan forbinde sin konto via musiklogoet → Spotify → Forbind Spotify. Client ID er en offentlig app-identifikator; der bruges ingen Spotify client secret i browseren.
+
+Ved skift til en anden Spotify-app kan repository-variablen `SPOTIFY_CLIENT_ID` overskrive standarden (lokalt: `VITE_SPOTIFY_CLIENT_ID`). Registrer altid dashboardets præcise redirect URI i den nye app.
 
 Login bruger Authorization Code med PKCE (SHA-256), tilfældig state og en verifier med ti minutters gyldighed. OAuth-kode og state fjernes fra URL'en efter callback. Access-/refresh-token opbevares i sessionStorage, ikke i det vedvarende dashboardlayout. Udløbne access-tokens fornyes. Spotify Premium og app-adgang er nødvendigt for Web Playback SDK; adgangskrav i Spotifys udviklertilstand gælder fortsat. Afspilning overtages først af denne browser, når brugeren trykker Afspil. Log ud pauser musikken, afbryder SDK-enheden og fjerner appens Spotify-session.
 
