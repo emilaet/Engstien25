@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { readFile, readdir, rm, mkdir, writeFile } from 'node:fs/promises';
+import {appleDeveloperToken} from './apple-music-token.mjs';
 
 const plain = '.preview/plain';
 const site = '.preview/site';
@@ -19,6 +20,10 @@ try {
   const buildEnv = { ...process.env };
   delete buildEnv.PREVIEW_PASSWORD;
   delete buildEnv.STATICRYPT_PASSWORD;
+  buildEnv.VITE_APPLE_MUSIC_DEVELOPER_TOKEN=appleDeveloperToken(buildEnv);
+  delete buildEnv.APPLE_MUSIC_PRIVATE_KEY;
+  delete buildEnv.APPLE_MUSIC_TEAM_ID;
+  delete buildEnv.APPLE_MUSIC_KEY_ID;
   run('node_modules/vite/bin/vite.js', ['build', '--config', 'vite.preview.config.js'], buildEnv);
   const entries = await readdir(plain);
   if (entries.length !== 1 || entries[0] !== 'index.html') {

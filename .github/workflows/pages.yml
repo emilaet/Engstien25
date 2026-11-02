@@ -65,6 +65,10 @@ jobs:
         run: npm run build:pages
         env:
           PREVIEW_PASSWORD: ${{ secrets.PREVIEW_PASSWORD }}
+          APPLE_MUSIC_TEAM_ID: ${{ secrets.APPLE_MUSIC_TEAM_ID }}
+          APPLE_MUSIC_KEY_ID: ${{ secrets.APPLE_MUSIC_KEY_ID }}
+          APPLE_MUSIC_PRIVATE_KEY: ${{ secrets.APPLE_MUSIC_PRIVATE_KEY }}
+          VITE_SPOTIFY_CLIENT_ID: ${{ vars.SPOTIFY_CLIENT_ID }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .preview/site

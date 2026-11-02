@@ -115,7 +115,7 @@ Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum
 
 Den godkendte [rumstyring](docs/room-controls.md) er implementeret med selvstændigt fokuspanel, enhedskort, kategori-faner, hurtig rumvælger, temperaturforvalg og gardinernes åbning/lukning/stop. Alle rumenheder er fortsat dummydata. Hver ændring gemmes i samme browserjournal som før, og husmodellen opdateres fra samme tilstand.
 
-Vejrets mindste visning viser læsbar temperatur og vejrtype; hele prognosen åbnes ved udvidelse. Musikkortets **Udvid** åbner den officielle Apple Music-afspiller; eget album-/spillelistelink kan vælges og gemmes på enheden. Apple Music indlæses først ved udvidelse, og afspilleren fjernes ved lukning. Eksisterende layouts med 11 widgets bevares, når musik tilføjes.
+Vejrets mindste visning viser læsbar temperatur og vejrtype; hele prognosen åbnes ved udvidelse. Musikkortet har direkte afspilningsknapper; tryk **Musik** for den store afspiller eller tjenestens logo for kontovalg. Apple Music bruger MusicKit, og Spotify bruger PKCE og Web Playback SDK. Fuld afspilning kræver tjenesteopsætning og brugerlogin; se [musikafspillerens opsætning](docs/music-player.md). Egne musiklinks gemmes på enheden, og den officielle indlejrede afspiller er en separat reservevisning. Eksisterende layouts med 11 widgets bevares, når musik tilføjes.
 
 ## UX-opdatering
 

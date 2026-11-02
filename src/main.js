@@ -7,6 +7,7 @@ import './dashboard-responsive.css';
 import './dashboard-editing.css';
 import './weather-music.css';
 import './ux-upgrade.css';
+import './music-player.css';
 import {parseNavigation,roomLocation} from './navigation-state.js';
 import {createRoomPanel} from './room-panel.js';
 import {renderChargePanel} from './charge-panel.js';
