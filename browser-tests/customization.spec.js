@@ -1,4 +1,4 @@
-import {selectRoom,roomTab,openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
+import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 const edit=async page=>{await page.getByRole('button',{name:'Tilpas Hjem',exact:true}).click();await page.getByRole('button',{name:'Rediger dashboard',exact:true}).click();await page.getByRole('button',{name:'Widgets og størrelser',exact:true}).click();await expect(page.locator('.layout-editor')).toBeVisible();};
 test('Home grid saves order and dimensions, cancels drafts, and survives list refresh and navigation',async({page})=>{

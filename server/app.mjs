@@ -2,18 +2,20 @@ import {createServer} from 'node:http';
 import {readFileSync,writeFileSync,renameSync,mkdirSync,existsSync} from 'node:fs';
 import {resolve,extname,sep} from 'node:path';
 import {randomBytes,timingSafeEqual,scryptSync} from 'node:crypto';
+import {createHaBridge} from './home-assistant.mjs';
 import {createDemoFamilyProvider} from '../src/family-data.js';
-export function createDashboardServer({password,storage,haUrl='',haToken='',entities={},fetchImpl=fetch,staticRoot=resolve('dist'),secureCookies=false}={}){
+export function createDashboardServer({password,storage,haUrl='',haToken='',entities={},fetchImpl=fetch,staticRoot=resolve('dist'),secureCookies=false,credentialStore,registryImpl}={}){
  if(!password)throw new Error('DASHBOARD_PASSWORD skal konfigureres på serveren.');
  const salt=randomBytes(16),hash=scryptSync(password,salt,32),sessions=new Map(),attempts=new Map();
+ const ha=createHaBridge({haUrl,haToken,storage,credentialStore,fetchImpl,registryImpl});
  let vehicleCache=null;
  const json=(res,status,value)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(value));};
  const session=req=>{const token=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('dashboard_session='))?.split('=')[1];const entry=token&&sessions.get(token);return entry&&entry.expires>Date.now()?entry:null;};
- async function body(req){let text='';for await(const part of req){text+=part;if(text.length>8192)throw new Error('For stor forespørgsel.');}return JSON.parse(text||'{}');}
+ async function body(req){let text='';for await(const part of req){text+=part;if(text.length>(req.url.startsWith('/api/settings/catalog')?262144:8192))throw new Error('For stor forespørgsel.');}return JSON.parse(text||'{}');}
  async function vehicle(){
-  if(!haUrl||!haToken||!entities.battery)return {configured:false,readonly:true};
+  if(!ha.configured||!entities.battery)return {configured:false,readonly:true};
   try{
-   const values={},times={},units={};await Promise.all(Object.entries(entities).filter(([,id])=>id).map(async([key,id])=>{const u=new URL('api/states/'+encodeURIComponent(id),haUrl.endsWith('/')?haUrl:haUrl+'/');const r=await fetchImpl(u,{headers:{authorization:'Bearer '+haToken},signal:AbortSignal.timeout(8000)});if(!r.ok)throw new Error('HA unavailable');const d=await r.json();values[key]=d.state;units[key]=d.attributes?.unit_of_measurement;times[key]=d.last_reported||d.last_updated||null;}));
+   const values={},times={},units={};await Promise.all(Object.entries(entities).filter(([,id])=>id).map(async([key,id])=>{const d=await ha.entity(id);values[key]=d.state;units[key]=d.attributes?.unit_of_measurement;times[key]=d.last_reported||d.last_updated||null;}));
    const num=key=>values[key]!==undefined&&values[key]!==null&&values[key]!==''&&Number.isFinite(Number(values[key]))?Number(values[key]):null;
    const percent=key=>num(key)!==null&&num(key)>=0&&num(key)<=100?num(key):null;
    const states={charging:'charging',on:'charging',stopped:'paused',off:'paused',complete:'complete',disconnected:'disconnected',starting:'waiting',asleep:'sleeping'};
@@ -38,6 +40,12 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
    if(path.startsWith('/api/')){
     const active=session(req);if(!active)return json(res,401,{error:'Log ind på dashboardserveren.'});
     if(req.method!=='GET'&&req.headers.origin&&req.headers.origin!==`${secureCookies?'https':'http'}://${req.headers.host}`)return json(res,403,{error:'Ugyldig origin.'});
+    if(path==='/api/settings/catalog'&&req.method==='GET')return json(res,200,ha.catalog());
+    if(path==='/api/settings/catalog'&&req.method==='PUT'){try{return json(res,200,ha.saveCatalog(await body(req)));}catch(e){return json(res,e.status||400,{error:e.message});}}
+    if(path==='/api/settings/ha'&&req.method==='GET')return json(res,200,await ha.snapshot(new URL(req.url,'http://localhost').searchParams.has('refresh')));
+    if(path==='/api/settings/ha'&&req.method==='POST'){try{return json(res,200,await ha.configure(await body(req)));}catch(e){return json(res,400,{error:e.message});}}
+    if(path==='/api/settings/ha'&&req.method==='DELETE')return json(res,200,ha.disconnect());
+    if(path==='/api/settings/command'&&req.method==='POST'){try{const command=await body(req);if(!Number.isSafeInteger(command.revision))throw Error('Hent enhedskataloget før betjening.');return json(res,200,await ha.command(command));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/vehicle'&&req.method==='GET')return json(res,200,await vehicle());
     if(path==='/api/family'&&req.method==='GET')return json(res,200,await familySnapshot(active.family));
     if(path==='/api/family'&&req.method==='POST'){

@@ -1,4 +1,4 @@
-import {selectRoom,roomTab,openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
+import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 async function roomPoint(page,id){
  await expect.poll(()=>page.locator('#scene').getAttribute('data-room-points')).toBeTruthy();

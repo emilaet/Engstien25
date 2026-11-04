@@ -1,6 +1,6 @@
 # Engstien 25
 
-Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. GitHub Pages bruger **simulerede** data. En valgfri lokal dashboardserver kan dele familielister og læse Tesla-/ladeboksdata via Home Assistant; forbindelsen er ikke konfigureret endnu. Se [opsætning og datakilder](docs/integrations.md).
+Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. GitHub Pages bruger **simulerede** data. Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md).
 
 ## Start
 
@@ -22,13 +22,13 @@ npm run dev -- --port 5173
 
 Der vises et første møbleret udkast efter ejerens billeder og produktlinks samt HTH-tegningerne. Sofaen er lige med en separat bred lænestol, og spisegruppen har seks træstole. Børneværelserne har foreløbige juniorsenge og lav opbevaring. Mål, produkter og rumfordeling skal fortsat afstemmes.
 
-I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. Her kan navn, mål, rotation, placering, farve og materiale ændres. Fast inventar har låste mål/placeringer i formularen. Produktlink, referencebillede og ønsker til næste modelopdatering gemmes pr. møbel. **Hent indretningsfil** eksporterer disse oplysninger inklusive billeder; filen kan vedhæftes i chatten eller indlæses igen. Ingen automatisk billedgenkendelse eller modelændring ud fra links er tilsluttet.
+I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. Her kan navn, mål, rotation, placering og farve ændres. Fast inventar har låste mål/placeringer i formularen. Produktlink, referencebillede og ønsker til næste modelopdatering gemmes pr. møbel. **Hent indretningsfil** eksporterer disse oplysninger inklusive billeder; filen kan vedhæftes i chatten eller indlæses igen. Ingen automatisk billedgenkendelse eller modelændring ud fra links er tilsluttet.
 
 **Møbler** viser/skjuler hele inventaret. Alle ydervægge bevares også med møbler. Snitvisningen sænker væggene ensartet til 1,2 m; **Vægge** viser alle vægge i fuld højde. Geometrien og åbningerne i grundplanen ændres ikke. Se [møbeldata, kilder og begrænsninger](docs/furnishing.md).
 
 ## Betjening
 
-På **Hjem** låser **Rediger** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte til en vilkårlig ledig plads i gridet. Kortet følger hånden, og en pladsholder viser landingsstedet. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. Indstillingerne gemmes på denne enhed.
+På **Hjem** låser **••• → Rediger dashboard** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte til en vilkårlig ledig plads i gridet. Kortet følger hånden, og en pladsholder viser landingsstedet. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. Indstillingerne gemmes på denne enhed.
 
 I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum**, søgning og pilene skifter rum. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
 
@@ -73,7 +73,7 @@ Dag/aften-menuen øverst følger solens højde i Hørning eller et manuelt valg.
 
 1. Afstem grundmodel og kameravinkel med ejeren, og ret mål/åbninger/materialer.
 2. Tilpas lamper og varmezoner til el- og VVS-planen. Afklar gulvvarmesystem, Shelly, Matter/Thread og Zigbee-enheder.
-3. Home Assistant er installeret. Konfigurér serverens læseadapter, og implementér senere styring af de faktiske rumenheder. Authentication skal håndteres sikkert, ikke gemmes i kildekode eller browserens localStorage.
+3. Home Assistant forbindes, når installationen er klar. Forbind serveren under Indstillinger, gennemgå enhedskoblinger, og afprøv den fysiske styring i installationen. Authentication skal håndteres sikkert, ikke gemmes i kildekode eller browserens localStorage.
 4. Undersøg adgang og integrationsmuligheder til Tesla og den valgte OK-ladeboks. Afklar kWh-pris, tariffer og batterikapacitet; manglende data skal vises som ukendte.
 5. Tilføj præcise møbelmodeller, redigering, GLB-eksport, gemte kameravinkler og mulighed for at gå ind i rummene.
 
@@ -97,7 +97,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 ### Godkendte referenceflader og iPad
 
-Den godkendte standardforside har ni synlige kort med vejr, hoveddørskamera, Google Kalender og musik. **Rediger** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger og klikbare flyttepile for alle 12 widgets. Tømmekalenderen viser de to kommende tømninger direkte. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
+Den godkendte standardforside har ni synlige kort med vejr, hoveddørskamera, Google Kalender og musik. **••• → Rediger dashboard** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger og klikbare flyttepile for alle 12 widgets. Tømmekalenderen viser de to kommende tømninger direkte. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
 
 Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
@@ -120,3 +120,7 @@ Vejrets mindste visning viser læsbar temperatur og vejrtype; hele prognosen åb
 ## UX-opdatering
 
 De ti godkendte forbedringspunkter er beskrevet i [UX-opdateringen](docs/ux-upgrade.md): læsbare mini-/standardvisninger, separat mobilprioritering og højde, tilgængelig Fortryd, bevarede layoutudkast, rumlinks med tilbage-kontekst, forbedret kontrast, tydelig datastatus, en kontekstuel editor, mobil billader og valgfrit dagsblik.
+
+## Indstillinger
+
+**••• → Indstillinger** samler enhedsplan, Home Assistant og øvrige forbindelser samt visning/backup. Kataloget kan forberedes uden huset. Produktbilleder, farve, mål og placering redigeres i den forenklede Indretning uden materialevælger. Se [opsætning, lagring og afprøvning](docs/settings.md).

@@ -1,4 +1,4 @@
-import {selectRoom,roomTab,openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
+import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 
 test('Manual day/night persists, changes the actual scene, and never switches lamps',async({page})=>{

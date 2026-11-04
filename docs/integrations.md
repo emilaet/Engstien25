@@ -1,6 +1,8 @@
+> Ny enhedsopsætning og styring: se [Indstillinger og enhedsplan](settings.md). Afsnittene nedenfor beskriver også den bevarede legacy-læseadapter til Tesla.
+
 # Datakilder, Tesla og drift
 
-GitHub Pages er fortsat en krypteret demo. Den indbyggede Pages-udgave kontakter ingen integrationsserver og indeholder ingen HA- eller bilhemmeligheder. Rum er altid simulerede i denne version. Home Assistant er installeret hos ejeren; den konkrete forbindelse konfigureres senere.
+GitHub Pages er fortsat en krypteret demo. Den indbyggede Pages-udgave kontakter ingen integrationsserver og indeholder ingen HA- eller bilhemmeligheder. Rum er altid simulerede i denne version. Home Assistant tilsluttes, når installationen er klar; den konkrete forbindelse konfigureres senere.
 
 ## Lokal dashboardserver
 
@@ -8,10 +10,10 @@ Den valgfrie Node-server kan dele familielister mellem enheder og læse udvalgte
 
 1. Kør `npm ci` og `npm run build` i projektmappen.
 2. Kopiér `server/config.example.env` til `.env` i projektroden, og vælg dashboardserverens adgangskode. Filen er ignoreret af Git. Del ikke kode eller token i chatten.
-3. Kør `npm run server`. Standardadressen er `http://127.0.0.1:4174` på servermaskinen. Under **Datakilder** logges ind med dashboardserverens egen kode. En gyldig session genbruges efter genindlæsning.
+3. Kør `npm run server`. Standardadressen er `http://127.0.0.1:4174` på servermaskinen. Under **Indstillinger → Forbindelser** logges ind med dashboardserverens egen kode. En gyldig session genbruges efter genindlæsning.
 4. Til andre enheder på hjemmenetværket kan `DASHBOARD_HOST=0.0.0.0` anvendes sammen med lokal firewall. Brug HTTPS via en betroet proxy eller VPN til varig drift; ved HTTPS sættes `COOKIE_SECURE=true`. Serveren må ikke eksponeres direkte via routerens port-forwarding.
 
-Serveren har én fælles adgangskode, HttpOnly/SameSite-sessioncookies med 12 timers levetid, loginbegrænsning og kontrol af Origin på skrivehandlinger. Den er en lille lokal prototype, ikke en komplet offentlig loginplatform. Sessioner nulstilles ved genstart. Der findes ingen live kommandoer til Tesla, ladeboks, lys, varme eller gardiner.
+Serveren har én fælles adgangskode, HttpOnly/SameSite-sessioncookies med 12 timers levetid, loginbegrænsning og kontrol af Origin på skrivehandlinger. Den er en lille lokal prototype, ikke en komplet offentlig loginplatform. Sessioner nulstilles ved genstart. Legacy-Tesla-adapteren er stadig læseadgang. Gemte katalogkoblinger kan sende validerede lys-, varme-, gardin- og kontakt/ladeboks-kommandoer via den nye indstillingsdel; se den særskilte vejledning.
 
 Lister gemmes i `.local-dashboard/data.json`. Tag backup af den mappe, begræns adgang til maskinen, og brug én serverproces pr. datafil. Første start indeholder tydeligt beskrevne eksempelopgaver og varer, som kan redigeres eller fjernes. Serverlister er ikke Apple Noter. De opdateres straks efter egne handlinger og ellers hvert 30. sekund på andre enheder. Ved fejl beholdes de viste punkter med fejlbesked; fejlede handlinger bliver ikke meldt som gemt og sættes ikke i en skjult offlinekø.
 

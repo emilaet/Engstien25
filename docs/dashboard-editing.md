@@ -18,3 +18,5 @@ Interaktionen følger principperne i W3C’s [Dragging Movements, SC 2.5.7](http
 Ved mobilflytning bestemmer markørens placering landingsstedet, uafhængigt af kortets højde; klik på op/ned flytter præcis én plads, også mellem kort med forskellige højder. Geometrien for desktop, tablet og telefon beregnes sammen. CSS skifter direkte mellem disse projektioner ved et skærmskift, så gamle desktopceller ikke vises som flere kolonner på en smal telefon, mens DOM-rækkefølgen opdateres.
 
 Editorens lave linje bruger nu headerområdet. Den bevarer udkastet ved intern navigation; Annuller/Escape forkaster det. Se [UX-opdateringen](ux-upgrade.md).
+
+Redigering åbnes via **••• → Rediger dashboard**. Den separate genvej ved siden af menuen er fjernet. **Nyt hverdagsblik** og dagsblikvalg ligger nu i **Indstillinger → Skærm og dashboard**; et eksisterende layoutudkast bevares ved navigation.

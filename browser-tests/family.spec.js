@@ -1,4 +1,5 @@
-import {openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
+import {openSettings} from './ui.js';
+import {openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 test('Hjem is the family landing page; Rum retains the existing house controls and browser history',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible();
@@ -20,7 +21,7 @@ test('Renosyd example schedule uses loaded category pictograms and explains sour
  await page.goto('/');await expect(page.locator('.source-badge').filter({hasText:'Renosyd · eksempeldata'})).toBeVisible();await expect(page.locator('.next-collection')).toContainText('I morgen');
  await expect(page.locator('.next-collection img[alt="Restaffald"]')).toBeVisible();await expect(page.locator('.next-collection img[alt="Madaffald"]')).toBeVisible();await expect(page.locator('.collection-row')).toHaveCount(3);
  expect(await page.locator('.waste-card img').evaluateAll(images=>images.every(img=>img.complete&&img.naturalWidth>0))).toBeTruthy();await expect(page.locator('.waste-note')).toContainText('Renosyd er ikke tilsluttet');
- await openOptions(page);await page.getByRole('button',{name:'Datakilder og ikoner'}).click();await expect(page.locator('.family-source-dialog')).toBeVisible();await expect(page.locator('.family-source-dialog')).toContainText('Apple Noter');await page.getByRole('button',{name:'Forstået',exact:true}).click();await expect(page.locator('.family-source-dialog')).toBeHidden();
+ await openSettings(page,'Forbindelser');await page.getByRole('button',{name:'Om kilder og ikoner',exact:true}).click();await expect(page.locator('.family-source-dialog')).toBeVisible();await expect(page.locator('.family-source-dialog')).toContainText('Apple Noter');await page.getByRole('button',{name:'Forstået',exact:true}).click();await expect(page.locator('.family-source-dialog')).toBeHidden();
 });
 test('Family dashboard works on landscape tablet and mobile with usable list entry',async({page})=>{
  for(const [width,height] of [[1024,768],[390,844]]){

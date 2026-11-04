@@ -20,7 +20,7 @@ Modellen indeholder separate, parametriske 3D-objekter. De følger jeres husplan
 
 Åbn **Rum → Indretning**. Vælg fra listen eller klik direkte på et møbel i modellen. **Vis tættere på** flyver kameraet frem til det valgte møbel, og almindelig rotation/zoom kan stadig bruges. Rummets smart-home-enheder betjenes fortsat fra den almindelige Rum-visning.
 
-Formularen ændrer navn, mål i cm, position relativt til rummets bageste venstre hjørne, rotation, primær farve og materialetype. Gem ændringer med **Gem møbel**. Ikke alle sekundære materialer følger den primære farve: fx bevares ståldetaljer, bordplader og puder som separate overflader. Målene på spisegruppen gælder bordet; stolene har deres egen plads omkring det. Faste skabe og installationer har låste mål og positioner i formularen.
+Formularen ændrer navn, mål i cm, position relativt til rummets bageste venstre hjørne, rotation, primær farve. Gem ændringer med **Gem møbel**. Ikke alle sekundære materialer følger den primære farve: fx bevares ståldetaljer, bordplader og puder som separate overflader. Målene på spisegruppen gælder bordet; stolene har deres egen plads omkring det. Faste skabe og installationer har låste mål og positioner i formularen.
 
 Møbler må ikke placeres med deres footprint uden for det tilknyttede rums gulvpolygon. Standardudkastet kontrolleres også for fri passage gennem døråbningernes midter. Dette er ikke en komplet møbelkollisions-/tilgængelighedsberegning. Kontrollér dørslag og ganglinjer visuelt, især efter flytning og ændring af mål. Et foreløbigt modelmål skal ikke bruges til indkøb eller installation.
 
@@ -28,7 +28,7 @@ Møbler må ikke placeres med deres footprint uden for det tilknyttede rums gulv
 
 ## Referencer og næste modelændring
 
-Under **Reference og ændringsønsker** kan der gemmes et produktlink, en tekst og et JPG/PNG/WebP-referencebillede på højst 3 MB pr. møbel. Et link eller billede ændrer ikke automatisk objektets geometri. Skriv fx »gavlen på sove-bed skal være højere og mere afrundet« og vedhæft et produktfoto. Næste rettelse kan udføres i møblets katalogpost eller dets 3D-generator.
+Under **Produktbillede → Produktlink og noter** kan der gemmes et produktlink, en tekst og et JPG/PNG/WebP-produktbillede på højst 3 MB pr. møbel. Et link eller billede ændrer ikke automatisk objektets geometri. Skriv fx »gavlen på sove-bed skal være højere og mere afrundet« og vedhæft et produktfoto. Næste rettelse kan udføres i møblets katalogpost eller dets 3D-generator.
 
 **Hent indretningsfil** eksporterer en JSON-fil med alle møbler, mål, materialer, links, noter og lokale referencebilleder. Vedhæft den i chatten, når der ønskes en præcis rettelse. **Indlæs indretningsfil** gendanner et valideret snapshot. JSON-filen må højst være 15 MB; flere store fotos skal reduceres før samlet eksport. Behold gerne filen som backup.
 
@@ -46,3 +46,5 @@ Kun faktisk ændrede felter gemmes som overrides. Nye katalogrevisioner når der
 Spejlene er lyse, stiliserede flader uden dynamiske refleksioner. HTH-fronternes udtryk er modelleret, men ikke producentens CAD-geometri.
 
 Enhedstests kontrollerer desuden maskinfronters verdensretning, vandhaners udløb over vaskene, bordets kontakt med carportvæggen, HTH-detaljer, synlige ydervægge og opgradering af ældre møbeldata. De kontrollerer rumgrænser, frie dørmidter, isoleret lagring, ugyldige input og opdatering af kataloget uden tab af ejerrettelser. Browserkontroller tester persistence, referencebilleder/import/eksport, objektvalg, mobil/tablet og fortsat rumstyring. Den krypterede Pages-version testes også før udgivelse.
+
+Materialevælgeren er fjernet fra formularen. Produktbillede vises før farve/mål/placering; eksisterende materialer i modellen og gamle indretningsfiler bevares. Upload er reference, ikke automatisk generering af en ny 3D-geometri.

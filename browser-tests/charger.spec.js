@@ -1,4 +1,4 @@
-import {selectRoom,roomTab,openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
+import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 test('Navigation has one Rum entry, and legacy light/heat links still open room controls',async({page})=>{
  await page.goto('/');await expect(page.locator('.rail .nav')).toHaveCount(3);await expect(page.getByRole('button',{name:'Rum',exact:true})).toHaveCount(1);await expect(page.getByRole('button',{name:'Billader',exact:true})).toHaveCount(1);await expect(page.locator('.nav[data-tab="lights"],.nav[data-tab="heat"]')).toHaveCount(0);

@@ -1,4 +1,5 @@
-import {openOptions,closeOptions,modelOption,graphicsProfile,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
+import {openSettings} from './ui.js';
+import {openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
 test('Family updates sync between tabs, retain drafts, allow editing and scoped undo',async({page,context})=>{
  await page.goto('/');const other=await context.newPage();await other.goto('/');await page.getByRole('textbox',{name:'Ny vare på handlelisten'}).fill('Bevar kladden');
@@ -15,11 +16,11 @@ test('Vehicle pause survives reload, unavailable states lock commands, charging 
 test('Calendar refreshes across Copenhagen midnight without discarding input',async({page})=>{
  await page.clock.install({time:new Date('2026-10-26T22:59:50Z')});await page.goto('/');await expect(page.locator('.family-welcome .eyebrow')).toContainText('26. oktober');await page.getByRole('textbox',{name:'Ny vare på handlelisten'}).fill('Kladde');await page.clock.fastForward(40000);await expect(page.locator('.family-welcome .eyebrow')).toContainText('27. oktober');await expect(page.getByRole('textbox',{name:'Ny vare på handlelisten'})).toHaveValue('Kladde');await wasteScenario(page,'today');await expect(page.locator('.next-collection')).toContainText('Beholderen tømmes i dag');await wasteScenario(page,'empty');await expect(page.locator('.next-collection')).toContainText('Ingen planlagte tømninger');
 });
-test('Idle house stops drawing and graphics profiles still allow interaction',async({page})=>{
- await page.goto('/#rooms');await expect(page.locator('#scene canvas')).toBeVisible();await readyScene(page);const a=Number(await page.locator('#scene').getAttribute('data-render-count'));await page.waitForTimeout(1000);const b=Number(await page.locator('#scene').getAttribute('data-render-count'));expect(b-a).toBeLessThan(3);await graphicsProfile(page,'light');await page.getByRole('button',{name:'Zoom ind'}).click();await expect.poll(async()=>Number(await page.locator('#scene').getAttribute('data-render-count'))).toBeGreaterThan(b);
+test('Idle house stops drawing and the fixed render quality still allows interaction',async({page})=>{
+ await page.goto('/#rooms');await expect(page.locator('#scene canvas')).toBeVisible();await readyScene(page);const a=Number(await page.locator('#scene').getAttribute('data-render-count'));await page.waitForTimeout(1000);const b=Number(await page.locator('#scene').getAttribute('data-render-count'));expect(b-a).toBeLessThan(3);await expect(page.getByLabel('Grafikkvalitet')).toHaveCount(0);await page.getByRole('button',{name:'Zoom ind'}).click();await expect.poll(async()=>Number(await page.locator('#scene').getAttribute('data-render-count'))).toBeGreaterThan(b);
 });
 test('GitHub demo explains live data and never asks for Apple or Tesla credentials',async({page})=>{
- await page.goto('/');await openOptions(page);await page.getByRole('button',{name:'Datakilder',exact:true}).click();await expect(page.locator('.integration-dialog .connection-result')).toContainText('GitHub Pages');await expect(page.locator('.integration-dialog form')).toBeHidden();
+ await page.goto('/');await openSettings(page,'Forbindelser');await expect(page.locator('#settings-page')).toContainText('GitHub Pages');await expect(page.locator('#settings-page input[type=password]')).toHaveCount(0);
 });
 test('A manual wheel gesture interrupts the camera flight immediately',async({page})=>{
  await page.goto('/#rooms');await expect(page.locator('#scene canvas')).toBeVisible();await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(page.locator('#scene')).toHaveAttribute('data-camera-moving','true');await page.locator('#scene canvas').dispatchEvent('wheel',{deltaY:20,bubbles:true});await expect(page.locator('#scene')).toHaveAttribute('data-camera-moving','false');await expect(page.locator('#scene')).not.toHaveAttribute('aria-busy','true');
