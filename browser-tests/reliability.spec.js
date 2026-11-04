@@ -1,3 +1,4 @@
+import {initialState} from '../src/house.js';
 import {openSettings} from './ui.js';
 import {openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
 import {test,expect} from '@playwright/test';
@@ -24,4 +25,8 @@ test('GitHub demo explains live data and never asks for Apple or Tesla credentia
 });
 test('A manual wheel gesture interrupts the camera flight immediately',async({page})=>{
  await page.goto('/#rooms');await expect(page.locator('#scene canvas')).toBeVisible();await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(page.locator('#scene')).toHaveAttribute('data-camera-moving','true');await page.locator('#scene canvas').dispatchEvent('wheel',{deltaY:20,bubbles:true});await expect(page.locator('#scene')).toHaveAttribute('data-camera-moving','false');await expect(page.locator('#scene')).not.toHaveAttribute('aria-busy','true');
+});
+
+test('Turning all demo lights on restores a lamp previously dimmed to zero',async({page})=>{
+ const state=initialState();for(const room of Object.values(state)){room.brightness=100;for(const key of Object.keys(room.lights))room.lights[key]=false;}state.stue.levels.loft=0;await page.addInitScript(state=>localStorage.setItem('engstien-v1',JSON.stringify(state)),state);await page.goto('/#rooms');await page.getByRole('button',{name:'Tænd alt lys i huset',exact:true}).click();await page.locator('[data-room=stue]').click();await expect(page.getByRole('slider',{name:'Lysstyrke for Loftslys i Stue',exact:true})).toHaveValue('100');
 });
