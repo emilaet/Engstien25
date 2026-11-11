@@ -29,7 +29,9 @@ export function createNavigationMotion(nav){
   animation?.cancel();animation=null;
   const target=document.querySelector(view==='home'?'#family-dashboard':view==='settings'?'#settings-page':'#rooms-workspace');
   if(!initial&&!reduced.matches&&target?.animate){
-   animation=target.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,easing:'cubic-bezier(.22,1,.36,1)'});
+   // Fade without translating the workspace: resizing, camera hit testing and
+   // restored editor drafts must keep their exact coordinates during entry.
+   animation=target.animate([{opacity:0},{opacity:1}],{duration:240,easing:'cubic-bezier(.22,1,.36,1)'});
   }
  }};
 }
