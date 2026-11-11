@@ -1,0 +1,66 @@
+/* Project OS palette, adapted to Engstien without changing layout or navigation. */
+:root,:root[data-theme=light] {
+ --bg:#efede8; --surface:#ffffff; --soft:#f7f5f1; --text:#1d1b18; --muted:#68625b;
+ --border:#281e1414; --amber:#a9530f; --amber-soft:#fdeadb; --green:#2f8052;
+ --green-soft:#e1f4e8; --alert:#97501c; --alert-soft:#fbecdd;
+ --primary:#f0761e; --on-primary:#2b2111; --scene:#e9e6df;
+ --study-card:linear-gradient(135deg,#ffffff 0%,#f7f5f1 100%);
+ --study-shadow:0 1px 2px #1e140a0a,0 10px 30px -12px #3c281429;
+ --study-glow:#ffc48c59; --study-glow-2:#ffffffb3;
+ --study-task:linear-gradient(160deg,#ffd166 0%,#ffbf47 100%);
+ --study-task-muted:#69521d; --study-task-line:#2b21112b;
+ --study-weather:radial-gradient(ellipse at 100% 0%,#d9e9f069,transparent 65%),linear-gradient(135deg,#fff,#f7f5f1);
+ --study-car:linear-gradient(140deg,#edf8f0 0%,#dcefe2 100%);
+ --study-waste:linear-gradient(140deg,#fff4e8 0%,#f7e6d4 100%);
+ --study-rail:#1d1b18; --study-rail-muted:#c0b9af;
+ --study-chip:#f1eee8;
+}
+:root[data-theme=dark] {
+ --bg:#0b0b0c; --surface:#17171a; --soft:#1d1d21; --text:#f3f2ef; --muted:#b4b2ac;
+ --border:#ffffff12; --amber:#f5b83d; --amber-soft:#f5b83d24; --green:#4cc57f;
+ --green-soft:#4cc57f24; --alert:#efbd7c; --alert-soft:#30251c;
+ --primary:#f5b83d; --on-primary:#1b1404; --scene:#141416;
+ --study-card:linear-gradient(135deg,#1d1d21 0%,#17171a 100%);
+ --study-shadow:0 0 0 1px #ffffff05,0 10px 30px -12px #0005;
+ --study-glow:#f5b83d14; --study-glow-2:#ffffff08;
+ --study-task:linear-gradient(160deg,#ffd166 0%,#f5b83d 100%);
+ --study-weather:radial-gradient(ellipse at 100% 0%,#6aa3f518,transparent 65%),linear-gradient(135deg,#1d1d21,#17171a);
+ --study-car:linear-gradient(140deg,#20372b 0%,#17261d 100%);
+ --study-waste:linear-gradient(140deg,#33281d 0%,#251e18 100%);
+ --study-rail:#17171a; --study-rail-muted:#a9a49c; --study-chip:#ffffff0b;
+}
+html:root body {
+ background:radial-gradient(1200px 600px at 85% -10%,var(--study-glow),transparent 60%),radial-gradient(900px 500px at -10% 110%,var(--study-glow-2),transparent 60%),var(--bg);
+ background-attachment:fixed;
+}
+html:root .dashboard-grid>.dashboard-widget {background:var(--study-card);border:1px solid var(--border);box-shadow:var(--study-shadow);border-radius:26px}
+html:root .dashboard-grid>.weather-card {background:var(--study-weather)}
+html:root .dashboard-grid>.house-overview {background:linear-gradient(135deg,var(--scene),var(--soft))}
+html:root .dashboard-grid>.summary-widget:has(#car-summary) {background:var(--study-car)!important;border-color:color-mix(in srgb,var(--green) 16%,transparent)}
+html:root .dashboard-grid>.waste-card {background:var(--study-waste)!important;border-color:color-mix(in srgb,var(--alert) 13%,transparent)}
+html:root .dashboard-grid>.tasks-card {
+ --text:#2b2111; --muted:var(--study-task-muted); --border:var(--study-task-line); --surface:#ffda83; --soft:#ffe4a4;
+ background:var(--study-task);color:#2b2111;border-color:transparent;
+}
+html:root .tasks-card .family-check {border-color:#2b211166;background:#fff2}
+html:root .tasks-card .due-tag {background:#fff7;color:#664013}
+html:root .tasks-card .family-add input::placeholder {color:#69521d;opacity:1}
+html:root .tasks-card .list-card-menu>summary {color:#2b2111}
+html:root .family-briefing {background:var(--study-card);border-color:var(--border);box-shadow:0 1px 2px #1e140a05}
+html:root .appearance-control,html:root .home-layout-menu #home-options {background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 2px #1e140a05}
+html:root .hw-badge,html:root .source-badge {background:var(--study-chip);color:var(--muted)}
+html:root .family-card .family-icon {background:var(--soft)}
+html:root .hw-day.today {background:linear-gradient(160deg,#f5b83d24,#f5b83d08)}
+html:root .hw-day.rainy {background:linear-gradient(160deg,#6aa3f522,#6aa3f508)}
+html:root .open-rooms {background:var(--primary);color:var(--on-primary);border-color:transparent}
+html:root .page-footer {color:var(--muted)}
+/* Preserve the existing navigation palette in both appearances. */
+html:root .rail{--bg:#f4f1eb;--surface:#fdfcf8;--soft:#ede9e1;--text:#282e2a;--muted:#687067;--border:#dcdcd2;--green:#27644b;--primary:#303e35;--on-primary:#fff;color:var(--text)}
+html:root[data-theme=dark] .rail{--bg:#191c1b;--surface:#232725;--soft:#2c302d;--text:#f1eee5;--muted:#b0b6ad;--border:#3a403b;--green:#92dbaf;--primary:#e3e8de;--on-primary:#253128}
+/* One moving selection surface keeps the existing menu dimensions and corners. */
+.rail nav.has-nav-motion{position:relative;isolation:isolate}
+.rail nav.has-nav-motion .nav{position:relative;z-index:1;transition:color 200ms ease,background-color 200ms ease}
+.rail nav.has-nav-motion .nav.active{background:transparent}
+.nav-selection{position:absolute;inset:0 auto auto 0;pointer-events:none;z-index:0;background:var(--primary);opacity:0}
+.rail nav[data-motion-ready=true] .nav-selection{transition:transform 340ms cubic-bezier(.22,1,.36,1),width 220ms ease,height 220ms ease,opacity 160ms ease}
+@media(prefers-reduced-motion:reduce){.rail nav.has-nav-motion .nav,.rail nav[data-motion-ready=true] .nav-selection{transition:none}}
