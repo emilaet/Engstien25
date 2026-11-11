@@ -26,3 +26,25 @@ export function frameOverview(camera,viewOffset=offset,{full=false}={}){
  camera.position.copy(target).addScaledVector(viewOffset,high);camera.lookAt(target);camera.updateMatrixWorld(true);
  return {target:target.clone(),extent:bounds.map(p=>p.clone().project(camera)).reduce((m,p)=>Math.max(m,Math.abs(p.x),Math.abs(p.y)),0)};
 }
+
+// Outdoor presets frame the approved terraces/approach, while the existing
+// indoor and orthographic framing above keep their original room coordinates.
+export function frameExterior(camera,{side='garden'}={}){
+ const front=side==='driveway';
+ const target=front?new THREE.Vector3(20.5,.2,7.0):new THREE.Vector3(8.5,.3,6.3);
+ const view=front?new THREE.Vector3(30,10,3):new THREE.Vector3(-10,14,28);
+ const points=[];
+ if(front){for(const x of [15,28.2])for(const y of [-1.0,4.1])for(const z of [-.6,14.6])points.push(new THREE.Vector3(x,y,z));}
+ else{
+  for(const x of [-.4,19.8])for(const y of [0,3.3])for(const z of [-.4,7.25])points.push(new THREE.Vector3(x,y,z));
+  for(const x of [15.2,22.4])for(const y of [0,2.6])for(const z of [7.2,14.3])points.push(new THREE.Vector3(x,y,z));
+  for(const p of [[-4.6,.085,2.8],[-4.6,.085,7.3],[-3.2,.085,8.65],[6.6,.085,12.7],[15.3,.085,12.7],[-6.4,4.2,2.7]])points.push(new THREE.Vector3(...p));
+ }
+ let low=.15,high=8;
+ for(let pass=0;pass<24;pass++){
+  const scale=(low+high)/2;camera.position.copy(target).addScaledVector(view,scale);camera.lookAt(target);camera.updateMatrixWorld(true);
+  if(points.every(p=>{const point=p.clone().project(camera);return Math.abs(point.x)<.95&&Math.abs(point.y)<.86;}))high=scale;else low=scale;
+ }
+ camera.position.copy(target).addScaledVector(view,high);camera.lookAt(target);camera.updateMatrixWorld(true);
+ return {target,extent:points.reduce((m,p)=>{const q=p.clone().project(camera);return Math.max(m,Math.abs(q.x),Math.abs(q.y));},0)};
+}

@@ -10,6 +10,7 @@ import './ux-upgrade.css';
 import './music-player.css';
 import './settings.css';
 import './project-theme.css';
+import './outdoor.css';
 import {createNavigationMotion} from './navigation-motion.js';
 import {createSettingsPage} from './settings-page.js';
 import {createSettingsClient} from './settings-client.js';
@@ -49,6 +50,7 @@ homeLayout=setupDashboardLayout({notify:toast});
 const roomActions=document.createElement('div');roomActions.className='room-top-actions';roomActions.append(document.querySelector('.house-light-controls'));document.querySelector('.summary').append(roomActions);
 const extraControls=document.createElement('div');extraControls.className='model-menu-controls';extraControls.setAttribute('aria-label','Visningsmuligheder');
 for(const id of ['furnish-view','furniture-toggle','wall-view'])extraControls.append(document.getElementById(id));document.getElementById('home-options-menu').append(extraControls);
+const exteriorPresets=document.createElement('div');exteriorPresets.className='exterior-presets';exteriorPresets.hidden=true;exteriorPresets.setAttribute('role','group');exteriorPresets.setAttribute('aria-label','Se udemiljøet');exteriorPresets.innerHTML='<button type="button" data-exterior-side="garden" aria-pressed="true">Have</button><button type="button" data-exterior-side="driveway" aria-pressed="false">Indkørsel</button>';document.querySelector('.model-card').append(exteriorPresets);for(const button of exteriorPresets.querySelectorAll('button'))button.onclick=()=>{model?.full(button.dataset.exteriorSide);updateSceneChrome();};
 const furnitureBar=document.createElement('div');furnitureBar.className='furniture-topbar';furnitureBar.innerHTML='<span>Rum <span aria-hidden="true">›</span> Indretning</span><button type="button" id="leave-furniture">Tilbage til styring</button>';document.querySelector('#rooms-workspace').before(furnitureBar);furnitureBar.querySelector('button').onclick=()=>navigate('rooms');
 const chargerCaption=document.createElement('div');chargerCaption.className='charger-caption';chargerCaption.innerHTML='<h3>Klar til næste tur.</h3><p>Den grønne ring pulserer, mens bilen lader.<br>Pause stopper opladningen og lyspulsen.</p><div><span>Til venstre for døren til skuret</span><span>3D · nærbillede</span></div>';document.querySelector('.model-card').append(chargerCaption);
 const chargerVisual=document.createElement('button');chargerVisual.className='charger-visual-toggle';chargerVisual.textContent='Vis ladeboksen i 3D';chargerVisual.setAttribute('aria-expanded','false');chargerVisual.onclick=()=>{const expanded=document.documentElement.dataset.chargerExpanded!=='true';document.documentElement.dataset.chargerExpanded=String(expanded);chargerVisual.setAttribute('aria-expanded',String(expanded));chargerVisual.textContent=expanded?'Vis mindre af ladeboksen':'Vis ladeboksen i 3D';};document.querySelector('#rooms-workspace').append(chargerVisual);
@@ -104,7 +106,7 @@ function renderPanel(){
  panel.querySelector('#charge-pause').onclick=()=>panel.querySelector('#charge-toggle').click();
 }
 function updateSceneChrome(){
- const chargingView=tab==='car';chargerVisual.hidden=!chargingView;
+ const chargingView=tab==='car';chargerVisual.hidden=!chargingView;exteriorPresets.hidden=chargingView||model?.viewMode!=='full';for(const button of exteriorPresets.querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.exteriorSide===model?.exteriorSide));
  document.querySelector('#rooms-workspace').dataset.view=chargingView?'charger':'rooms';
  document.querySelector('.model-heading h2').textContent=chargingView?'OK ladeboks':tab==='furnish'?'Gør plads til jeres stil.':'Dit hjem';
  document.querySelector('.model-heading .eyebrow').textContent=chargingView?'VED SKURET · OK LADEBOKS':'DIT HJEM, SAMLET ÉT STED';
@@ -127,7 +129,7 @@ document.querySelector('.brand').onclick=event=>{event.preventDefault();navigate
 document.querySelector('.home-model-caption').textContent='Jeres hus · plantegning';
 document.querySelector('#full-view').onclick=()=>{model?.full();updateSceneChrome();};
 document.querySelector('#perspective-view').onclick=()=>{model?.home();document.querySelector('#plan-view').setAttribute('aria-pressed','false');updateSceneChrome();};
-document.querySelector('#reset').onclick=()=>{if(tab==='car')model?.focusCharger();else if(model?.viewMode==='full')model.full();else model?.home();document.querySelector('#plan-view').setAttribute('aria-pressed','false');updateSceneChrome();};
+document.querySelector('#reset').onclick=()=>{if(tab==='car')model?.focusCharger();else if(model?.viewMode==='full')model.full(model.exteriorSide);else model?.home();document.querySelector('#plan-view').setAttribute('aria-pressed','false');updateSceneChrome();};
 document.querySelector('#plan-view').onclick=()=>{const active=model?.togglePlan();document.querySelector('#plan-view').setAttribute('aria-pressed',String(!!active));updateSceneChrome();};
 
 document.querySelector('#wall-view').onclick=()=>{const cut=model?.toggleWalls();document.querySelector('#wall-view').setAttribute('aria-pressed',String(!cut));document.querySelector('#wall-view').dataset.cutaway=String(!!cut);updateSceneChrome();};document.querySelector('#zoom-in').onclick=()=>model?.zoom(.85);document.querySelector('#zoom-out').onclick=()=>model?.zoom(1.15);

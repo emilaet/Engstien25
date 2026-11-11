@@ -1,0 +1,6 @@
+/* Exterior angles share the existing viewer; room navigation stays unchanged. */
+.exterior-presets{position:absolute;right:23px;bottom:83px;z-index:3;display:flex;gap:3px;padding:4px;border:1px solid var(--border);border-radius:13px;background:var(--surface);box-shadow:0 2px 10px #00000008}
+.exterior-presets[hidden]{display:none}
+.exterior-presets button{min-height:44px;padding:0 15px;border-radius:9px;font:inherit;font-size:13px;color:var(--muted)}
+.exterior-presets button[aria-pressed=true]{background:var(--soft);color:var(--text)}
+@media(max-width:760px){.exterior-presets{right:16px;bottom:76px}.exterior-presets button{padding:0 12px;font-size:12px}}

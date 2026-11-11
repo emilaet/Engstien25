@@ -67,7 +67,7 @@ Modellen vises nu med et første møbeludkast og den faste billader ved skuret. 
 
 ## Godkendt design og lokal belysning
 
-Dag/aften-menuen øverst følger solens højde i Hørning eller et manuelt valg. Hjem og Rum bruger samme levende husmodel; ingen AI-konceptbilleder bruges som model. Ladeboksens placering og husets oprindelige geometri er bevaret. Carporten har nu synligt tag, som kan skjules med **Tag**; det skjules automatisk i planvisning og ladeboksens nærbillede. Se [implementering, lyskilder og tekniske begrænsninger](docs/design-implementation.md).
+Dag/aften-menuen øverst følger solens højde i Hørning eller et manuelt valg. Hjem og Rum bruger samme levende husmodel; ingen AI-konceptbilleder bruges som model. Ladeboksens placering og husets oprindelige geometri er bevaret. Carportens tag er dækkende i **Full**, gennemsigtigt i den åbne 3D-visning og skjult i planvisning og ladeboksens nærbillede. Se [implementering, lyskilder og tekniske begrænsninger](docs/design-implementation.md).
 
 ## Videre plan
 
@@ -106,6 +106,8 @@ Udendørs lys er en separat demogruppe under Entré. Den starter slukket ved mig
 Billaderens nærbillede bruger samme 3D-model og samme placering. Skurdøren vises lukket i produktnærbilledet og vender tilbage til plantegningens dørslag i husoversigten. Dette er en præsentationsstilling i demoen, ikke en kommando til en fysisk dør.
 
 ### Plan, 3D og Full
+
+I **Rum → Full** kan du nu vælge **Have** eller **Indkørsel**. Udemiljøet indeholder de godkendte fliseterrasser, indhak, beplantning og havemøbler samt en indkørsel, der stiger 1 m over 5 m til carportens plane gulv. Se [udemiljø og niveauforskel](docs/outdoor-environment.md).
 
 Husoversigten på **Hjem** bruger altid planvisning direkte ovenfra. Under **Rum** kan der skiftes mellem **3D** (åben indretning), **Plan** og **Full** (lukket hus udefra). Full genbruger plantegningens væg- og vinduesåbninger, med gyldne mursten efter facadevisualiseringen, mørke rammer, et ensidigt skrånende tag og et dækkende sort carporttag. Dørene vises lukkede i Full og vender tilbage til deres oprindelige dørslag i de åbne visninger. Valg af rum vises i sidepanelet uden gule gulvkonturer; de tegnede åbningsbuer er fjernet. Scrollbjælker er skjult, men rulning med touch, hjul og tastatur bevares.
 
