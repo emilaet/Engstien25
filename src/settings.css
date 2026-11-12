@@ -46,6 +46,7 @@
 :root[data-density=comfortable] .hw-event>div>b,:root[data-density=comfortable] .family-item-copy>span{font-size:17px!important;line-height:1.4}:root[data-density=comfortable] .hw-day em,:root[data-density=comfortable] .hw-day>span,:root[data-density=comfortable] .family-card-foot{font-size:12px}
 :root[data-density=comfortable] .settings-device-name small,:root[data-density=comfortable] .settings-status,:root[data-density=comfortable] .settings-field-help{font-size:13px!important}
 @media(prefers-reduced-motion:reduce){.settings-room>summary:after{transition:none}}
+:root[data-page=home] .dashboard-grid>.family-card:is(.tasks-card,.shopping-card) .family-card-title{padding-right:44px!important}
 :root[data-page=home] .dashboard-grid .family-card-title .list-show-all{display:inline-flex!important;align-items:center;justify-content:center;flex:none;min-height:32px;padding:4px 6px;font-size:11px;white-space:nowrap;border-radius:8px;color:var(--text);background:var(--soft);text-decoration:underline;text-underline-offset:3px}
 @container (max-width:190px){.dashboard-grid .family-card-title .list-show-all{font-size:10px;padding:3px;min-height:30px}}
 
