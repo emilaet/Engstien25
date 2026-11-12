@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {gravelMaterial} from './visual-materials.js';
-import {siteLights} from './site-lighting.js';
+import {buildOutdoorWallLights} from './outdoor-wall-lights.js';
 import {outdoorY,terracePolygons,plantingBeds,plotOutline,driveway as approach,approachHeight,lawnHeight,insidePolygon} from './outdoor-layout.js';
 import {outdoorGrassMaterial,outdoorPavingMaterial} from './outdoor-materials.js';
 
@@ -96,11 +96,6 @@ export function buildLandscape(scene){
   }
  }
  stems.count=stemCount;crowns.count=crownCount;stems.castShadow=crowns.castShadow=true;stems.receiveShadow=crowns.receiveShadow=true;trees.add(stems,crowns);
- const fixtures=new THREE.Group();fixtures.name='landscape-light-fixtures';outdoorRoot.add(fixtures);
- const luminaires=[],lampBody=new THREE.MeshStandardMaterial({color:'#333a33',roughness:.8}),bodyGeometry=new THREE.CylinderGeometry(.025,.025,.18,8),bulbGeometry=new THREE.SphereGeometry(.035,8,6);
- for(const source of siteLights()){
-  const [x,y,z]=source.position,body=new THREE.Mesh(bodyGeometry,lampBody);body.position.set(x,y-.13,z);body.name='bollard:'+source.id;body.castShadow=true;fixtures.add(body);
-  const lamp=new THREE.Mesh(bulbGeometry,new THREE.MeshStandardMaterial({color:'#e3dac3',emissive:'#ffd3a2',emissiveIntensity:0,roughness:.3}));lamp.position.set(x,y-.025,z);lamp.name=source.id;fixtures.add(lamp);luminaires.push(lamp);
- }
- return {root,outdoorRoot,terraces,driveway,terrain,planting,trees,fixtures,pavingMaterial:stone,update(state){const room=state.entre,strength=room?.lights.ude?Math.max(0,(room.levels?.ude??100)/100)*(room.brightness??100)/100:0;for(const lamp of luminaires)lamp.material.emissiveIntensity=strength*3;}};
+ const wallLights=buildOutdoorWallLights(outdoorRoot);
+ return {root,outdoorRoot,terraces,driveway,terrain,planting,trees,fixtures:wallLights.root,pavingMaterial:stone,setCutaway:wallLights.setCutaway,update:wallLights.update};
 }

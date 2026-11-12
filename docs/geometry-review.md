@@ -46,7 +46,7 @@ Placeringer og forbindelser er aflæst fra planen, men karmenens præcise lysnin
 
 ## Tom model og inspektion · opdateret med møbeludkast
 
-I den tidligere kontrolversion blev alle løse møbler og inventar fjernet. Den aktuelle version har et separat møbeludkast, som kan skjules med Møbler-knappen; der er fortsat ingen biler eller gardinmodeller. Der er kun gulve, vægge, åbninger, døre/vinduesrammer og en enkel terrasse/carport. Smart-home-menuernes testdata er bevaret; gardinsliders flytter ikke en fysisk gardinmodel i denne tomme visning.
+I den tidligere kontrolversion blev alle løse møbler og inventar fjernet. Den aktuelle version har et separat møbeludkast, som kan skjules med Møbler-knappen, et udemiljø og en hvid 2023 Tesla Model Y i carporten. Der er fortsat ingen fysisk gardinmodel; gardinsliders ændrer kun smart-home-menuernes testdata. Bil og udemiljø er præsentationsobjekter adskilt fra den redigerbare indendørs møbelliste.
 
 **Plan** skifter til ortografisk visning ovenfra. **Vægge** skifter mellem et vandret snit i 1,2 m og fulde vægge. Snitflader har synlige topflader, og både vinduer og døre følger snittet. Den fulde geometri bevares i begge tilstande.
 

@@ -1,5 +1,8 @@
-import {chargerPlacement} from './charger.js';
+import {walls,finishedFloor} from './architecture.js';
+
+// The three marked solid sections of the garden facade, clear of all glazing.
+export const facadeLampXs=[1.8,6.2,11.1];
 export function siteLights(){
- const [x,,z]=chargerPlacement().position;
- return [[1,10.85],[4,10.85],[7,10.85],[10,10.85],[12.2,10.85],[-.7,4.7],[14.8,12.3],[x-.025,z+.28]].map(([px,pz],index)=>({id:'entre:ude:'+index,room:'entre',key:'ude',scope:'outside',name:'Udelys ved terrasse og carport',kind:'exterior',fixtureVisible:false,position:[px,.24,pz],radius:3.1,power:3.5,kelvin:2700}));
+ const wall=walls.find(w=>w.id==='garden'),z=wall.from[1]+wall.thickness/2+.10;
+ return facadeLampXs.map((x,index)=>({id:'entre:ude:'+index,room:'entre',key:'ude',scope:'outside',name:'Væglampe ved terrasse',kind:'exterior',fixtureVisible:false,position:[x,finishedFloor+1.9,z],radius:2.5,power:2.8,kelvin:2700}));
 }
