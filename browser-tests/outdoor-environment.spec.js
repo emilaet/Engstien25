@@ -24,7 +24,7 @@ test('Exterior angles remain framed and reachable on tall tablets and phones, in
   await page.setViewportSize(viewport);
   for(const name of ['Indkørsel','Have']){
    const button=page.getByRole('button',{name,exact:true});await button.click();await expect(button).toHaveAttribute('aria-pressed','true');
-   await expect.poll(async()=>Number(await page.locator('#scene').getAttribute('data-overview-extent'))).toBeLessThan(.96);
+   await expect.poll(async()=>Number(await page.locator('#scene').getAttribute('data-overview-extent'))).toBeLessThan(.98);
    expect(Number(await page.locator('#scene').getAttribute('data-camera-distance'))).toBeLessThan(300);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }

@@ -17,7 +17,7 @@ test('Checking either family list keeps the page, cards and both list scroll pos
  }
 });
 
-test('Room views include the garden and reset consistently after charger navigation',async({page})=>{
+test('Room views focus closely on the house with the garden still rendered and reset after charger navigation',async({page})=>{
  await page.setViewportSize({width:1194,height:834});await page.goto('/');
  await page.getByRole('button',{name:'Rum',exact:true}).click();const scene=page.locator('#scene');
  await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(scene).toHaveAttribute('data-camera-mode','3d');
@@ -26,10 +26,10 @@ test('Room views include the garden and reset consistently after charger navigat
  await page.getByRole('button',{name:'Vis plantegning ovenfra',exact:true}).click();
  await expect(scene).toHaveAttribute('data-camera-mode','plan');
  const points=JSON.parse(await scene.getAttribute('data-room-points'));
- // The plan now reserves room on both sides for the west terrace and driveway.
+ // The main house fills the plan; the outdoor environment stays rendered around it.
  await expect(scene).toHaveAttribute('data-outdoor-visible','true');
- expect(points.bad1[0]).toBeGreaterThan(.15);expect(points.v2[0]).toBeLessThan(.85);
- expect(points.v2[0]-points.bad1[0]).toBeGreaterThan(.35);
+ expect(points.bad1[0]).toBeLessThan(.10);expect(points.v2[0]).toBeGreaterThan(.87);
+ expect(points.v2[0]-points.bad1[0]).toBeGreaterThan(.77);
  expect(points.bad1[1]).toBeLessThan(points.kontor[1]);
  for(const point of Object.values(points)){expect(point[0]).toBeGreaterThan(0);expect(point[0]).toBeLessThan(1);expect(point[1]).toBeGreaterThan(0);expect(point[1]).toBeLessThan(1);}
  await page.screenshot({path:'/tmp/engstien-room-framing-plan.png',animations:'disabled'});
@@ -39,4 +39,11 @@ test('Room views include the garden and reset consistently after charger navigat
  await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','false');
  await page.getByRole('button',{name:'Rum',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','false');
  expect(Number(await scene.getAttribute('data-camera-distance'))).toBeCloseTo(distance,1);
+});
+
+
+test('Selecting Plan again and resetting keep its close default instead of switching to 3D',async({page})=>{
+ await page.setViewportSize({width:1194,height:834});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#rooms');const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-render-finish','native');await page.getByRole('button',{name:'Vis plantegning ovenfra',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','plan');const original=await scene.getAttribute('data-room-points');
+ await page.getByRole('button',{name:'Zoom ind',exact:true}).click();await expect.poll(()=>scene.getAttribute('data-room-points')).not.toBe(original);await page.getByRole('button',{name:'Vis plantegning ovenfra',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','plan');await expect(scene).toHaveAttribute('data-room-points',original);
+ await page.getByRole('button',{name:'Zoom ind',exact:true}).click();await expect.poll(()=>scene.getAttribute('data-room-points')).not.toBe(original);await page.getByRole('button',{name:'Nulstil visning',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','plan');await expect(scene).toHaveAttribute('data-room-points',original);await expect(scene).toHaveAttribute('data-carport-roof','false');await expect(scene).toHaveAttribute('data-outdoor-visible','true');
 });

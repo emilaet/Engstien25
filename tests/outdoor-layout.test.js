@@ -107,7 +107,7 @@ test('Exterior camera presets fit the garden and graded approach on narrow and w
   driveway:[[driveway.startX,outdoorY,driveway.minZ],[driveway.endX,outdoorY-1,driveway.maxZ],[15.3,2.5,14.2],[19.8,3.3,0],[27.3,-1,2.2]],
  };
  for(const side of ['garden','driveway'])for(const aspect of [.6,.75,1,1.5,2.4]){
-  const camera=new THREE.PerspectiveCamera(25,aspect,.1,500),framing=frameExterior(camera,{side});
+  const camera=new THREE.PerspectiveCamera(25,aspect,.1,500),framing=frameExterior(camera,{side,context:true});
   assert.ok(camera.position.distanceTo(framing.target)<300,`${side} must fit without hitting the exterior orbit limit at aspect ${aspect}`);
   assert.ok(framing.extent<.96,`${side} fit failed at aspect ${aspect}`);
   for(const position of features[side]){
@@ -122,8 +122,18 @@ test('Plan and 3D overview frame the garden, approach and street across tablet a
  const THREE=await import('three'),{framePlan,frameOverview}=await import('../src/camera-framing.js'),{plotOutline}=await import('../src/outdoor-layout.js');
  const points=[...plotOutline,[driveway.endX+2.8,-1],[driveway.endX+2.8,18.4]];
  for(const aspect of [.4,.75,1,1.8,2.4]){
-  const plan=new THREE.OrthographicCamera(-1,1,1,-1,.1,500),target=framePlan(plan,aspect);plan.position.copy(target).add(new THREE.Vector3(0,40,.001));plan.lookAt(target);plan.updateMatrixWorld(true);
+  const plan=new THREE.OrthographicCamera(-1,1,1,-1,.1,500),target=framePlan(plan,aspect,{outdoors:true});plan.position.copy(target).add(new THREE.Vector3(0,40,.001));plan.lookAt(target);plan.updateMatrixWorld(true);
   for(const [x,z]of points){const p=new THREE.Vector3(x,0,z).project(plan);assert.ok(Math.abs(p.x)<1&&Math.abs(p.y)<1,'cropped outdoor plan at '+aspect);}
   const camera=new THREE.PerspectiveCamera(25,aspect,.1,500),framing=frameOverview(camera,undefined,{outdoors:true});assert.ok(framing.extent<.99,'cropped outdoor overview at '+aspect);assert.ok(camera.position.distanceTo(framing.target)<300,'overview exceeds orbit range');
+ }
+});
+
+
+test('Default house views are substantially closer than the complete-site overview and reset without zoom drift',async()=>{
+ const THREE=await import('three'),{framePlan,frameOverview,frameExterior}=await import('../src/camera-framing.js');
+ for(const aspect of [.6,1,1.8,2.4]){
+  const plan=new THREE.OrthographicCamera(-1,1,1,-1,.1,500);framePlan(plan,aspect);const closeWidth=plan.right-plan.left;framePlan(plan,aspect,{outdoors:true});assert.ok(closeWidth<(plan.right-plan.left)*.65,'default plan should focus on the house');
+  const camera=new THREE.PerspectiveCamera(25,aspect,.1,500),close=frameOverview(camera),near=camera.position.distanceTo(close.target),site=frameOverview(camera,undefined,{outdoors:true});assert.ok(near<camera.position.distanceTo(site.target)*.65,'default 3D must be meaningfully closer');
+  for(const side of ['garden','driveway']){const focused=frameExterior(camera,{side}),distance=camera.position.distanceTo(focused.target);const context=frameExterior(camera,{side,context:true});assert.ok(distance<camera.position.distanceTo(context.target),'outdoor presets should favor the house and paving');}
  }
 });

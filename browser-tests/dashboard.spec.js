@@ -25,7 +25,7 @@ test('Empty architectural model supports overhead plan and full wall inspection'
  await plan.click();await expect(plan).toHaveAttribute('aria-pressed','true');await page.waitForTimeout(700);
  await page.screenshot({path:'/tmp/engstien-corrected-plan.png'});
  await modelOption(page,'Vis vægge i fuld højde');await expect(walls).toHaveAttribute('aria-pressed','true');
- await page.getByRole('button',{name:'Nulstil visning'}).click();await expect(plan).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
+ await page.getByRole('button',{name:'Nulstil visning'}).click();await expect(plan).toHaveAttribute('aria-pressed','true');await page.getByRole('button',{name:'Vis huset i 3D',exact:true}).click();await expect(plan).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
  await page.screenshot({path:'/tmp/engstien-corrected-full.png'});
  await modelOption(page,'Vis vægge i fuld højde');await expect(walls).toHaveAttribute('aria-pressed','false');await page.waitForTimeout(700);
  await page.screenshot({path:'/tmp/engstien-corrected-cutaway.png'});expect(errors).toEqual([]);

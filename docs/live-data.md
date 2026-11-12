@@ -1,6 +1,6 @@
 # Vejr, Google Kalender og Jakarta
 
-Alle appens egne tekster, formularer og visningsknapper bruger den lokalt indlejrede Plus Jakarta Sans. Adgangskodesiden bruger samme font. Have, terrasser og indkørsel forbliver synlige i 3D, Plan og Ude; plantegning og oversigt indrammer også udemiljøet. Husets rumkoordinater er uændrede.
+Alle appens egne tekster, formularer og visningsknapper bruger den lokalt indlejrede Plus Jakarta Sans. Adgangskodesiden bruger samme font. Have, terrasser og indkørsel forbliver synlige i 3D, Plan og Ude; standardudsnittene fokuserer tæt på huset. Haven og indkørslen forbliver i modellen og kan udforskes med panorering og zoom. Husets rumkoordinater er uændrede.
 
 ## Vejr
 
