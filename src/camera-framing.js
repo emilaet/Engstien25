@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {interior} from './architecture.js';
+import {plotOutline,driveway} from './outdoor-layout.js';
 const offset=new THREE.Vector3(12,24,24);
 function houseBounds(height){
  const bounds=[];
@@ -7,17 +8,20 @@ function houseBounds(height){
  return bounds;
 }
 const houseCorners=houseBounds(2.4),fullCorners=houseBounds(3.3);
-// Orthographic plan shows the living footprint; the carport remains outside the fit.
-export function framePlan(camera,aspect,{home=false}={}){
+export const environmentFrame={minX:Math.min(...plotOutline.map(p=>p[0])),maxX:driveway.endX+2.8,minZ:Math.min(...plotOutline.map(p=>p[1])),maxZ:Math.max(...plotOutline.map(p=>p[1]))};
+const environmentCorners=[];for(const x of [environmentFrame.minX,environmentFrame.maxX])for(const y of [-1,4.2])for(const z of [environmentFrame.minZ,environmentFrame.maxZ])environmentCorners.push(new THREE.Vector3(x,y,z));
+// Plan includes the terraces and driveway; room coordinates remain unchanged.
+export function framePlan(camera,aspect,{home=false,outdoors=true}={}){
+ if(outdoors){const b=environmentFrame,halfH=Math.max((b.maxZ-b.minZ)/2+.5,((b.maxX-b.minX)/2+.5)/aspect);camera.left=-halfH*aspect;camera.right=halfH*aspect;camera.top=halfH;camera.bottom=-halfH;camera.updateProjectionMatrix();return new THREE.Vector3((b.minX+b.maxX)/2,0,(b.minZ+b.maxZ)/2);}
  const halfH=home?Math.max(interior.depth/2+1.2,(interior.width/2+.6)/aspect):Math.max(interior.depth/2+.35,(interior.width/2+.15)/aspect);
  camera.left=-halfH*aspect;camera.right=halfH*aspect;camera.top=halfH;camera.bottom=-halfH;
  camera.updateProjectionMatrix();
  return new THREE.Vector3(interior.width/2,0,interior.depth/2+(home?.35:.05));
 }
-export function frameOverview(camera,viewOffset=offset,{full=false}={}){
- const target=new THREE.Vector3(interior.width/2,0,interior.depth/2+(full?.6:0));
- const bounds=full?fullCorners:houseCorners;
- let low=.15,high=6;
+export function frameOverview(camera,viewOffset=offset,{full=false,outdoors=false}={}){
+ const b=environmentFrame,target=outdoors?new THREE.Vector3((b.minX+b.maxX)/2,0,(b.minZ+b.maxZ)/2):new THREE.Vector3(interior.width/2,0,interior.depth/2+(full?.6:0));
+ const bounds=outdoors?environmentCorners:full?fullCorners:houseCorners;
+ let low=.15,high=12;
  for(let pass=0;pass<22;pass++){
   const scale=(low+high)/2;camera.position.copy(target).addScaledVector(viewOffset,scale);camera.lookAt(target);camera.updateMatrixWorld(true);
   const fits=bounds.every(point=>{const p=point.clone().project(camera);return Math.abs(p.x)<=(full?.90:.98)&&Math.abs(p.y)<=(full?.88:.94);});
@@ -28,7 +32,7 @@ export function frameOverview(camera,viewOffset=offset,{full=false}={}){
 }
 
 // Outdoor presets frame the approved terraces/approach, while the existing
-// indoor and orthographic framing above keep their original room coordinates.
+// indoor and orthographic views retain the same architecture coordinates.
 export function frameExterior(camera,{side='garden'}={}){
  const front=side==='driveway';
  const target=front?new THREE.Vector3(20.5,.2,7.0):new THREE.Vector3(8.5,.3,6.3);

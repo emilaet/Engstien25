@@ -1,6 +1,6 @@
 import {openSettings,previewLayout} from './ui.js';
 import {editDashboard} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 test('Mobile puts the next appointment and waste above imagery and keeps default desktop sizes',async({page})=>{
  await page.setViewportSize({width:375,height:812});await page.goto('/');await expect(page.locator('.calendar-card')).toBeInViewport();await expect(page.locator('.waste-card')).toBeInViewport();await expect(page.locator('.family-grid .weather-card .hw-day [role=img]').first()).toHaveAttribute('aria-label',/Sol|Skyet|Byger|Let skyet|Klar nat/);const ids=await page.locator('.dashboard-widget:visible').evaluateAll(cs=>cs.map(c=>({id:c.dataset.widgetId,y:c.getBoundingClientRect().y})).sort((a,b)=>a.y-b.y).map(c=>c.id));expect(ids.slice(0,4)).toEqual(['calendar','waste','weather','car']);expect((await page.locator('#house-overview').boundingBox()).height).toBe(132);await page.setViewportSize({width:1194,height:834});await expect.poll(async()=>(await page.locator('#house-overview').boundingBox()).height).toBe(244);
 });

@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 import {selectRoom,readyScene} from './ui.js';
 const visible=page=>page.locator('.dashboard-widget:visible');
 async function boxes(page){return visible(page).evaluateAll(cards=>cards.map(card=>{const r=card.getBoundingClientRect();return {id:card.dataset.widgetId,x:r.x,y:r.y,w:r.width,h:r.height};}));}

@@ -1,7 +1,7 @@
 import {initialState} from '../src/house.js';
 import {openSettings} from './ui.js';
 import {openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 test('Family updates sync between tabs, retain drafts, allow editing and scoped undo',async({page,context})=>{
  await page.goto('/');const other=await context.newPage();await other.goto('/');await page.getByRole('textbox',{name:'Ny vare på handlelisten'}).fill('Bevar kladden');
  await other.getByRole('textbox',{name:'Nyt punkt på huskelisten'}).fill('Fra anden fane');await other.getByRole('button',{name:'Tilføj huskepunkt'}).click();await expect(page.getByRole('checkbox',{name:'Fra anden fane',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Ny vare på handlelisten'})).toHaveValue('Bevar kladden');

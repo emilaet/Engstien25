@@ -1,5 +1,5 @@
 import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 async function roomPoint(page,id){
  await expect.poll(()=>page.locator('#scene').getAttribute('data-room-points')).toBeTruthy();
  return page.locator('#scene').evaluate((host,key)=>{const [x,y]=JSON.parse(host.dataset.roomPoints)[key],r=host.querySelector('canvas').getBoundingClientRect();return {x:r.x+x*r.width,y:r.y+y*r.height};},id);

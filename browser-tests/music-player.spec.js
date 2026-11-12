@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 
 async function config(page,apple=true,spotify=false){await page.route('**/src/music-config.js*',route=>route.fulfill({contentType:'application/javascript',body:'export const musicConfig='+JSON.stringify({appleDeveloperToken:apple?'test-public-developer-token':'',spotifyClientId:spotify?'test-public-client-id':''})}));}
 async function appleSdk(page,{denied=false}={}){await page.addInitScript(({denied})=>{

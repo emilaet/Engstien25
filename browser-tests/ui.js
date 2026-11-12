@@ -1,4 +1,4 @@
-import {expect} from '@playwright/test';
+import {expect} from './fixtures.js';
 export async function openOptions(page){if(!await page.locator('#home-options-menu').isVisible())await page.locator('#home-options').click();}
 export async function closeOptions(page){if(await page.locator('#home-options-menu').isVisible())await page.locator('#home-options').click();}
 export async function modelOption(page,name){await openOptions(page);await page.getByRole('button',{name,exact:true}).click();if(!await page.locator('dialog[open]').count())await closeOptions(page);}

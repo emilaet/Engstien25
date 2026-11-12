@@ -64,3 +64,8 @@ html:root[data-theme=dark] .rail{--bg:#191c1b;--surface:#232725;--soft:#2c302d;-
 .nav-selection{position:absolute;inset:0 auto auto 0;pointer-events:none;z-index:0;background:var(--primary);opacity:0}
 .rail nav[data-motion-ready=true] .nav-selection{transition:transform 340ms cubic-bezier(.22,1,.36,1),width 220ms ease,height 220ms ease,opacity 160ms ease}
 @media(prefers-reduced-motion:reduce){.rail nav.has-nav-motion .nav,.rail nav[data-motion-ready=true] .nav-selection{transition:none}}
+
+:root{font-family:'Plus Jakarta Sans',system-ui,sans-serif}button,input,select,textarea{font-family:inherit}.view-controls button,.view-controls select{font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+.view-controls :is(#perspective-view,#plan-view,#full-view){font:500 12px/1.4 'Plus Jakarta Sans',system-ui,sans-serif!important;letter-spacing:normal}
+
+code,pre,kbd,samp{font-family:inherit}

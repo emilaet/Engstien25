@@ -1,5 +1,5 @@
 import {editDashboard} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 async function sizeWeather(page,width,height){await page.addInitScript(({width,height})=>{if(localStorage.getItem('weather-music-seeded'))return;localStorage.setItem('weather-music-seeded','yes');const rows=[['house',4,5],['camera',4,5],['weather',width,height],['calendar',6,4],['waste',3,4],['car',3,4],['tasks',6,4],['shopping',6,4],['lights',4,2],['climate',4,2],['curtains',4,2]];localStorage.setItem('engstien-home-layout-v3',JSON.stringify(rows.map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}))));},{width,height});await page.goto('/');await expect(page.locator('.dashboard-widget')).toHaveCount(12);}
 async function contained(locator,selector){const issues=await locator.evaluate((card,selector)=>{const b=card.getBoundingClientRect();return [...card.querySelectorAll(selector)].filter(e=>e.getClientRects().length).flatMap(e=>{const r=e.getBoundingClientRect();return r.top<b.top-1||r.bottom>b.bottom+1||r.left<b.left-1||r.right>b.right+1?[e.className||e.tagName]:[]});},selector);expect(issues).toEqual([]);}
 test('Minimum-height weather keeps readable current conditions and opens the complete forecast at every width',async({page})=>{

@@ -1,5 +1,5 @@
 import {editDashboard} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 async function edit(page){await editDashboard(page);}
 const card=(p,id)=>p.locator(`[data-widget-id=${id}]`);
 async function positions(p){return p.locator('.dashboard-widget:visible').evaluateAll(els=>els.map(e=>({id:e.dataset.widgetId,c:e.style.getPropertyValue('--widget-column'),r:e.style.getPropertyValue('--widget-row'),w:e.style.getPropertyValue('--widget-width'),h:e.style.getPropertyValue('--widget-rows')})));}

@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 
 test('Approved garden and graded driveway are available in Full without changing room, plan or charger controls',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.emulateMedia({reducedMotion:'reduce'});
@@ -11,10 +11,10 @@ test('Approved garden and graded driveway are available in Full without changing
  await page.getByRole('button',{name:'Nulstil visning',exact:true}).click();await expect(scene).toHaveAttribute('data-exterior-side','driveway');
  await page.getByRole('button',{name:'Have',exact:true}).click();await expect(scene).toHaveAttribute('data-exterior-side','garden');
  await page.getByRole('button',{name:'Vis plantegning ovenfra',exact:true}).click();
- await expect(scene).toHaveAttribute('data-outdoor-visible','false');await expect(page.getByRole('group',{name:'Se udemiljøet'})).toBeHidden();
+ await expect(scene).toHaveAttribute('data-outdoor-visible','true');await expect(page.getByRole('group',{name:'Se udemiljøet'})).toBeHidden();
  await page.locator('[data-room=stue]').click();await expect(page.getByRole('switch',{name:'Loftslys i Stue',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(scene).toHaveAttribute('data-view','charger');await expect(scene).toHaveAttribute('data-outdoor-visible','false');
- await page.getByRole('button',{name:'Hjem',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','plan');await expect(scene).toHaveAttribute('data-outdoor-visible','false');expect(errors).toEqual([]);
+ await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(scene).toHaveAttribute('data-view','charger');await expect(scene).toHaveAttribute('data-outdoor-visible','true');
+ await page.getByRole('button',{name:'Hjem',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','plan');await expect(scene).toHaveAttribute('data-outdoor-visible','true');expect(errors).toEqual([]);
 });
 
 test('Exterior angles remain framed and reachable on tall tablets and phones, including night mode',async({page})=>{

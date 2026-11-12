@@ -1,6 +1,6 @@
 # Engstien 25
 
-Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. GitHub Pages bruger **simulerede** data. Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md).
+Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. Husets enheder bruger fortsat **simulerede** data på GitHub Pages. Vejret hentes fra Open-Meteo, og Google Kalender kan forbindes med læseadgang under Indstillinger → Forbindelser. Se [live-data og Google-opsætning](docs/live-data.md). Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md).
 
 ## Start
 
@@ -34,7 +34,7 @@ I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der br
 
 Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes. Laderen vises på skurets sorte, lodrette beklædning. Nærbilledet bruger en blød præsentationsbelysning, så det sorte kabinet kan aflæses; dette er ikke en tilkoblet udendørslampe.
 
-- Det valgte rum vises i højresidens fokuspanel. Der vises ingen mærkater oven på modellen. Loftarmaturer er usynlige i snitvisningen; deres lysbidrag er bevaret. Carportens tagbjælker vises kun i Full.
+- Det valgte rum vises i højresidens fokuspanel. Der vises ingen mærkater oven på modellen. Loftarmaturer er usynlige i snitvisningen; deres lysbidrag er bevaret. Udemiljøet vises i både 3D, Plan og Ude. Ude viser huset med helt tag; snitvisningen bevarer rumstyringen.
 - Lamper viser lokal glød og afstandsafhængigt lys på gulve, vægge og møbler. Loftslys har større styrke/rækkevidde end sengelamper. Ravfarvede felter viser tændte enheder; tekst og kontaktstilling viser også tilstanden. Rumlisten viser delvist tændte rum, fx **1/3 tændt** i soveværelset.
 - **Tænd alt lys** og **Sluk alt lys** styrer samtlige lamper i huset, inklusive separate bordlamper. Temperaturer, gardiner og ikke-nul dæmpning bevares. Tænd gendanner en nul-dæmpet lampe til synligt lys.
 - Kort tryk på gulvet: markér rummet og åbn dets enheder i højremenuen. Trykket ændrer ingen enhedstilstand.

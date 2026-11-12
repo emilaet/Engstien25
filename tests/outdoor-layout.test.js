@@ -117,3 +117,13 @@ test('Exterior camera presets fit the garden and graded approach on narrow and w
   }
  }
 });
+
+test('Plan and 3D overview frame the garden, approach and street across tablet aspect ratios',async()=>{
+ const THREE=await import('three'),{framePlan,frameOverview}=await import('../src/camera-framing.js'),{plotOutline}=await import('../src/outdoor-layout.js');
+ const points=[...plotOutline,[driveway.endX+2.8,-1],[driveway.endX+2.8,18.4]];
+ for(const aspect of [.4,.75,1,1.8,2.4]){
+  const plan=new THREE.OrthographicCamera(-1,1,1,-1,.1,500),target=framePlan(plan,aspect);plan.position.copy(target).add(new THREE.Vector3(0,40,.001));plan.lookAt(target);plan.updateMatrixWorld(true);
+  for(const [x,z]of points){const p=new THREE.Vector3(x,0,z).project(plan);assert.ok(Math.abs(p.x)<1&&Math.abs(p.y)<1,'cropped outdoor plan at '+aspect);}
+  const camera=new THREE.PerspectiveCamera(25,aspect,.1,500),framing=frameOverview(camera,undefined,{outdoors:true});assert.ok(framing.extent<.99,'cropped outdoor overview at '+aspect);assert.ok(camera.position.distanceTo(framing.target)<300,'overview exceeds orbit range');
+ }
+});

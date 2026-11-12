@@ -1,5 +1,5 @@
 import {editDashboard} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 async function edit(page){await page.locator('#home-options').click();await page.getByRole('button',{name:'Rediger dashboard',exact:true}).click();}
 const card=(page,id)=>page.locator(`[data-widget-id=${id}]`);
 async function resize(page,id,axis,dx,dy,{release=true}={}){

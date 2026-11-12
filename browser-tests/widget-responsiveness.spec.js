@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 const ids=['camera','weather','calendar','car','waste','shopping','tasks','house','lights','climate','curtains','music'];
 async function custom(page){await page.addInitScript(ids=>{if(!localStorage.getItem('engstien-home-layout-v3'))localStorage.setItem('engstien-home-layout-v3',JSON.stringify(ids.map(id=>({id,width:3,height:3,visible:true}))))},ids);await page.goto('/');await expect(page.locator('.dashboard-widget')).toHaveCount(12);}
 async function edit(page){await page.locator('#home-options').click();await page.getByRole('button',{name:'Rediger dashboard',exact:true}).click();}

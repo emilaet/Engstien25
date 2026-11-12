@@ -1,5 +1,5 @@
 import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 
 test('Manual day/night persists, changes the actual scene, and never switches lamps',async({page})=>{
  await page.goto('/#rooms');const mode=page.getByLabel('Dag- og aftenvisning'),scene=page.locator('#scene');await readyScene(page);const before=await scene.getAttribute('data-active-lights');await mode.selectOption('night');await expect(page.locator('html')).toHaveAttribute('data-theme','dark');await expect(scene).toHaveAttribute('data-daylight','0.000');await mode.selectOption('day');await expect(scene).toHaveAttribute('data-appearance','light');expect(await scene.getAttribute('data-active-lights')).toBe(before);await page.reload();await expect(mode).toHaveValue('day');await expect(scene).toHaveAttribute('data-daylight','1.000');await mode.selectOption('auto');await expect(mode).toHaveValue('auto');

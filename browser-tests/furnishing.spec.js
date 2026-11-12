@@ -1,6 +1,6 @@
 import {referenceDetails} from './ui.js';
 import {selectRoom,roomTab,openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 import {readFile} from 'node:fs/promises';
 const selectBed=async page=>{await page.goto('/#furnish');await selectFurniture(page,'sove-bed');await expect(page.locator('.furniture-details h3')).toHaveText('Nova · seng 180 × 200');};
 test('Furnished house retains room control, offers an empty inspection view, and allows editing each item',async({page})=>{

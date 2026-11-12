@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 
 for(const start of ['/#home','/#settings/connections'])test('Spotify PKCE login binds the callback, controls playback, refreshes expired access, and logs out locally '+start,async({page})=>{
  test.setTimeout(150000);const tokenRequests=[],apiRequests=[];

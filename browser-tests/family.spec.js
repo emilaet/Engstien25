@@ -1,6 +1,6 @@
 import {openSettings} from './ui.js';
 import {openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 test('Hjem is the family landing page; Rum retains the existing house controls and browser history',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible();
  await expect(page.getByRole('heading',{name:'Huskeliste',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Tømmekalender',exact:true})).toBeVisible();await expect(page.locator('#home-model canvas')).toBeVisible();

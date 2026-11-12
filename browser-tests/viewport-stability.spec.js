@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 
 test('Checking either family list keeps the page, cards and both list scroll positions fixed',async({page})=>{
  for(const [width,height] of [[1194,834],[390,844]]){

@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 import {createDashboardServer} from '../server/app.mjs';
 import {resolve} from 'node:path';
 let server,url,posts=[],offline=false,states=[];

@@ -1,6 +1,6 @@
 import {openSettings} from './ui.js';
 import {openOptions,closeOptions,modelOption,selectFurniture,chargeScenario,wasteScenario,clearList,readyScene} from './ui.js';
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 import {createDashboardServer} from '../server/app.mjs';
 import {resolve} from 'node:path';
 let server,url;

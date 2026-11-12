@@ -17,6 +17,7 @@ export function refreshDashboard(host,markup){
   const old=new Map([...oldGrid.children].map(node=>[cardKey(node),node]));
   for(const node of [...newGrid.children]){const before=old.get(cardKey(node)),signature=node.outerHTML;if(before?._renderedMarkup===signature)continue;
    if(before&&node.matches('.tasks-card,.shopping-card')){refreshList(before,node);before._renderedMarkup=signature;continue;}
+   if(before&&node.matches('.weather-card,.calendar-card')){before.replaceChildren(...node.childNodes);before._renderedMarkup=signature;continue;}
    node._renderedMarkup=signature;rememberRows(node);if(before)before.replaceWith(node);else oldGrid.append(node);
   }
  }else for(const node of newGrid?.children||[]){node._renderedMarkup=node.outerHTML;rememberRows(node);}

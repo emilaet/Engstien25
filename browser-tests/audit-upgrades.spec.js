@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 import {editDashboard,modelOption,readyScene} from './ui.js';
 
 test('Graphics restore redraws automatically and editing from outside opens the interior',async({page})=>{

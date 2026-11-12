@@ -50,7 +50,7 @@ const mobileHeights={calendar:132,waste:180,weather:180,car:132,tasks:196,shoppi
 export function homeRectangles(layout,{minimum=2,stack=false}={}){const standard=sameDefault(layout),stock=stack&&!layout.some(w=>w.mobileOrder!==undefined);return arrangeGrid(layout.map(w=>({...w,...(stock?{mobileOrder:mobilePriority.indexOf(w.id)}:{}),rows:Math.round(((stock?(w.mobileHeightPx??mobileHeights[w.id]):cardHeight(w,standard,stack))+12)/16)})),{minimum,stack});}
 
 
-export function setupDashboardLayout({notify=()=>{},storage}={}){
+export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={}){
  const disk=safeStorage(storage);
  let saved=defaultLayout();
  try{saved=migrateLayout(JSON.parse(disk.getItem(layoutKey)??disk.getItem(legacyLayoutKey)));}catch{}
@@ -153,7 +153,7 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
  function finish(save){
   endGesture(true);
   if(save){saved=structuredClone(draft);disk.setItem(layoutKey,JSON.stringify(saved));announce(disk.persistent?'Dit layout er gemt på denne enhed.':'Lagring er ikke tilgængelig. Layoutet bevares kun, mens siden er åben.');}
-  editing=false;recoveryDisk.removeItem(draftLayoutKey);document.documentElement.classList.remove('home-layout-editing');details(false);toolbar.hidden=true;area.querySelector('#home-options').disabled=false;refresh();area.querySelector('#home-options').focus({preventScroll:true});
+  editing=false;recoveryDisk.removeItem(draftLayoutKey);document.documentElement.classList.remove('home-layout-editing');details(false);toolbar.hidden=true;area.querySelector('#home-options').disabled=false;refresh();area.querySelector('#home-options').focus({preventScroll:true});onFinish();
  }
  area.querySelector('#home-options').onclick=()=>{const menu=area.querySelector('#home-options-menu');menu.hidden=!menu.hidden;area.querySelector('#home-options').setAttribute('aria-expanded',String(!menu.hidden));};
  const startEditing=()=>{

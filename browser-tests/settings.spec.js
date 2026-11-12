@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 import {readFile} from 'node:fs/promises';
 async function openSettings(page,name='Overblik'){await page.locator('#home-options').click();await page.getByRole('button',{name:'Indstillinger',exact:true}).click();if(name!=='Overblik')await page.getByRole('button',{name,exact:true}).click();}
 

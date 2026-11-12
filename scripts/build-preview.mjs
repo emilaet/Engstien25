@@ -43,7 +43,10 @@ try {
     '--template-toggle-show', 'Vis adgangskode', '--template-toggle-hide', 'Skjul adgangskode',
     '--template-color-primary', '#59694a', '--template-color-secondary', '#f3f1eb',
   ], { ...process.env, STATICRYPT_PASSWORD: password });
-  const encrypted = await readFile(`${site}/index.html`, 'utf8');
+  const font=await readFile(new URL('../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2',import.meta.url));
+  let encrypted = await readFile(`${site}/index.html`, 'utf8');
+  encrypted=encrypted.replace(/<\/head>/i,`<style>@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:200 800;font-display:swap;src:url(data:font/woff2;base64,${font.toString('base64')}) format("woff2")}body,input,button{font-family:"Plus Jakarta Sans",system-ui,sans-serif!important}</style></head>`);
+  await writeFile(`${site}/index.html`,encrypted);
   for (const marker of ['Engstien 25', 'Stort vinduesparti', 'Soveværelse']) {
     if (encrypted.includes(marker)) throw new Error('Refusing to publish unencrypted application data.');
   }

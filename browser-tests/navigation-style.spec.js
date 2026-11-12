@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures.js';
 
 const selected=page=>page.locator('.rail .nav.active');
 async function aligned(page){

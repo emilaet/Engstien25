@@ -1,3 +1,4 @@
+import {weatherFixture} from '../tests/fixtures/weather.js';
 import { test, expect } from '@playwright/test';
 import { randomBytes } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -32,8 +33,10 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   const errors = [], requests = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', req => requests.push(req.url()));
+  await page.route('https://api.open-meteo.com/v1/forecast?**',route=>route.fulfill({json:weatherFixture()}));
   await page.goto(url);
   await expect(page.locator('#app')).toHaveCount(0);
+  await expect(page.locator('body')).toHaveCSS('font-family',/Plus Jakarta Sans/);
   await page.locator('input[type=password]').fill('incorrect-test-password');
   await page.getByRole('button', { name: 'Åbn husoversigt' }).click();
   await expect(page.locator('#app')).toHaveCount(0);
@@ -50,7 +53,7 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   await expect(lamp).toHaveAttribute('aria-checked','true');
   await lamp.click();await expect(lamp).toHaveAttribute('aria-checked','false');
   expect(errors).toEqual([]);
-  expect(requests.filter(r => !r.startsWith(url) && !r.startsWith('data:'))).toEqual([]);
+  expect(requests.filter(r => !r.startsWith(url) && !r.startsWith('data:') && !r.startsWith('https://api.open-meteo.com/v1/forecast?'))).toEqual([]);
   await page.reload();await expect(page.locator('input[type=password]')).toBeVisible();
 });
 
