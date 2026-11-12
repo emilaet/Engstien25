@@ -16,7 +16,7 @@ npm run dev -- --port 5173
 
 ## Familieforside
 
-**Hjem** åbner familiens overblik med en redigerbar huskeliste, en handleliste med Apple Noter som planlagt kilde og en Renosyd-eksempelkalender med danske affaldspiktogrammer. Lister kan redigeres, ryddes og gendannes med Fortryd. Listeændringer gemmes på den enkelte enhed og deles mellem faner; Apple Noter og Renosyd er endnu ikke tilsluttet. **Rum** åbner den eksisterende husmodel. Se [dataarkitektur og kildebegrænsninger](docs/family-dashboard.md).
+**Hjem** åbner familiens overblik med huskeliste, handleliste og en Renosyd-eksempelkalender med danske affaldspiktogrammer. Telefonen viser lister uden skrivefelter og åbner Apple Noter til redigering. Begge lister kan indlæses fra en Notes-eksport; automatisk overførsel kræver en iPhone-genvej og en online dashboardserver. Se [Apple Noter](docs/apple-notes.md). Desktop-demoens lokale lister kan fortsat redigeres, indtil en Notes-eksport indlæses. Renosyd er ikke tilsluttet. **Rum** åbner den eksisterende husmodel. Se [dataarkitektur og kildebegrænsninger](docs/family-dashboard.md).
 
 ## Indretning
 
@@ -30,7 +30,7 @@ I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. He
 
 På **Hjem** låser **••• → Rediger dashboard** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte til en vilkårlig ledig plads i gridet. Kortet følger hånden, og en pladsholder viser landingsstedet. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. Indstillingerne gemmes på denne enhed.
 
-I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum**, søgning og pilene skifter rum. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
+I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum** og pilene skifter rum. **Ude** styrer væglamper og spots i carporten separat. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
 
 Menuen består af **Hjem**, **Rum** og **Billader**. Lys og varme styres under Rum. **Billader** flyver kameraet frem til OK-boksen til venstre for skurdøren. Den grønne ring pulserer ved simuleret opladning og bliver afdæmpet på pause. Reduceret bevægelse understøttes. Laderen vises på skurets sorte, lodrette beklædning. Nærbilledet bruger en blød præsentationsbelysning, så det sorte kabinet kan aflæses; dette er ikke en tilkoblet udendørslampe.
 
@@ -99,7 +99,7 @@ Lokalt kan den krypterede udgave bygges med `npm run build:pages`, når `PREVIEW
 
 Den godkendte standardforside har ni synlige kort med vejr, hoveddørskamera, Google Kalender og musik. **••• → Rediger dashboard** giver direkte størrelses- og flyttehåndtag på kortene. Dashboardet vises i samme grid før, under og efter redigering. Den lille linje har gemning og fortryd; **Widgets** åbner de valgfrie indstillinger og klikbare flyttepile for alle 12 widgets. Tømmekalenderen viser de to kommende tømninger direkte. Layoutlageret er `engstien-home-layout-v3`; tilpassede v2-layouts migreres med deres indstillinger bevaret. Vejr og kalender viser eksempeldata, og kameraet viser den godkendte AI-illustration. Se [widgets og datakilder](docs/home-widgets.md).
 
-Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten har søgning og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
+Vandret iPad bevarer de to hovedrækker; stående tablet bruger to kolonner under husoversigten, og telefon bruger én kolonne. Rumoversigten viser de 14 rum samt Ude uden søgefelt og åbner hele højrepanelet for det valgte rum. Kontrollerne kan rulles under fast overskrift og faner. Indretning har Udseende/Placering, referencefelt og en tilgængelig Gem-knap.
 
 Udendørs lys er en separat demogruppe under Entré. Den starter slukket ved migration, tælles ikke som et indendørs rum og ændrer ikke tilstand ved skift mellem dag og aften. Udendørs lysmaterialer er afgrænset fra de indendørs gulve og møbler. Kun fysisk understøttede gulv- og bordlamper vises; øvrige armaturer skjules med deres lysbidrag bevaret.
 
@@ -130,3 +130,7 @@ De ti godkendte forbedringspunkter er beskrevet i [UX-opdateringen](docs/ux-upgr
 ## Hurtigere kontrol af ændringer
 
 Almindelige udgivelser kører hurtige modul-/servertests, otte kritiske browserforløb og adgangskodetestene. Den fulde browserpakke køres om natten eller manuelt med `full_suite`. Se [testforløb og valg af kontroller](docs/testing.md).
+
+Telefonen har en visning til daglig touch-betjening uden tekstfelter. Avanceret opsætning foretages på computer/tablet. Valg af rum eller møbel i Indretning flytter kameraet automatisk. På iPhone understøttes Føj til hjemmeskærm med appikon og safe-area-layout; loginbeskyttelsen er uændret og kan kræve indtastning af adgangskoden. Den fysiske iPhone/Safari skal stadig afprøves.
+
+Hjemmeskærmsikonet bruger et lyst e₂₅-mærke i Jakarta på mørkegrøn baggrund. PNG-filer til iPhone/Android og et enkelt SVG-favicon ligger i `public/`; vektorkilden er `src/assets/app-icon.svg`. Ikonerne kan gendannes med `node scripts/render-app-icons.mjs`. Se [seneste appgennemgang og forbedringsforslag](docs/mobile-and-app-review.md).

@@ -1,15 +1,15 @@
-import {rooms,initialState} from './house.js';
+import {rooms,controlRooms,initialState} from './house.js';
 import {lightName} from './lighting-data.js';
 import {safeStorage} from './storage.js';
 export const deviceCatalogKey='engstien-devices-v1';
-export const deviceRooms=[...rooms.map(({id,name})=>({id,name})),{id:'carport',name:'Carport og bil'},{id:'outside',name:'Udeområder'}];
+export const deviceRooms=[...rooms.map(({id,name})=>({id,name})),{id:'carport',name:'Carport og bil'},{id:'outside',name:'Ude'}];
 export const deviceTypes={light:'Lys',climate:'Gulvvarme',cover:'Gardiner',sensor:'Sensorer',switch:'Kontakter',charger:'Ladeboks',vehicle:'Bil',camera:'Kamera',media_player:'Lyd',vacuum:'Robotstøvsuger'};
 export const bindingSlots={light:{primary:'Lampe'},climate:{primary:'Varmezone'},cover:{primary:'Gardin'},sensor:{primary:'Sensor'},switch:{primary:'Kontakt'},camera:{primary:'Kamera'},media_player:{primary:'Afspiller'},vacuum:{primary:'Robotstøvsuger'},charger:{primary:'Start/stop-kontakt',status:'Ladestatus',power:'Ladeeffekt',energy:'Sessionsenergi'},vehicle:{primary:'Batteriprocent',status:'Bilens ladestatus',target:'Lademål',remaining:'Resterende ladetid'}};
 export function defaultDevices(){
  const base=initialState(),items=[];
- for(const room of rooms){
+ for(const room of controlRooms){
   for(const key of Object.keys(base[room.id].lights))items.push({id:room.id+':'+key,room:room.id,name:lightName(room.id,key),type:'light',anchor:{room:room.id,group:'lights',key},bindings:{}});
-  items.push({id:room.id+':heat',room:room.id,name:'Gulvvarme',type:'climate',anchor:{room:room.id,group:'heat'},bindings:{}});
+  if(!room.exterior)items.push({id:room.id+':heat',room:room.id,name:'Gulvvarme',type:'climate',anchor:{room:room.id,group:'heat'},bindings:{}});
   (room.curtains||[]).forEach((name,i)=>items.push({id:room.id+':curtain:'+i,room:room.id,name,type:'cover',anchor:{room:room.id,group:'curtains',key:String(i)},bindings:{}}));
  }
  items.push({id:'carport:charger',room:'carport',name:'OK ladeboks',type:'charger',bindings:{}},{id:'carport:vehicle',room:'carport',name:'Tesla',type:'vehicle',bindings:{}},{id:'entre:camera',room:'entre',name:'Hoveddørskamera',type:'camera',bindings:{}});
@@ -25,7 +25,7 @@ export function compatibleEntity(device,slot,entity){
 export function normalizeDeviceCatalog(value){
  if(!value||value.version!==1||!Array.isArray(value.devices)||value.devices.length>500)throw Error('Filen indeholder ikke et gyldigt enhedskatalog.');
  const seed=new Map(defaultDevices().devices.map(d=>[d.id,d])),ids=new Set(),primaries=new Set();
- const devices=value.devices.map(d=>{
+ const devices=value.devices.map(originalDevice=>{const d=originalDevice.id==='entre:ude'?{...originalDevice,id:'outside:wall',room:'outside',name:originalDevice.name==='Udelys ved terrasse og carport'?'Væglamper':originalDevice.name}:originalDevice;
   if(!d||typeof d.id!=='string'||!/^[a-zA-Z0-9:_-]{1,100}$/.test(d.id)||ids.has(d.id)||!Object.hasOwn(deviceTypes,d.type)||!deviceRooms.some(r=>r.id===d.room)||typeof d.name!=='string'||!d.name.trim()||d.name.length>100)throw Error('En enhed har ugyldigt navn, rum, type eller ID.');ids.add(d.id);
   const original=seed.get(d.id);if(original&&original.type!==d.type)throw Error('En modelenheds type kan ikke ændres.');
   const bindings={};for(const [slot,id]of Object.entries(d.bindings||{})){

@@ -79,9 +79,9 @@ test('Visible lamps rest on their actual support; hiding a table never leaves a 
 });
 test('Outdoor light is independent, migrates off, and never illuminates an indoor bedroom',()=>{
  const scene=new THREE.Scene(),lighting=buildRoomLighting(scene,initialFurnishing()),bedroom=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshStandardMaterial()),outside=new THREE.Group(),deck=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshStandardMaterial());outside.add(deck);scene.add(bedroom,outside);lighting.bindArchitecture({root:new THREE.Group()},{sove:bedroom});lighting.bindOutdoor(outside);
- const state=initialState();setAllLights(state,false);state.entre.lights.ude=true;const active=lighting.update(state);
- assert.ok(active.some(id=>id.startsWith('entre:ude:')));assert.ok([...lighting.bindings.find(b=>b.mesh===bedroom).uniforms.roomLightPower.value].every(v=>v===0));assert.ok([...lighting.bindings.find(b=>b.mesh===deck).uniforms.roomLightPower.value].some(v=>v>0));
- const disk=storage(),old=initialState();delete old.entre.lights.ude;delete old.entre.levels.ude;disk.setItem('engstien-v1',JSON.stringify(old));const migrated=createDemoHome(disk).load();assert.equal(migrated.entre.lights.ude,false);assert.equal(migrated.entre.levels.ude,100);
+ const state=initialState();setAllLights(state,false);state.outside.lights.wall=true;const active=lighting.update(state);
+ assert.ok(active.some(id=>id.startsWith('outside:wall:')));assert.ok([...lighting.bindings.find(b=>b.mesh===bedroom).uniforms.roomLightPower.value].every(v=>v===0));assert.ok([...lighting.bindings.find(b=>b.mesh===deck).uniforms.roomLightPower.value].some(v=>v>0));
+ const disk=storage(),old=initialState();delete old.outside;disk.setItem('engstien-v1',JSON.stringify(old));const migrated=createDemoHome(disk).load();assert.equal(migrated.outside.lights.wall,false);assert.equal(migrated.outside.levels.wall,100);
 });
 test('All house walls share the same lower cutaway height',()=>{
  const model=buildStructure(new THREE.Scene());

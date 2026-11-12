@@ -1,14 +1,18 @@
 import {test,expect} from './fixtures.js';
 
-test('Checking either family list keeps the page, cards and both list scroll positions fixed',async({page})=>{
+test('Desktop checkmarks and phone Notes updates keep the page, cards and both list scroll positions fixed',async({page})=>{
  for(const [width,height] of [[1194,834],[390,844]]){
   await page.setViewportSize({width,height});await page.goto('/');
   await expect(page.locator('.tasks-card input[type=checkbox]').first()).toBeVisible();
+  let notes={version:1,tasks:[{text:'Pak tasken',done:false},{text:'Vand planter',done:false}],shopping:[{text:'Havremælk',done:false},{text:'Brød',done:false}]};
+  const importNotes=()=>page.getByLabel('Indlæs eksport fra Apple Noter').setInputFiles({name:'noter.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(notes))});
+  if(width<760){await importNotes();await expect(page.locator('.tasks-card')).toContainText('Pak tasken');}
   for(const key of ['tasks','shopping']){
    const checkbox=page.locator(`.${key}-card input[type=checkbox]:not(:checked)`).first();
    await checkbox.scrollIntoViewIfNeeded();
    const before=await page.evaluate(()=>({y:scrollY,lists:[...document.querySelectorAll('.family-list')].map(el=>el.scrollTop),cards:[...document.querySelectorAll('.family-card')].map(el=>el.getBoundingClientRect().top)}));
-   const id=await checkbox.getAttribute('data-item');await checkbox.click();
+   const id=await checkbox.getAttribute('data-item');
+   if(width<760){await expect(checkbox).toBeDisabled();notes[key][0].done=true;await importNotes();}else await checkbox.click();
    await expect(page.locator(`input[data-item="${id}"]`)).toBeChecked();
    await page.waitForTimeout(250);
    const after=await page.evaluate(()=>({y:scrollY,lists:[...document.querySelectorAll('.family-list')].map(el=>el.scrollTop),cards:[...document.querySelectorAll('.family-card')].map(el=>el.getBoundingClientRect().top)}));

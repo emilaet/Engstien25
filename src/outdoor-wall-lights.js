@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {siteLights} from './site-lighting.js';
+import {facadeLights} from './site-lighting.js';
 import {finishedFloor,ceilingHeight} from './architecture.js';
 import {cutawayHeight} from './structure.js';
 
@@ -7,7 +7,7 @@ import {cutawayHeight} from './structure.js';
 // extra shadow-casting lights: a stable, inexpensive facade effect on tablets.
 export function buildOutdoorWallLights(parent){
  const root=new THREE.Group();root.name='landscape-light-fixtures';parent.add(root);
- const sources=siteLights(),materials=[],luminaires=[],beams=[],clip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+cutawayHeight),roofClip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+ceilingHeight(sources[0].position[2]));
+ const sources=facadeLights(),materials=[],luminaires=[],beams=[],clip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+cutawayHeight),roofClip=new THREE.Plane(new THREE.Vector3(0,-1,0),finishedFloor+ceilingHeight(sources[0].position[2]));
  const metal=new THREE.MeshStandardMaterial({color:'#191d20',roughness:.64,metalness:.28});
  const reflector=new THREE.MeshStandardMaterial({color:'#b5a27f',roughness:.42,metalness:.45});materials.push(metal,reflector);
  const size=128,data=new Uint8Array(size*size*4);
@@ -33,7 +33,7 @@ export function buildOutdoorWallLights(parent){
   const beam=new THREE.Mesh(new THREE.PlaneGeometry(1.8,3.2),glow);beam.name='wall-light-footprint:'+source.id;beam.position.set(source.position[0],source.position[1],source.position[2]-.080);root.add(beam);beams.push(beam);
  }
  return {root,setCutaway(enabled){for(const material of materials){material.clippingPlanes=[enabled?clip:roofClip];material.needsUpdate=true;}},update(state){
-  const room=state?.entre,strength=room?.lights.ude?THREE.MathUtils.clamp((room.levels?.ude??100)/100,0,1)*THREE.MathUtils.clamp((room.brightness??100)/100,0,1):0;
+  const room=state?.outside,strength=room?.lights.wall?THREE.MathUtils.clamp((room.levels?.wall??100)/100,0,1)*THREE.MathUtils.clamp((room.brightness??100)/100,0,1):0;
   for(const lamp of luminaires)lamp.material.emissiveIntensity=strength*3;
   for(const beam of beams){beam.visible=strength>0;beam.material.opacity=strength;}
  }};

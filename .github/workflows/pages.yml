@@ -20,6 +20,7 @@ on:
       - 'server/**'
       - 'scripts/**'
       - 'index.html'
+      - 'public/**'
       - 'package*.json'
       - 'vite.preview.config.js'
       - '.github/workflows/pages.yml'

@@ -6,13 +6,13 @@ const asset=await readFile(new URL('../src/assets/tesla-model-y.glb',import.meta
 const assetBuffer=()=>asset.buffer.slice(asset.byteOffset,asset.byteOffset+asset.byteLength);
 import {walls,finishedFloor} from '../src/architecture.js';
 import {cutawayHeight} from '../src/structure.js';
-import {siteLights} from '../src/site-lighting.js';
+import {facadeLights} from '../src/site-lighting.js';
 import {buildOutdoorWallLights} from '../src/outdoor-wall-lights.js';
 import {buildParkedCar,parkedCarPlacement} from '../src/parked-car.js';
 import {carportArea,outdoorY} from '../src/outdoor-layout.js';
 
 test('Exactly three exterior sconces sit outside solid facade sections, with no garden bollards',()=>{
- const sources=siteLights(),wall=walls.find(w=>w.id==='garden');assert.equal(sources.length,3);
+ const sources=facadeLights(),wall=walls.find(w=>w.id==='garden');assert.equal(sources.length,3);
  const model=buildOutdoorWallLights(new THREE.Scene());model.root.updateMatrixWorld(true);
  for(const source of sources){
   const [x,y,z]=source.position;assert.ok(z>wall.from[1]+wall.thickness/2);assert.ok(y>1.7);
@@ -24,13 +24,13 @@ test('Exactly three exterior sconces sit outside solid facade sections, with no 
 });
 
 test('Facade lamps and both light beams follow saved outdoor dimmer state and the wall cutaway',()=>{
- const model=buildOutdoorWallLights(new THREE.Scene()),state={entre:{lights:{ude:true},levels:{ude:100},brightness:80}};
- model.update(state);const source=siteLights()[0],lamp=model.root.getObjectByName(source.id),beam=model.root.getObjectByName('wall-light-footprint:'+source.id),full=lamp.material.emissiveIntensity;
+ const model=buildOutdoorWallLights(new THREE.Scene()),state={outside:{lights:{wall:true},levels:{wall:100},brightness:80}};
+ model.update(state);const source=facadeLights()[0],lamp=model.root.getObjectByName(source.id),beam=model.root.getObjectByName('wall-light-footprint:'+source.id),full=lamp.material.emissiveIntensity;
  assert.ok(full>0);assert.ok(beam.visible);assert.ok(beam.material.map.image.data.some((v,i)=>i%4===3&&v>0));
- state.entre.levels.ude=25;model.update(state);assert.equal(lamp.material.emissiveIntensity,full/4);assert.equal(beam.material.opacity,.2);
+ state.outside.levels.wall=25;model.update(state);assert.equal(lamp.material.emissiveIntensity,full/4);assert.equal(beam.material.opacity,.2);
  model.setCutaway(true);assert.equal(lamp.material.clippingPlanes[0].constant,finishedFloor+cutawayHeight);assert.equal(beam.material.clippingPlanes[0].constant,finishedFloor+cutawayHeight);
  model.setCutaway(false);assert.ok(lamp.material.clippingPlanes[0].constant>3);
- state.entre.lights.ude=false;model.update(state);assert.equal(lamp.material.emissiveIntensity,0);assert.equal(beam.visible,false);
+ state.outside.lights.wall=false;model.update(state);assert.equal(lamp.material.emissiveIntensity,0);assert.equal(beam.visible,false);
 });
 
 test('The detailed Model Y fits on the left level parking bay and its tyres touch the slab',async()=>{

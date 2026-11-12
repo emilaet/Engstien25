@@ -1,4 +1,5 @@
 import {createJournal} from './storage.js';
+import {createNotesStore} from './apple-notes.js';
 /**
  * Family-data boundary. The UI consumes this provider contract rather than
  * Apple Notes, Renosyd or browser storage directly. All sources are DEMO.
@@ -39,20 +40,21 @@ export function createDemoFamilyProvider({storage,now=()=>new Date(),createId=()
   if(op.kind==='remove')state[op.list]=state[op.list].filter(i=>!op.items.some(old=>old.id===i.id));
   if(op.kind==='restore')for(const item of op.items)if(!state[op.list].some(i=>i.id===item.id))state[op.list].push(item);
  }});
- let scenario='normal',undo=null;
- function snapshot(){const today=copenhagenDay(now());return {...journal.load(),today,mode:'demo',persistence:journal.persistent?'device':'memory',updatedAt:now().toISOString(),
-  sources:{tasks:{name:'Huskeliste',status:'demo'},shopping:{name:'Apple Noter',status:'demo'},waste:{name:'Renosyd',status:scenario==='offline'?'offline':'demo'}},
+ const notes=createNotesStore(storage,{now});let scenario='normal',undo=null;
+ function snapshot(){const today=copenhagenDay(now()),synced=notes.read();return {...journal.load(),...(synced?{tasks:synced.tasks,shopping:synced.shopping,readOnly:true,notes:{updatedAt:synced.updatedAt,receivedAt:synced.receivedAt}}:{}),today,mode:'demo',persistence:journal.persistent?'device':'memory',updatedAt:now().toISOString(),
+  sources:{tasks:{name:synced?'Apple Noter':'Huskeliste',status:synced?'connected':'demo'},shopping:{name:'Apple Noter',status:synced?'connected':'demo'},waste:{name:'Renosyd',status:scenario==='offline'?'offline':'demo'}},
   waste:scenario==='empty'?[]:[{id:'waste-rest-food',date:addDays(today,scenario==='today'?0:1),fractions:['rest','food'],label:'Rest- og madaffald'},{id:'waste-plastic-cartons',date:addDays(today,4),fractions:['plasticCartons'],label:'Plast og kartoner'},{id:'waste-paper-card',date:addDays(today,8),fractions:['paper','cardboard'],label:'Papir og pap'},{id:'waste-glass-metal',date:addDays(today,11),fractions:['glassMetal'],label:'Glas og metal'}],canUndo:!!undo};}
- const check=list=>{if(!['tasks','shopping'].includes(list))throw new Error('Ukendt liste.');};
+ const check=list=>{if(notes.read())throw new Error('Ret punkterne i Apple Noter, og synkroniser igen.');if(!['tasks','shopping'].includes(list))throw new Error('Ukendt liste.');};
  const text=value=>{const clean=typeof value==='string'?value.trim().replace(/\s+/g,' '):'';if(!clean||clean.length>120)throw new Error('Skriv et punkt på 1–120 tegn.');return clean;};
  return {
   async load(){return snapshot();},
+  async importNotes(value){notes.import(value);undo=null;return snapshot();},
   async addItem(list,value){check(list);journal.append({kind:'add',list,item:{id:createId(),text:text(value),done:false,detail:''}});return snapshot();},
   async setDone(list,id,done){check(list);if(!journal.load()[list].some(i=>i.id===id))throw new Error('Punktet findes ikke længere.');journal.append({kind:'setDone',list,itemId:id,done:!!done});return snapshot();},
   async editItem(list,id,patch){check(list);const item=journal.load()[list].find(i=>i.id===id);if(!item)throw new Error('Punktet findes ikke længere.');const next={text:text(patch.text??item.text),detail:String(patch.detail??item.detail??'').slice(0,120)};if(patch.due!==undefined){if(patch.due&&(!/^\d{4}-\d{2}-\d{2}$/.test(patch.due)||!Number.isFinite(Date.parse(patch.due+'T12:00:00Z'))||new Date(patch.due+'T12:00:00Z').toISOString().slice(0,10)!==patch.due))throw new Error('Vælg en gyldig dato.');next.due=patch.due;}journal.append({kind:'edit',list,itemId:id,patch:next});return snapshot();},
   async clearCompleted(list){check(list);const items=journal.load()[list].filter(i=>i.done);if(items.length){undo={kind:'restore',list,items};journal.append({kind:'remove',list,items});}return snapshot();},
-  async undo(){if(undo){journal.append(undo);undo=null;}return snapshot();},
+  async undo(){if(notes.read())throw Error('Ret punkterne i Apple Noter.');if(undo){journal.append(undo);undo=null;}return snapshot();},
   async setScenario(value){scenario=value;return snapshot();},
-  subscribe(fn){return journal.subscribe(()=>fn(snapshot()));},
+  subscribe(fn){const a=journal.subscribe(()=>fn(snapshot())),b=notes.subscribe(()=>fn(snapshot()));return ()=>{a();b();};},
  };
 }

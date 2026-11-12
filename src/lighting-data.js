@@ -4,9 +4,9 @@ import {rooms} from './house.js';
 import {ceilingHeight,finishedFloor} from './architecture.js';
 
 const names={sove:['Sengelampe venstre','Sengelampe højre'],stue:['Gulvlampe'],kokken:['Arbejdslys'],alrum:['Spisebordslampe'],walk:['Skabslys'],depot:['Hyldelys'],bad1:['Spejllys'],bad2:['Spejllys'],bryggers:['Arbejdslys'],entre:['Spejllys'],gang:['Væglys'],kontor:['Skrivebordslampe'],v1:['Sengelampe'],v2:['Sengelampe']};
-export function lightName(room,key){return key==='ude'?'Udelys ved terrasse og carport':key==='loft'?'Loftslys':(names[room]?.[key==='lampeRight'?1:0]||'Bordlampe');}
-export function normalizedRoomLighting(room,state){const lights={...state.lights};if(room==='entre'&&!Object.hasOwn(lights,'ude'))lights.ude=false;if(room==='sove'&&!Object.hasOwn(lights,'lampeRight'))lights.lampeRight=false;return {...state,lights,levels:Object.fromEntries(Object.keys(lights).map(key=>[key,Math.max(0,Math.min(100,Number.isFinite(state.levels?.[key])?state.levels[key]:100))]))};}
-export function normalizeHomeLighting(state){return Object.fromEntries(Object.entries(state).map(([id,s])=>[id,normalizedRoomLighting(id,s)]));}
+export function lightName(room,key){return room==='outside'?(key==='wall'?'Væglamper':'Spots i carporten'):key==='ude'?'Udelys ved terrasse og carport':key==='loft'?'Loftslys':(names[room]?.[key==='lampeRight'?1:0]||'Bordlampe');}
+export function normalizedRoomLighting(room,state){const lights={...state.lights};if(room==='sove'&&!Object.hasOwn(lights,'lampeRight'))lights.lampeRight=false;return {...state,lights,levels:Object.fromEntries(Object.keys(lights).map(key=>[key,Math.max(0,Math.min(100,Number.isFinite(state.levels?.[key])?state.levels[key]:100))]))};}
+export function normalizeHomeLighting(state){const next=Object.fromEntries(Object.entries(state).map(([id,s])=>[id,normalizedRoomLighting(id,s)]));next.outside=normalizedRoomLighting('outside',state.outside||{lights:{wall:!!state.entre?.lights.ude,spots:false},levels:{wall:state.entre?.levels?.ude??100,spots:100},brightness:state.entre?.brightness??100,curtains:[]});delete next.entre.lights.ude;delete next.entre.levels.ude;return next;}
 
 // Positions derive from the existing furniture, never from generated artwork.
 export function lightLayout(snapshot=initialFurnishing()){

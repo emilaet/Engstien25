@@ -5,7 +5,7 @@
 ## Kilder og nuværende funktioner
 
 - Huskeliste: lokale eksempelopgaver. Nye punkter kan tilføjes, afkrydses, genåbnes og fjernes, når de er klarede.
-- Handleliste: Apple Noter er den ønskede fremtidige kilde. Nu er data lokale eksempler. Tilføjelse/afkrydsning påvirker **ikke** Apple Noter.
+- Listerne kan indlæses fra Apple Noter via JSON og bliver derefter skrivebeskyttede. På telefonen er redigering altid flyttet til Notes. Uden import er indholdet lokale eksempler. Se [Notes-broen og opsætningen](apple-notes.md).
 - Renosyd: kalenderen er **ikke** forbundet til Renosyd. Datoer og beholdersammensætninger genereres relativt til dagen, så demonstrationen viser kommende tømninger. De må ikke bruges som den faktiske tømmekalender.
 - Listeændringer gemmes som en ændringsjournal under `engstien-family-v1` og tilhørende `:op:`-nøgler i browserens lokale lager. De synkroniseres mellem åbne faner, men ikke mellem enheder. Den valgfrie [dashboardserver](integrations.md) kan dele lister mellem enheder. Rumindstillinger bruger fortsat deres egen eksisterende nøgle.
 
@@ -28,7 +28,7 @@ undo()                         // -> gendan senest fjernede punkter i denne sess
 
 Snapshot indeholder `today` som ISO-kalenderdag, `tasks`, `shopping`, `waste`, `sources`, `mode` og `persistence`. Et listepunkt har `id`, `text`, `done`, valgfri `detail` og valgfri ISO-dag `due`. En tømning har `id`, ISO-dagen `date`, en `label` og en liste af fraktionsnøgler fra `src/waste-icons.js`. Kilder er eksplicit mærket som demo i denne version. Ved tilslutning af en liveprovider skal kildebadges og hjælpetekster også skifte til den faktiske forbindelsesstatus, og read-only-kilder skal håndteres tilsvarende.
 
-Apple Noter har ikke en almindelig browserintegration i denne løsning. Undersøg en understøttet bro, fx Apple Genveje til et privat server-/Home Assistant-endpoint. Afklar om synkronisering skal være en- eller tovejs, og hvordan punkt-ID'er og samtidige ændringer håndteres. Der må ikke lægges Apple-sessioner eller hemmeligheder i GitHub Pages-koden.
+Apple Noter har ikke en direkte browserintegration. Envejsoverførsel er implementeret som JSON-import og et særskilt tokenbeskyttet server-endpoint. iPhone-genvejen og en online modtager kræver stadig opsætning og afprøvning. Der må ikke lægges Apple-sessioner eller hemmeligheder i GitHub Pages-koden.
 
 Renosyd kræver særskilt undersøgelse af den faktiske kalenderadgang. AffaldDK beskriver Renosyd-support, som kan undersøges sammen med den installerede Home Assistant-instans; det er ikke testet for denne adresse. Hvis Renosyd tilbyder en eksport eller et abonnementslink, kan det også vurderes. Login og personlige kalenderlinks hører til på en server/HA, ikke i den statiske hjemmeside.
 
@@ -49,6 +49,6 @@ På Hjem åbner **••• → Rediger dashboard** en editor til de fire status
 
 **Gem layout** gemmer kun placering og størrelse på denne enhed under `engstien-home-layout-v1`. **Annuller** eller navigation væk fra Hjem kasserer layoutkladder. **Gendan standard** genskaber standarden i kladden; tryk Gem for at beholde den. Lister og enhedstilstande påvirkes ikke af layoutændringer. Ved blokeret lagring vises det, at layoutet kun bevares i hukommelsen. Mens editoren er åben, er kortenes betjening deaktiveret, og automatiske listeopdateringer afventer, så flytning ikke bliver afbrudt. Layoutet synkroniseres ikke gennem dashboardserveren.
 
-I **Rum** åbner et valg hele højresidens fokuspanel med relevante faner til Lys, Varme og Gardiner. Rumoversigten har søgning og plads til alle 14 rum; Alle rum og pilene skifter hurtigt mellem rummene. Fokus, aktiv fane og scrollposition bevares under betjening. Valg af rum ændrer ingen enheder og lægger ingen mærkater eller konturer på modellen. Se [rumstyring](room-controls.md). Alle rumenheder bruger stadig demo-adapteren.
+I **Rum** åbner et valg hele højresidens fokuspanel med relevante faner til Lys, Varme og Gardiner. Rumoversigten viser alle 14 rum samt Ude uden søgefelt; Alle rum og pilene skifter hurtigt mellem rummene. Fokus, aktiv fane og scrollposition bevares under betjening. Valg af rum ændrer ingen enheder og lægger ingen mærkater eller konturer på modellen. Se [rumstyring](room-controls.md). Alle rumenheder bruger stadig demo-adapteren.
 
 Ved listeopdateringer bevares sidens, overordnede scrollcontaineres og begge listers rullepositioner. Afkrydsede punkter flyttes fortsat ned blandt de afsluttede; browserens automatiske scrollforankring er deaktiveret på Hjem, så hele dashboardet ikke følger det flyttede punkt.

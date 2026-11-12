@@ -46,7 +46,10 @@ try {
   const font=await readFile(new URL('../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2',import.meta.url));
   let encrypted = await readFile(`${site}/index.html`, 'utf8');
   encrypted=encrypted.replace(/<\/head>/i,`<style>@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:200 800;font-display:swap;src:url(data:font/woff2;base64,${font.toString('base64')}) format("woff2")}body,input,button{font-family:"Plus Jakarta Sans",system-ui,sans-serif!important}</style></head>`);
+  encrypted=encrypted.replace(/<meta\b[^>]*name=["\']viewport["\'][^>]*>/gi,'');
+  encrypted=encrypted.replace(/<\/head>/i,'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Hjem"><meta name="theme-color" content="#f4f1eb"><link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png"><link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="manifest" href="./manifest.webmanifest"></head>');
   await writeFile(`${site}/index.html`,encrypted);
+  for(const file of ['manifest.webmanifest','apple-touch-icon.png','app-icon-192.png','app-icon-512.png','favicon.svg'])await writeFile(`${site}/${file}`,await readFile(`public/${file}`));
   for (const marker of ['Engstien 25', 'Stort vinduesparti', 'Soveværelse']) {
     if (encrypted.includes(marker)) throw new Error('Refusing to publish unencrypted application data.');
   }

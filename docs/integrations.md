@@ -43,12 +43,12 @@ Ukendte tal bliver `—`. Enhedsløse effekt-/energisensorer bruges ikke til ber
 
 ## Apple Noter og Renosyd
 
-Apple Noter er den valgte kilde og er ikke erstattet af Påmindelser. Ingen Apple-integration er aktiveret. Næste skridt er at afprøve en understøttet genvej på en Apple-enhed og vælge en-/tovejs synkronisering med vedvarende punkt-ID'er og konfliktregler. Indtil da er serverens fælles handleliste selvstændig.
+Apple Noter er den valgte kilde og er ikke erstattet af Påmindelser. Begge lister kan indlæses fra JSON, og serveren har et valgfrit `POST /api/notes/import` med en særskilt skrivebegrænset nøgle. Efter import er listerne skrivebeskyttede i dashboardet. En iPhone-genvej og en online modtager skal stadig sættes op og afprøves, før det er automatisk synkronisering. Se [Apple Noter-vejledningen](apple-notes.md).
 
 Renosyd-kalenderen er fortsat eksempeldatoer og eksempelbeholdere, også på serveren. [AffaldDK](https://github.com/briis/affalddk) beskriver Renosyd-support, men opslag, login, adresse og de korrekte fraktioner er ikke verificeret her. Konfigurér/test kalenderen i HA eller en reel kalendereksport, før den betegnes som live. Personlige kalenderlinks og login skal blive på serveren.
 
 ## Kontrol og udrulning
 
-`npm test` tester blandt andet sessionslogin, fælles lagring/genstart, isoleret fortrydelse, CSRF, enheder, cached bildata og skrivebeskyttelse. `npm run test:browser` kontrollerer betjening, flersynk, hukommelsesfallback, datoskift, ladetilstande og hvile-rendering. `npm run test:preview` tester den krypterede udgave med en kort, tilfældig testkode. GitHub Actions kører alle tre før offentliggørelse med den rigtige Pages-secret.
+`npm test` tester blandt andet sessionslogin, fælles lagring/genstart, isoleret fortrydelse, CSRF, enheder, cached bildata og skrivebeskyttelse. `npm run test:browser` kontrollerer betjening, flersynk, hukommelsesfallback, datoskift, ladetilstande og hvile-rendering. `npm run test:preview` tester den krypterede udgave med en kort, tilfældig testkode. GitHub Actions kører modul-/servertests, otte kritiske browserforløb og adgangskodetest før offentliggørelse. Hele browserpakken kører om natten eller ved manuelt valg; se [testpolitikken](testing.md).
 
 Der er ikke konfigureret nogen live forbindelse, før ejeren har indsat og afprøvet de faktiske entiteter på den lokale server. Vægtablet, enhedernes præcise liste, reelle målinger, sensorernes opdateringsrytme og internetudfald skal stadig afprøves i hjemmet.

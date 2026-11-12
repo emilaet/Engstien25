@@ -2,9 +2,9 @@
 
 Designkilder: de fem renderinger i designgrenen under `downloads/rum-ux/`. Implementeringen bruger den eksisterende model og samme rum- og enhedsidentiteter.
 
-Et rum vælges i modellen eller via den søgbare rumoversigt. Hele højrepanelet bliver rummets arbejdsområde. Overskriften, fanerne og de fælles handlinger bliver stående, mens selve indholdet kan rulles uden synlige scrollbjælker. På vandret iPad er panelet 410 CSS-pixels; smallere tablets bruger 350–375 pixels, og telefonen stabler panel og model.
+Et rum vælges i modellen eller via rumoversigten uden søgefelt. Hele højrepanelet bliver rummets arbejdsområde. Overskriften, fanerne og de fælles handlinger bliver stående, mens selve indholdet kan rulles uden synlige scrollbjælker. På vandret iPad er panelet 410 CSS-pixels; smallere tablets bruger 350–375 pixels, og telefonen stabler panel og model.
 
-Fanerne afspejler data: Lys kræver lamper, Varme kræver temperaturer, Gardiner kræver navngivne gardiner. Soveværelset har tre lamper og ingen gardinfane. Stuen har tre selvstændige gardiner. Tab-fokus og piletaster følger ARIA-tabmønstret. Valg af rum giver fokus til den nye overskrift; tilbage til oversigten giver fokus til søgning.
+Fanerne afspejler data: Lys kræver lamper, Varme kræver temperaturer, Gardiner kræver navngivne gardiner. Soveværelset har tre lamper og ingen gardinfane. Stuen har tre selvstændige gardiner. Tab-fokus og piletaster følger ARIA-tabmønstret. Valg af rum giver fokus til den nye overskrift; tilbage til oversigten giver fokus til et rumvalg.
 
 Lyskort har separate kontakter og dæmpere. En gemt fælles rumdæmpning indregnes i de viste individuelle niveauer. Første individuelle justering flytter den fælles faktor til de enkelte niveauer, så andre lampers faktiske lys bevares, og den nye skyder angiver et absolut niveau. Rummets fælles tænd/sluk ændrer ikke varme eller gardiner. Temperaturen justeres med ±0,5 °C eller 18/22/24-graders forvalg og begrænses til 16–28 °C. Varmebehov beregnes ud fra eksempeltemperaturerne; det er ikke aflæsning af en fysisk ventil.
 
@@ -17,3 +17,5 @@ Startudsnit i Rum beregnes fra selve husets aftryk, så carporten ikke trækker 
 Plan bruger nu kun 15 cm vandret frigang omkring husets indvendige aftryk, mens 3D bruger op til 98 % af kamerabredden. Carport og terrasse må beskæres. Hjems separate, lille planoversigt beholder sit eget udsnit.
 
 Kameraturen til billaderen bevarer dagslys, farvetone, eksponering, lampetilstande og husets aktuelle væg-/tagvisning. Nærbilledets supplerende lys er en lokal spot med 4 meters rækkevidde ved skuret; selve huset ligger uden for dens rækkevidde. Billadervisningen ændrer derfor ingen af husets lys for at gøre ladeboksen synlig.
+
+**Ude** er et separat betjeningsområde efter de 14 indendørs rum. Væglamper og Spots i carporten har hver sin kontakt og dæmper samt fælles tænd/sluk. Ude har ingen varme- eller gardinfane og indgår ikke i temperaturgennemsnittet. Telefonen kan betjene området uden at indlæse 3D; visning af modellen er valgfri. Gamle Entré/udelys-data migreres med gemt lysstyrke.

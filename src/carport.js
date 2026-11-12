@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import {toPlan} from './architecture.js';
+import {carportSpotLights} from './site-lighting.js';
+import {sourceStrength} from './lighting-data.js';
 
 export const carportRoof={from:toPlan([1717,739]),to:toPlan([2247,1267]),height:2.32,thickness:.16};
 export function buildCarportRoof(scene){
@@ -15,5 +17,10 @@ export function buildCarportRoof(scene){
  const timber=new THREE.MeshStandardMaterial({color:'#343936',roughness:.9});
  for(let n=0;n<7;n++){const beam=new THREE.Mesh(new THREE.BoxGeometry(w,.09,.055),timber);beam.position.set(x,height-thickness/2-.045,from[1]+.15+n*(d-.30)/6);beam.castShadow=true;root.add(beam);}
  for(const child of root.children)if(child!==slab)child.visible=false;
- return {root,setView({plan=false,charger=false,enabled=true,full=false}={}){root.visible=(full||enabled)&&!plan&&!charger;material.transparent=!full;material.opacity=full?1:.14;material.depthWrite=full;material.color.set(full?'#414642':'#92968a');material.needsUpdate=true;slab.castShadow=full;for(const child of root.children)if(child!==slab)child.visible=full;}};
+ const spots=new THREE.Group();spots.name='carport-ceiling-spots';root.add(spots);const emitters=[];
+ for(const source of carportSpotLights()){
+  const trim=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.018,20),timber);trim.position.fromArray(source.position);trim.name='spot-trim:'+source.id;spots.add(trim);
+  const diffuser=new THREE.Mesh(new THREE.CylinderGeometry(.048,.048,.020,20),new THREE.MeshStandardMaterial({color:'#ece8dc',emissive:'#ffe1b8',emissiveIntensity:0,roughness:.4}));diffuser.position.copy(trim.position).add(new THREE.Vector3(0,-.003,0));diffuser.name=source.id;spots.add(diffuser);emitters.push({source,material:diffuser.material});
+ }
+ return {root,update(state){for(const {source,material}of emitters)material.emissiveIntensity=sourceStrength(source,state)*.6;},setView({plan=false,charger=false,enabled=true,full=false}={}){root.visible=(full||enabled)&&!plan&&!charger;material.transparent=!full;material.opacity=full?1:.14;material.depthWrite=full;material.color.set(full?'#414642':'#92968a');material.needsUpdate=true;slab.castShadow=full;for(const child of root.children)if(child!==slab)child.visible=full;}};
 }

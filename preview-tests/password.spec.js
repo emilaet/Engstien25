@@ -13,15 +13,15 @@ test.beforeAll(async () => {
     env: { ...process.env, PREVIEW_PASSWORD: password }, encoding: 'utf8',
   });
   expect(result.status, 'Encrypted build must succeed').toBe(0);
-  expect(await readdir('.preview/site')).toEqual(['.nojekyll', 'index.html']);
+  expect((await readdir('.preview/site')).sort()).toEqual(['.nojekyll','app-icon-192.png','app-icon-512.png','apple-touch-icon.png','favicon.svg','index.html','manifest.webmanifest']);
   await expect(access('.preview/plain')).rejects.toThrow();
   const html = await readFile('.preview/site/index.html');
   expect(html.toString()).not.toContain(password);
   expect(html.toString()).not.toContain('Engstien 25');
-  server = createServer((req, res) => {
-    if (req.url !== '/Engstien25/' && req.url !== '/Engstien25/index.html') {
-      res.writeHead(404); res.end(); return;
-    }
+  server = createServer(async(req, res) => {
+    const name=req.url?.replace('/Engstien25/','');
+    if(['manifest.webmanifest','apple-touch-icon.png','app-icon-192.png','app-icon-512.png','favicon.svg'].includes(name)){res.setHeader('Content-Type',name.endsWith('.webmanifest')?'application/manifest+json':name.endsWith('.svg')?'image/svg+xml':'image/png');res.end(await readFile('.preview/site/'+name));return;}
+    if(req.url!=='/Engstien25/'&&req.url!=='/Engstien25/index.html'){res.writeHead(404);res.end();return;}
     res.setHeader('Content-Type', 'text/html; charset=utf-8');res.end(html);
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -36,6 +36,9 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   await page.route('https://api.open-meteo.com/v1/forecast?**',route=>route.fulfill({json:weatherFixture()}));
   await page.goto(url);
   await expect(page.locator('#app')).toHaveCount(0);
+  await expect(page.locator('meta[name=apple-mobile-web-app-capable]')).toHaveAttribute('content','yes');
+  await expect(page.locator('link[rel=icon]')).toHaveAttribute('href','./favicon.svg');
+  await expect(page.locator('link[rel=manifest]')).toHaveAttribute('href','./manifest.webmanifest');
   await expect(page.locator('body')).toHaveCSS('font-family',/Plus Jakarta Sans/);
   await page.locator('input[type=password]').fill('incorrect-test-password');
   await page.getByRole('button', { name: 'Åbn husoversigt' }).click();

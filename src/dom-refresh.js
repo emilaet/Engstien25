@@ -5,6 +5,10 @@ function rememberRows(card){for(const row of card.querySelectorAll('.family-item
 function refreshList(before,next){
  for(const selector of ['.family-card-top','.list-storage-status','.family-card-foot']){const old=before.querySelector(selector),value=next.querySelector(selector);if(old&&value&&old.innerHTML!==value.innerHTML)old.innerHTML=value.innerHTML;}
  const count=before.querySelector('[data-list-all]'),nextCount=next.querySelector('[data-list-all]');if(count&&nextCount){count.textContent=nextCount.textContent;count.setAttribute('aria-label',nextCount.getAttribute('aria-label'));}
+ // Source/phone changes can alter the controls without replacing the live form
+ // or losing an unrelated desktop draft.
+ for(const selector of ['.family-add','.list-card-menu']){const old=before.querySelector(selector),incoming=next.querySelector(selector);if(old&&incoming)old.hidden=incoming.hidden;}
+ for(const selector of ['.notes-list-actions','.notes-sync-status']){const old=before.querySelector(selector),incoming=next.querySelector(selector);if(old&&!incoming)old.remove();else if(!old&&incoming)before.insertBefore(incoming,before.querySelector('.family-card-foot'));else if(old&&incoming&&old.innerHTML!==incoming.innerHTML)old.innerHTML=incoming.innerHTML;}
  const list=before.querySelector('.family-list'),incoming=next.querySelector('.family-list'),rows=new Map([...list.children].map(row=>[itemKey(row),row])),desired=[];
  for(const row of incoming.children){const old=rows.get(itemKey(row)),signature=row.outerHTML;row._renderedMarkup=signature;desired.push(old?._renderedMarkup===signature?old:row);}
  for(const row of [...list.children])if(!desired.includes(row))row.remove();

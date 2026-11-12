@@ -2,18 +2,20 @@ import {createServer} from 'node:http';
 import {readFileSync,mkdirSync,existsSync} from 'node:fs';
 import {readFile,writeFile,rename,stat} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
-import {randomBytes,timingSafeEqual,scryptSync} from 'node:crypto';
+import {randomBytes,timingSafeEqual,scryptSync,createHash} from 'node:crypto';
 import {createHaBridge} from './home-assistant.mjs';
+import {createNotesStore} from '../src/apple-notes.js';
 import {createDemoFamilyProvider} from '../src/family-data.js';
-export function createDashboardServer({password,storage,haUrl='',haToken='',entities={},fetchImpl=fetch,staticRoot=resolve('dist'),secureCookies=false,credentialStore,registryImpl}={}){
+export function createDashboardServer({password,storage,haUrl='',haToken='',entities={},fetchImpl=fetch,staticRoot=resolve('dist'),secureCookies=false,credentialStore,registryImpl,notesSyncToken=''}={}){
  if(!password)throw new Error('DASHBOARD_PASSWORD skal konfigureres på serveren.');
  const salt=randomBytes(16),hash=scryptSync(password,salt,32),sessions=new Map(),attempts=new Map();
+ if(notesSyncToken&&notesSyncToken.length<32)throw Error('NOTES_SYNC_TOKEN skal være mindst 32 tegn.');const notes=createNotesStore(storage);
  const ha=createHaBridge({haUrl,haToken,storage,credentialStore,fetchImpl,registryImpl});
  let vehicleCache=null;const assetCache=new Map();
  const durable=async value=>{await storage?.flush?.();await credentialStore?.flush?.();return value;};
  const json=(res,status,value)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(value));};
  const session=req=>{const token=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('dashboard_session='))?.split('=')[1];const entry=token&&sessions.get(token);return entry&&entry.expires>Date.now()?entry:null;};
- async function body(req){let text='';for await(const part of req){text+=part;if(text.length>(req.url.startsWith('/api/settings/catalog')?262144:8192))throw new Error('For stor forespørgsel.');}return JSON.parse(text||'{}');}
+ async function body(req){const chunks=[];let bytes=0;for await(const part of req){chunks.push(part);bytes+=part.length;if(bytes>(req.url.startsWith('/api/settings/catalog')?262144:req.url.startsWith('/api/notes')||req.url.startsWith('/api/family')?65536:8192))throw new Error('For stor forespørgsel.');}return JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');}
  async function vehicle(){
   if(!ha.configured||!entities.battery)return {configured:false,readonly:true};
   try{
@@ -29,7 +31,7 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
    vehicleCache={configured:true,readonly:true,status,battery:percent('battery'),target:percent('target'),power,kwh:energy,remainingMinutes,capacity:null,price:null,homeCharging:age('charger')<300000&&['charging','on'].includes(String(values.charger).toLowerCase()),quality:percent('battery')===null?'unavailable':age('battery')>900000?'cached':'live',source:'Home Assistant · Tesla',updatedAt:times.battery,fetchedAt:new Date().toISOString()};return vehicleCache;
   }catch{return vehicleCache?{...vehicleCache,status:'offline',homeCharging:false,quality:'cached'}:{configured:true,readonly:true,status:'offline',battery:null,target:null,power:null,kwh:null,price:null,homeCharging:false,quality:'unavailable',source:'Home Assistant · Tesla',updatedAt:null};}
  }
- async function familySnapshot(family){const data=await family.load();return {...data,mode:'server',persistence:'server',sources:{...data.sources,tasks:{name:'Fælles huskeliste',status:'connected'},shopping:{name:'Fælles handleliste',status:'connected'}}};}
+ async function familySnapshot(family){const data=await family.load();return {...data,mode:'server',persistence:'server',sources:data.notes?data.sources:{...data.sources,tasks:{name:'Fælles huskeliste',status:'connected'},shopping:{name:'Fælles handleliste',status:'connected'}}};}
  return createServer(async(req,res)=>{
   try{
    const path=new URL(req.url,'http://localhost').pathname;
@@ -38,6 +40,13 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
     const ip=req.socket.remoteAddress,attempt=attempts.get(ip);if(attempt&&attempt.until>Date.now()&&attempt.count>=5)return json(res,429,{error:'For mange forsøg. Prøv igen senere.'});
     const b=await body(req),candidate=scryptSync(String(b.password||''),salt,32);if(!timingSafeEqual(candidate,hash)){attempts.set(ip,{count:(attempt?.until>Date.now()?attempt.count:0)+1,until:Date.now()+900000});return json(res,401,{error:'Forkert adgangskode.'});}
     attempts.delete(ip);const token=randomBytes(32).toString('hex');sessions.set(token,{expires:Date.now()+43200000,family:createDemoFamilyProvider({storage})});res.setHeader('set-cookie',`dashboard_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${secureCookies?'; Secure':''}`);return json(res,200,{authenticated:true});
+   }
+   if(path==='/api/notes/import'&&req.method==='POST'){
+    if(!notesSyncToken)return json(res,503,{error:'Notes-broen er ikke konfigureret.'});
+    const supplied=String(req.headers.authorization||'').replace(/^Bearer /,'');
+    const hash=value=>createHash('sha256').update(value).digest();
+    if(!timingSafeEqual(hash(supplied),hash(notesSyncToken)))return json(res,401,{error:'Ugyldig Notes-nøgle.'});
+    try{const snapshot=notes.import(await body(req));await storage?.flush?.();return json(res,200,{ok:true,updatedAt:snapshot.updatedAt});}catch(e){return json(res,400,{error:e.message});}
    }
    if(path.startsWith('/api/')){
     const active=session(req);if(!active)return json(res,401,{error:'Log ind på dashboardserveren.'});
@@ -51,7 +60,7 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
     if(path==='/api/vehicle'&&req.method==='GET')return json(res,200,await vehicle());
     if(path==='/api/family'&&req.method==='GET')return json(res,200,await familySnapshot(active.family));
     if(path==='/api/family'&&req.method==='POST'){
-     const b=await body(req);if(!['addItem','setDone','editItem','clearCompleted','undo'].includes(b.action))return json(res,400,{error:'Ukendt handling.'});await active.family[b.action](...(b.args||[]));await storage?.flush?.();return json(res,200,await familySnapshot(active.family));
+     const b=await body(req);if(!['addItem','setDone','editItem','clearCompleted','undo','importNotes'].includes(b.action))return json(res,400,{error:'Ukendt handling.'});await active.family[b.action](...(b.args||[]));await storage?.flush?.();return json(res,200,await familySnapshot(active.family));
     }
     return json(res,405,{error:'Live styring er ikke aktiveret. Tesla-forbindelsen er kun læseadgang.'});
    }
@@ -62,7 +71,7 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
    const headers={'etag':tag,'last-modified':info.mtime.toUTCString(),'x-content-type-options':'nosniff','cache-control':immutable?'public, max-age=31536000, immutable':'no-cache'};
    if(req.headers['if-none-match']===tag||!req.headers['if-none-match']&&req.headers['if-modified-since']&&Math.floor(info.mtimeMs/1000)<=Date.parse(req.headers['if-modified-since'])/1000){res.writeHead(304,headers);return res.end();}
    let cached=assetCache.get(file);if(cached?.tag!==tag){cached={tag,content:await readFile(file)};if(assetCache.size>=64)assetCache.delete(assetCache.keys().next().value);assetCache.set(file,cached);}
-   const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.woff2':'font/woff2','.webp':'image/webp','.avif':'image/avif','.png':'image/png','.jpg':'image/jpeg','.ico':'image/x-icon'};res.writeHead(200,{...headers,'content-type':types[extname(file)]||'application/octet-stream','content-length':cached.content.length});res.end(req.method==='HEAD'?undefined:cached.content);
+   const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.webmanifest':'application/manifest+json','.woff2':'font/woff2','.webp':'image/webp','.avif':'image/avif','.png':'image/png','.jpg':'image/jpeg','.ico':'image/x-icon'};res.writeHead(200,{...headers,'content-type':types[extname(file)]||'application/octet-stream','content-length':cached.content.length});res.end(req.method==='HEAD'?undefined:cached.content);
   }catch(e){if(!res.headersSent)json(res,400,{error:'Forespørgslen kunne ikke udføres.'});else res.end();}
  });
 }

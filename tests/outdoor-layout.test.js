@@ -86,16 +86,16 @@ test('Paving side edges face outward so the real terrace thickness remains visib
 test('Existing outdoor light bindings still respond to on/off and dimmer values in the expanded garden',async()=>{
  const THREE=await import('three');
  const {buildLandscape}=await import('../src/landscape.js');
- const {siteLights}=await import('../src/site-lighting.js');
+ const {facadeLights}=await import('../src/site-lighting.js');
  const landscape=buildLandscape(new THREE.Scene());
- const state={entre:{lights:{ude:true},levels:{ude:100},brightness:100}};
+ const state={outside:{lights:{wall:true},levels:{wall:100},brightness:100}};
  landscape.update(state);
- const lamps=siteLights().map(source=>landscape.fixtures.getObjectByName(source.id));
+ const lamps=facadeLights().map(source=>landscape.fixtures.getObjectByName(source.id));
  assert.ok(lamps.length>0);assert.ok(lamps.every(Boolean),'Saved outdoor lamp ids must remain present');
  const full=lamps.map(lamp=>lamp.material.emissiveIntensity);assert.ok(full.every(value=>value>0));
- state.entre.levels.ude=50;landscape.update(state);
+ state.outside.levels.wall=50;landscape.update(state);
  lamps.forEach((lamp,index)=>near(lamp.material.emissiveIntensity,full[index]/2));
- state.entre.lights.ude=false;landscape.update(state);
+ state.outside.lights.wall=false;landscape.update(state);
  assert.ok(lamps.every(lamp=>lamp.material.emissiveIntensity===0));
 });
 
