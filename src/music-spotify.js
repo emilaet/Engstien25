@@ -2,10 +2,17 @@ import {safeStorage} from './storage.js';
 import {loadMusicSdk} from './music-sdk.js';
 import {safeArtwork} from './music-link.js';
 
-const oauthKey='engstien-spotify-oauth-v1',sessionKey='engstien-spotify-session-v1';
+export const spotifyOAuthKey='engstien-spotify-oauth-v1';
+const oauthKey=spotifyOAuthKey,sessionKey='engstien-spotify-session-v1';
 const scopes='streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative';
 const base64url=bytes=>btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 export function spotifyCallback(url){const u=new URL(url);return u.searchParams.has('code')||u.searchParams.has('error')&&u.searchParams.has('state');}
+
+// Restore the validated local destination before the app selects its first view.
+// The authorization code remains in the URL until completeLogin exchanges it.
+export function spotifyReturnHash(url,saved,now=Date.now()){
+ try{const parsed=new URL(url),age=now-saved?.createdAt;if(!spotifyCallback(url)||!saved||typeof saved.state!=='string'||!saved.state||saved.state!==parsed.searchParams.get('state')||!Number.isFinite(saved.createdAt)||age<0||age>=600000)return null;return saved.returnHash===''?'#home':typeof saved.returnHash==='string'&&saved.returnHash.startsWith('#')?saved.returnHash:null;}catch{return null;}
+}
 
 export function createSpotifyPlayer({clientId,onChange}){
  let browserSession;try{browserSession=window.sessionStorage;}catch{browserSession=null;}

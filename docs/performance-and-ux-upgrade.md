@@ -21,7 +21,7 @@ Scope: the approved audit items B1–B4, P1–P7 and U1–U7. Live weather and G
 | U2 | Settings → Skærm og dashboard offers an explicit comfort typography option, retained across reload and backup. Compact remains available. |
 | U3 | List headers expose “Se alle” with counts; full-list dialogs support direct checkboxes, keyboard access and return focus. A subtle list-edge fade signals overflow. |
 | U4 | Full is labelled Ude; Have/Indkørsel remain available and interaction hints distinguish exterior orbit from room picking. |
-| U5 | Disconnected music has a concise connection action instead of an empty card player. Logo-based account choice remains. Music dialogs are independent of Home and restore the originating Settings trigger. |
+| U5 | Disconnected music has a concise connection action instead of an empty card player. Logo-based account choice remains. Music dialogs are independent of Home and restore the originating Settings trigger. A validated Spotify callback restores the saved route before app initialization, including a return to Settings without starting 3D. |
 | U6 | Device rooms can collapse, show linked/planned counts and remember expanded rooms. “Gem og næste” advances within the room; the room can be resumed later. Selection and physical testing remain explicit. |
 | U7 | Card labels distinguish example, local, shared, partially live and last-known values. Details link to connection settings. Weather/calendar/waste/camera examples remain explicitly labelled. |
 

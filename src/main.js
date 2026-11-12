@@ -12,6 +12,7 @@ import './settings.css';
 import './project-theme.css';
 import './outdoor.css';
 import {safeStorage} from './storage.js';
+import {spotifyReturnHash,spotifyOAuthKey} from './music-spotify.js';
 import {createNavigationMotion} from './navigation-motion.js';
 import {createSettingsPage} from './settings-page.js';
 import {createSettingsClient} from './settings-client.js';
@@ -34,6 +35,7 @@ document.documentElement.dataset.density=safeStorage().getItem('engstien-density
 const homeData=createDemoHome(),vehicle=createDemoVehicle(),furnishingData=createFurnishingData();let state=homeData.load(),car=vehicle.value;
 const readRoute=()=>parseNavigation(location.hash,rooms.map(r=>r.id));
 function route(){return readRoute().view;}
+try{const hash=spotifyReturnHash(location.href,JSON.parse(sessionStorage.getItem(spotifyOAuthKey)));if(hash){const url=new URL(location.href);url.hash=hash;history.replaceState(history.state,'',url.href);}}catch{}
 const initialRoute=readRoute();let selected=initialRoute.room,tab=initialRoute.view,commandPending=false;
 document.querySelector('#app').innerHTML=`
 <aside class="rail"><a class="brand" href="#" aria-label="Engstien 25 hjem">e<span>25</span></a><nav aria-label="Hovedmenu"><button class="nav active" data-tab="home" title="Hjem">${icon('home')}<small>Hjem</small></button><button class="nav" data-tab="rooms" title="Rum">${icon('rooms')}<small>Rum</small></button><button class="nav" data-tab="car" title="Billader">${icon('car')}<small>Billader</small></button></nav><span class="rail-bottom"><i></i>ENGSTIEN 25</span></aside>
