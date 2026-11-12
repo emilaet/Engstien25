@@ -13,7 +13,8 @@ test('Layout draft and undo survive navigation and reload; cancel discards only 
 test('Back, forward and reload restore the selected room and control tab without changing devices',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.emulateMedia({reducedMotion:'reduce'});
  await test.step('Open the interactive room overview',async()=>{await page.goto('/#rooms',{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{name:'Dine rum',exact:true})).toBeVisible();await page.locator('[data-room=stue]').click();},{timeout:30000});
- await page.getByRole('tab',{name:/Gardiner/}).click();await expect(page).toHaveURL(/#rooms\/stue\/curtains$/);const lights=await page.locator('#scene').getAttribute('data-active-lights');
+ await page.getByRole('tab',{name:/Gardiner/}).click();await expect(page).toHaveURL(/#rooms\/stue\/curtains$/);// Room controls can be ready before the lazily loaded 3D model.
+ await expect(page.locator('#scene')).toHaveAttribute('data-active-lights',/.+/,{timeout:30000});const lights=await page.locator('#scene').getAttribute('data-active-lights');
  await test.step('Visit charging and return to the exact control tab',async()=>{await page.getByRole('button',{name:'Billader',exact:true}).click();await page.goBack({waitUntil:'domcontentloaded'});await expect(page.locator('#panel')).toHaveAttribute('data-room-id','stue');await expect(page.getByRole('tab',{name:/Gardiner/})).toHaveAttribute('aria-selected','true');},{timeout:30000});
  await test.step('Reload the room deep link',async()=>{await page.reload({waitUntil:'domcontentloaded'});await expect(page.locator('#panel')).toHaveAttribute('data-room-id','stue');await expect(page.getByRole('tab',{name:/Gardiner/})).toHaveAttribute('aria-selected','true');await expect(page.locator('#scene')).toHaveAttribute('data-active-lights',lights);},{timeout:30000});expect(errors).toEqual([]);
 });
