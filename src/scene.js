@@ -67,7 +67,7 @@ const scene=new THREE.Scene();scene.background=null;
  await nextPaint();
  const localLights=buildRoomLighting(scene,options.furnishings||initialFurnishing());localLights.bindArchitecture(structure,floors);localLights.bindFurniture(furnishing.root);
  const carport=buildCarportRoof(scene);
- function updateRoof(){carport.setView({plan:isPlan,charger:activeView==='charger',enabled:roofEnabled,full:isFull});landscape?.setCutaway(!isFull&&cutaway);host.dataset.carportRoof=String(carport.root.visible);}
+ function updateRoof(){carport.setView({plan:isPlan,charger:activeView==='charger',enabled:roofEnabled,full:isFull});landscape?.setCutaway(!isFull&&cutaway);parkedCar?.setVisible(activeView!=='charger');host.dataset.parkedCarVisible=String(parkedCar?.presentation.visible??false);host.dataset.carportRoof=String(carport.root.visible);}
  function setExterior(value){isFull=value;ground.position.y=-1.08;perspective.far=500;perspective.updateProjectionMatrix();controls.maxDistance=300;if(outdoorDecor)outdoorDecor.root.visible=true;if(landscape)landscape.root.visible=true;host.dataset.outdoorVisible=String(!!(landscape&&outdoorDecor));host.dataset.exteriorSide=value?exteriorSide:'';structure.setExteriorMode(value);structure.setCutaway(value?false:cutaway);exterior.setView({full:value,cutaway:value?false:cutaway});localLights.syncClipping();host.dataset.exterior=String(value);updateRoof();renderer.shadowMap.needsUpdate=true;invalidate();}
  function setAppearance(value){const t=value.daylight;daylight=t;charger.setDaylight(t);updateChargerFill(chargerFill,t,activeView==='charger');seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor='transparent';ambient.intensity=.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);invalidate();renderer.shadowMap.needsUpdate=true;}
  function applyLimits(){
@@ -102,12 +102,12 @@ const scene=new THREE.Scene();scene.background=null;
  const a=toPlan([1717,739]),b=toPlan([2247,1267]);
  const carportFloor=box((a[0]+b[0])/2,.02,(a[1]+b[1])/2,b[0]-a[0],.13,b[1]-a[1],'#cbc9bc');localLights.bindOutdoor(carportFloor);
  for(const [i,p] of carportPostPixels.entries()){const [x,z]=toPlan(p);const post=box(x,1.15,z,.1,2.2,.1,'#343936');post.name=`carport-end-post-${i}`;}
- let landscape=null,outdoorDecor=null,outdoorPromise=null,outdoorRequest=0,latestState=null;
+ let landscape=null,outdoorDecor=null,parkedCar=null,outdoorPromise=null,outdoorRequest=0,latestState=null;
  async function ensureOutdoors(){
   if(outdoorPromise)return outdoorPromise;
   host.dataset.outdoorLoading='true';
-  outdoorPromise=(async()=>{await nextPaint();const [{buildLandscape},{buildOutdoorFurnishings},{buildParkedCar}]=await Promise.all([import('./landscape.js'),import('./outdoor-furniture.js'),import('./parked-car.js')]);
- landscape=buildLandscape(scene);landscape.setCutaway(!isFull&&cutaway);await nextPaint();outdoorDecor=buildOutdoorFurnishings(scene);buildParkedCar(outdoorDecor.root);
+  outdoorPromise=(async()=>{await nextPaint();const [{buildLandscape},{buildOutdoorFurnishings},{buildParkedCar},{default:carAsset}]=await Promise.all([import('./landscape.js'),import('./outdoor-furniture.js'),import('./parked-car.js'),import('./assets/tesla-model-y.glb?url&inline')]);
+ landscape=buildLandscape(scene);landscape.setCutaway(!isFull&&cutaway);await nextPaint();outdoorDecor=buildOutdoorFurnishings(scene);parkedCar=await buildParkedCar(outdoorDecor.root,carAsset);parkedCar.setVisible(activeView!=='charger');
  landscape.root.visible=true;outdoorDecor.root.visible=true;host.dataset.outdoorVisible='true';
  const parkingGeometry=new THREE.PlaneGeometry(b[0]-a[0],b[1]-a[1]);
  const parkingUV=parkingGeometry.attributes.uv,parkingVertices=parkingGeometry.attributes.position;

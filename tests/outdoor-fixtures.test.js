@@ -1,6 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
+import {readFile} from 'node:fs/promises';
+const asset=await readFile(new URL('../src/assets/tesla-model-y.glb',import.meta.url));
+const assetBuffer=()=>asset.buffer.slice(asset.byteOffset,asset.byteOffset+asset.byteLength);
 import {walls,finishedFloor} from '../src/architecture.js';
 import {cutawayHeight} from '../src/structure.js';
 import {siteLights} from '../src/site-lighting.js';
@@ -30,8 +33,8 @@ test('Facade lamps and both light beams follow saved outdoor dimmer state and th
  state.entre.lights.ude=false;model.update(state);assert.equal(lamp.material.emissiveIntensity,0);assert.equal(beam.visible,false);
 });
 
-test('The backed-in Model Y fits entirely on the left level parking bay, clear of the shed and posts',()=>{
- const scene=new THREE.Scene(),car=buildParkedCar(scene);scene.updateMatrixWorld(true);
+test('The detailed Model Y fits on the left level parking bay and its tyres touch the slab',async()=>{
+ const scene=new THREE.Scene(),car=await buildParkedCar(scene,assetBuffer());scene.updateMatrixWorld(true);
  const bounds=new THREE.Box3().setFromObject(car.root),shed=walls.find(w=>w.id==='shed-east');
  assert.ok(bounds.min.x>shed.from[0]+shed.thickness/2,'Rear bumper must clear the shed');
  assert.ok(bounds.max.x<carportArea.maxX,'Front bumper must remain on the level covered slab');
@@ -40,13 +43,16 @@ test('The backed-in Model Y fits entirely on the left level parking bay, clear o
  assert.ok(Math.abs(bounds.min.y-outdoorY)<.025,'Tyres must rest on the slab');
  assert.ok(bounds.max.y-outdoorY>1.59&&bounds.max.y-outdoorY<1.65);
  assert.equal(car.root.userData.year,2023);assert.equal(car.root.userData.reversed,true);
- assert.ok(car.root.getObjectsByProperty('name','model-y-black-wheel').every(w=>w.getObjectByName('model-y-black-rim').material.color.getHex()<0x303030));
+ assert.ok(car.root.getObjectByName('model-y-wheels').material.color.getHex()<0x303030);assert.equal(car.root.getObjectByName('model-y-body').material.color.getHex(),0xf5f5f2);
 });
 
-test('Model Y wheel arches are genuinely open and the visible cable ends at its left rear charge port',()=>{
- const scene=new THREE.Scene(),car=buildParkedCar(scene);scene.updateMatrixWorld(true);const [x,y,z]=parkedCarPlacement.position,body=car.root.getObjectByName('model-y-white-body');
- const ray=at=>new THREE.Raycaster(new THREE.Vector3(x+at,y+.355,z+2),new THREE.Vector3(0,0,-1),0,4).intersectObject(body);
- assert.equal(ray(-1.445).length,0);assert.equal(ray(1.445).length,0);assert.ok(ray(0).length>0);
+test('The compressed real Model Y retains exterior detail and hides every car and cable mesh together',async()=>{
+ const scene=new THREE.Scene(),car=await buildParkedCar(scene,assetBuffer());scene.updateMatrixWorld(true);const [x,,z]=parkedCarPlacement.position;
+ let triangles=0,meshes=0;car.root.traverse(m=>{if(m.isMesh){meshes++;triangles+=(m.geometry.index?.count??m.geometry.attributes.position.count)/3;}});
+ assert.ok(triangles>20000&&triangles<150000);assert.ok(meshes<=20);assert.ok(asset.byteLength<750000,'Model must stay small enough for the encrypted dashboard');
  assert.deepEqual(car.cable.userData.to,car.root.userData.chargePort);const bounds=new THREE.Box3().setFromObject(car.cable);assert.ok(bounds.min.y>outdoorY,'Cable must not pass through the paving');
  assert.ok(car.cable.userData.to[0]<x-1.5&&car.cable.userData.to[2]<z,'Charge inlet must be on the left rear quarter');
+ assert.equal(car.presentation.children.includes(car.root),true);assert.equal(car.presentation.children.includes(car.cable),true);assert.ok(car.presentation.getObjectByName('model-y-charging-plug'));
+ car.setVisible(false);assert.equal(car.presentation.visible,false);assert.equal(scene.children.length,1,'Nothing from the car may remain outside the hidden group');
+ car.setVisible(true);assert.equal(car.presentation.visible,true);
 });

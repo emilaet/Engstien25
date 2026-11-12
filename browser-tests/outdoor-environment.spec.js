@@ -1,4 +1,28 @@
 import {test,expect} from './fixtures.js';
+import {readyScene} from './ui.js';
+
+test('Viewer text and controls stay outside the canvas across widths, views and wrapped subtitles',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#rooms');await readyScene(page);
+ for(const viewport of [{width:1440,height:1000},{width:1194,height:834},{width:390,height:844}]){
+  await page.setViewportSize(viewport);await readyScene(page);
+  for(const view of ['Vis huset i 3D','Vis plantegning ovenfra','Vis hele huset udefra']){
+   await page.getByRole('button',{name:view,exact:true}).click();
+   // Also exercise a subtitle that wraps on a narrow viewer.
+   await page.locator('.model-subtitle').evaluate(el=>{el.textContent='Valgt rum: Bad ved soveværelse · styr enhederne til højre.';});
+   const layout=await page.locator('.model-card').evaluate(card=>{
+    const rect=el=>{const b=el.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right};};
+    return {card:rect(card),heading:rect(card.querySelector('.model-heading')),subtitle:rect(card.querySelector('.model-subtitle')),canvas:rect(card.querySelector('#scene')),legend:rect(card.querySelector('.light-legend')),controls:rect(card.querySelector('.view-controls')),footer:rect(card.querySelector('.model-footer'))};
+   });
+   expect(layout.heading.bottom).toBeLessThanOrEqual(layout.canvas.top);
+   expect(layout.subtitle.bottom).toBeLessThanOrEqual(layout.canvas.top);
+   expect(layout.legend.top).toBeGreaterThanOrEqual(layout.canvas.bottom);
+   expect(layout.controls.top).toBeGreaterThanOrEqual(layout.canvas.bottom);
+   expect(layout.controls.right).toBeLessThanOrEqual(layout.card.right);expect(layout.controls.left).toBeGreaterThanOrEqual(layout.card.left);
+   expect(layout.footer.bottom).toBeLessThanOrEqual(layout.card.bottom);
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+ }
+});
 
 test('Approved garden and graded driveway are available in Full without changing room, plan or charger controls',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.emulateMedia({reducedMotion:'reduce'});

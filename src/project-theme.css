@@ -70,6 +70,23 @@ html:root[data-theme=dark] .rail{--bg:#191c1b;--surface:#232725;--soft:#2c302d;-
 
 code,pre,kbd,samp{font-family:inherit}
 
+/* Viewer chrome takes real layout space, including wrapped subtitles/controls. */
+:root:not([data-page=car]) .model-card{display:grid;grid-template-areas:'heading' 'viewport' 'footer';grid-template-rows:auto minmax(0,1fr) auto}
+:root:not([data-page=car]) .model-heading{grid-area:heading;position:static;inset:auto;margin:22px 24px 12px;min-width:0}
+:root:not([data-page=car]) .model-subtitle{max-width:none}
+:root:not([data-page=car]) .model-card>#scene{grid-area:viewport;position:relative;inset:auto;min-height:0;min-width:0;width:100%;height:100%}
+:root:not([data-page=car]) .model-footer{grid-area:footer;position:static;inset:auto;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;width:auto;height:auto;min-height:0;margin:0;padding:14px 22px 18px}
+:root:not([data-page=car]) .model-footer .light-legend{display:block;flex:1 0 auto;width:auto;white-space:nowrap;font-size:11px;line-height:24px}
+.model-footer .legend-dot{margin:0 5px 1px 0;vertical-align:middle}.model-footer .legend-dot.off{margin-left:14px}
+.model-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;max-width:100%;margin-left:auto}
+:root:not([data-page=car]) .model-tools :is(.view-controls,.exterior-presets){position:static;inset:auto;max-width:100%;margin:0}
+:root:not([data-page=car]) .model-tools .view-controls{flex-wrap:wrap}
+@media(max-width:760px){
+ :root:not([data-page=car]) .model-heading{margin:18px 18px 10px}
+ :root:not([data-page=car]) .model-footer{padding:10px 16px 14px;gap:8px 12px}
+ :root:not([data-page=car]) .model-footer .light-legend{font-size:10px}
+}
+
 /* The charger presentation follows the selected appearance throughout the flight. */
 :root[data-page=car][data-theme=light] .model-card{background:#eeebe3}
 :root[data-page=car] .model-card:after{content:none;background:none}

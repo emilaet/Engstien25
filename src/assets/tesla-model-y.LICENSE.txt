@@ -1,0 +1,24 @@
+Tesla Model Y — 3D model attribution
+
+Based on "Tesla Model Y 2021" by 763468712:
+https://sketchfab.com/3d-models/tesla-model-y-2021-c0a86cac582d4b33aba0fb1b1912d970
+Author: https://sketchfab.com/763468712
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+Model obtained from Tina 3D Tesla (Tina2088/tina-3d-tesla), revision
+5f81eea9d6ed050389958b6aad82be8e589adcc9:
+https://github.com/Tina2088/tina-3d-tesla
+Source asset: public/models/model-y.glb
+Original SHA-256: 587753deb9744419154cd7a67f3c77c57f07c31c3f8d01a28b4d4676024c1e3a
+
+Tina 3D Tesla adaptations: normalization, connected mesh-island separation,
+polygon reduction and studio materials.
+Engstien 25 adaptations: removal of obscured cabin parts, mesh joining,
+geometry simplification, quantization and Meshopt compression; white paint,
+black wheels, orientation, ground alignment and an attached charge cable.
+The source depicts the original Model Y generation, labelled 2021. It is used
+as a visual representation of the requested white 2023-generation vehicle;
+it is not a Tesla-certified exact specification or service model.
+
+The model remains licensed under CC BY 4.0. No endorsement is implied.
