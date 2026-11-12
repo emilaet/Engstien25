@@ -17,7 +17,7 @@ test('Checking either family list keeps the page, cards and both list scroll pos
  }
 });
 
-test('Room views start close to the house and reset consistently after charger navigation',async({page})=>{
+test('Room views include the garden and reset consistently after charger navigation',async({page})=>{
  await page.setViewportSize({width:1194,height:834});await page.goto('/');
  await page.getByRole('button',{name:'Rum',exact:true}).click();const scene=page.locator('#scene');
  await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(scene).toHaveAttribute('data-camera-mode','3d');
@@ -26,8 +26,12 @@ test('Room views start close to the house and reset consistently after charger n
  await page.getByRole('button',{name:'Vis plantegning ovenfra',exact:true}).click();
  await expect(scene).toHaveAttribute('data-camera-mode','plan');
  const points=JSON.parse(await scene.getAttribute('data-room-points'));
- expect(points.bad1[0]).toBeLessThan(.10);expect(points.v2[0]).toBeGreaterThan(.87);
- expect(points.bad1[1]).toBeLessThan(.5);expect(points.kontor[1]).toBeGreaterThan(.5);
+ // The plan now reserves room on both sides for the west terrace and driveway.
+ await expect(scene).toHaveAttribute('data-outdoor-visible','true');
+ expect(points.bad1[0]).toBeGreaterThan(.15);expect(points.v2[0]).toBeLessThan(.85);
+ expect(points.v2[0]-points.bad1[0]).toBeGreaterThan(.35);
+ expect(points.bad1[1]).toBeLessThan(points.kontor[1]);
+ for(const point of Object.values(points)){expect(point[0]).toBeGreaterThan(0);expect(point[0]).toBeLessThan(1);expect(point[1]).toBeGreaterThan(0);expect(point[1]).toBeLessThan(1);}
  await page.screenshot({path:'/tmp/engstien-room-framing-plan.png',animations:'disabled'});
  await page.getByRole('button',{name:'Vis hele huset udefra',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','full');
  await page.screenshot({path:'/tmp/engstien-room-framing-full.png',animations:'disabled'});
