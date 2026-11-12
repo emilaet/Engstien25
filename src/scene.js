@@ -6,7 +6,7 @@ import {rooms} from './house.js';
 import {interior,finishedFloor,toPlan} from './architecture.js';
 import {buildExterior} from './exterior.js';
 import {buildStructure,cutawayHeight} from './structure.js';
-import {buildCharger,buildChargerFill,carportPostPixels} from './charger.js';
+import {buildCharger,buildChargerFill,updateChargerFill,carportPostPixels} from './charger.js';
 import {buildRoomLighting} from './room-lighting.js';
 import {buildCarportRoof} from './carport.js';
 import {frameOverview,framePlan,frameExterior} from './camera-framing.js';
@@ -69,7 +69,7 @@ const scene=new THREE.Scene();scene.background=null;
  const carport=buildCarportRoof(scene);
  function updateRoof(){carport.setView({plan:isPlan,charger:activeView==='charger',enabled:roofEnabled,full:isFull});host.dataset.carportRoof=String(carport.root.visible);}
  function setExterior(value){isFull=value;ground.position.y=-1.08;perspective.far=500;perspective.updateProjectionMatrix();controls.maxDistance=300;if(outdoorDecor)outdoorDecor.root.visible=true;if(landscape)landscape.root.visible=true;host.dataset.outdoorVisible=String(!!(landscape&&outdoorDecor));host.dataset.exteriorSide=value?exteriorSide:'';structure.setExteriorMode(value);structure.setCutaway(value?false:cutaway);exterior.setView({full:value,cutaway:value?false:cutaway});localLights.syncClipping();host.dataset.exterior=String(value);updateRoof();renderer.shadowMap.needsUpdate=true;invalidate();}
- function setAppearance(value){const t=value.daylight;daylight=t;seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor='transparent';ambient.intensity=.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);invalidate();renderer.shadowMap.needsUpdate=true;}
+ function setAppearance(value){const t=value.daylight;daylight=t;charger.setDaylight(t);updateChargerFill(chargerFill,t,activeView==='charger');seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor='transparent';ambient.intensity=.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);invalidate();renderer.shadowMap.needsUpdate=true;}
  function applyLimits(){
   const close=activeView==='charger';controls.minDistance=close?.6:furnitureEditing?.7:6;controls.maxDistance=close?5:300;
   controls.minAzimuthAngle=close?Math.PI*.25:-Infinity;controls.maxAzimuthAngle=close?Math.PI*.75:Infinity;
@@ -92,7 +92,7 @@ const scene=new THREE.Scene();scene.background=null;
   moveCamera(target.clone().add(new THREE.Vector3(2.30,.18,.62)),target);
  }
  function setView(view){
-  if(view===activeView)return;if(view!=='charger')setExterior(false);activeView=view;host.dataset.view=view;chargerFill.intensity=view==='charger'?20:0;chargerFill.castShadow=view==='charger';
+  if(view===activeView)return;if(view!=='charger')setExterior(false);activeView=view;host.dataset.view=view;updateChargerFill(chargerFill,daylight,view==='charger');
   host.setAttribute('aria-label',view==='charger'?'3D-nærbillede af billader':'Interaktiv 3D-model af huset');
   structure.setChargerView(view==='charger');structure.setCutaway(isFull?false:cutaway);exterior.setView({full:isFull,cutaway:isFull?false:cutaway});localLights.syncClipping();updateRoof();renderer.shadowMap.needsUpdate=true;
   if(view==='home'){home();togglePlan();updateRoof();}else if(view==='charger')focusCharger();else{resize();const preview=perspective.clone(),framing=frameOverview(preview);moveCamera(preview.position,framing.target);overview=true;}

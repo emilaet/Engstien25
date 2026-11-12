@@ -46,7 +46,7 @@ export function buildCharger(scene){
   haloMaterial.opacity=charging?.08+.24*pulse:0;
   return pulse;
  }
- return {root,placement,update};
+ return {root,placement,update,setDaylight(value){const t=THREE.MathUtils.clamp(value,0,1);dark.envMapIntensity=.25+.55*t;face.envMapIntensity=.35+.65*t;}};
 }
 
 // Finite-range fill stays beside the shed; unlike a directional light it cannot
@@ -56,4 +56,12 @@ export function buildChargerFill(scene,charger){
  light.name='charger-local-fill';light.position.copy(charger.position).add(new THREE.Vector3(2,1,1));light.target=charger;
  light.castShadow=false;light.shadow.mapSize.set(1024,1024);light.shadow.bias=-.0001;light.shadow.normalBias=.002;light.shadow.radius=4;
  scene.add(light);return light;
+}
+
+
+export function updateChargerFill(light,daylight,active){
+ const t=THREE.MathUtils.clamp(daylight,0,1);
+ light.intensity=active?18+82*t:0;
+ light.color.set('#ffdfbd').lerp(new THREE.Color('#edf5ff'),t);
+ light.castShadow=active;
 }

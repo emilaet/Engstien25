@@ -69,3 +69,10 @@ html:root[data-theme=dark] .rail{--bg:#191c1b;--surface:#232725;--soft:#2c302d;-
 .view-controls :is(#perspective-view,#plan-view,#full-view){font:500 12px/1.4 'Plus Jakarta Sans',system-ui,sans-serif!important;letter-spacing:normal}
 
 code,pre,kbd,samp{font-family:inherit}
+
+/* The charger presentation follows the selected appearance throughout the flight. */
+:root[data-page=car][data-theme=light] .model-card{background:#eeebe3}
+:root[data-page=car][data-theme=light] .model-card:after{background:linear-gradient(180deg,#f4f1e9fa 0%,#f4f1e9eb 10%,transparent 24%,transparent 70%,#f4f1e9f0 84%,#f4f1e9fa 100%)}
+:root[data-page=car][data-theme=light] .model-heading,:root[data-page=car][data-theme=light] .charger-caption{color:#2b312b}
+:root[data-page=car][data-theme=light] .model-heading .eyebrow,:root[data-page=car][data-theme=light] .charger-caption p,:root[data-page=car][data-theme=light] .charger-caption>div{color:#626b60}
+:root[data-page=car][data-theme=light] .charger-caption>div{border-top-color:#2b312b26}

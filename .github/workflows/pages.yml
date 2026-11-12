@@ -2,6 +2,13 @@ name: Password-protected preview
 
 on:
   workflow_dispatch:
+    inputs:
+      full_suite:
+        description: Run every browser test before publishing
+        type: boolean
+        default: false
+  schedule:
+    - cron: '0 2 * * *'
   push:
     branches: [main]
     paths:
@@ -21,7 +28,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'schedule' && 'nightly-tests' || 'pages' }}
   cancel-in-progress: true
 
 jobs:
@@ -47,7 +54,12 @@ jobs:
           else
             npx playwright install --with-deps chromium
           fi
-      - name: Browser tests
+      - name: Critical browser tests
+        if: github.event_name != 'schedule' && !inputs.full_suite
+        shell: bash
+        run: npm run test:smoke -- --reporter=github,line 2>&1 | tee /tmp/engstien-browser-tests.log
+      - name: Full browser tests
+        if: github.event_name == 'schedule' || inputs.full_suite
         shell: bash
         run: npm run test:browser -- --reporter=github,line 2>&1 | tee /tmp/engstien-browser-tests.log
       - name: Browser diagnostics
@@ -62,6 +74,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - run: npm run test:preview
       - name: Build encrypted preview
+        if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
         run: npm run build:pages
         env:
           PREVIEW_PASSWORD: ${{ secrets.PREVIEW_PASSWORD }}
@@ -71,9 +84,11 @@ jobs:
           VITE_GOOGLE_CALENDAR_CLIENT_ID: ${{ vars.GOOGLE_CALENDAR_CLIENT_ID }}
           VITE_SPOTIFY_CLIENT_ID: ${{ vars.SPOTIFY_CLIENT_ID }}
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
         with:
           path: .preview/site
   deploy:
+    if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
     permissions:

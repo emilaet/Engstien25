@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {chargerPlacement,chargerPulse,buildCharger,carportPostPixels} from '../src/charger.js';
+import {chargerPlacement,chargerPulse,buildCharger,buildChargerFill,updateChargerFill,carportPostPixels} from '../src/charger.js';
 import {doors,walls,openingPosition,finishedFloor} from '../src/architecture.js';
 test('Charger is mounted outside the shed wall to the left of the door from the carport',()=>{
  const p=chargerPlacement(),door=doors.find(d=>d.id==='shed-door'),wall=walls.find(w=>w.id===door.wall),[x,endZ]=openingPosition(door,door.end);
@@ -16,4 +16,11 @@ test('Rendered charger includes a green ring that pulses, with stable paused/red
  charger.update(.5,true,false);const high=ring.material.color.clone(),highHalo=halo.material.opacity;charger.update(1.5,true,false);assert.ok(high.g>ring.material.color.g);assert.ok(highHalo>halo.material.opacity);assert.ok(high.g>high.r&&high.g>high.b);
  charger.update(1,true,true);const steady=ring.material.color.clone();charger.update(2,true,true);assert.ok(steady.equals(ring.material.color));
  charger.update(1,false,false);assert.equal(halo.material.opacity,0);assert.equal(chargerPulse(1,false),0);
+});
+
+test('Daylight makes the charger brighter and cooler while night remains warm and inactive fill stays off',()=>{
+ const scene=new THREE.Scene(),charger=buildCharger(scene),fill=buildChargerFill(scene,charger.root),face=scene.getObjectByName('charger-front').material;
+ charger.setDaylight(0);updateChargerFill(fill,0,true);const nightPower=fill.intensity,nightBlue=fill.color.b,nightReflection=face.envMapIntensity;
+ charger.setDaylight(1);updateChargerFill(fill,1,true);assert.ok(fill.intensity>nightPower*3);assert.ok(fill.color.b>nightBlue);assert.ok(face.envMapIntensity>nightReflection);assert.equal(fill.distance,4);
+ updateChargerFill(fill,1,false);assert.equal(fill.intensity,0);assert.equal(fill.castShadow,false);
 });

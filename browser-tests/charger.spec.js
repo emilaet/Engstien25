@@ -5,18 +5,18 @@ test('Navigation has one Rum entry, and legacy light/heat links still open room 
  await page.getByRole('button',{name:'Åbn Rum',exact:true}).click();await expect(page.getByRole('heading',{name:'Rum',exact:true})).toBeVisible();await selectRoom(page,'stue');await expect(page.getByRole('switch',{name:'Loftslys i Stue',exact:true})).toBeVisible();await roomTab(page,'Varme');await expect(page.getByRole('button',{name:'Hæv temperatur i Stue',exact:true})).toBeVisible();
  await page.goto('/#heat');await expect(page.getByRole('heading',{name:'Rum',exact:true})).toBeVisible();
 });
-test('Billader smoothly focuses the mounted charger, pulses while charging and returns to the house',async({page})=>{
+test('Billader smoothly focuses the mounted charger, pulses while charging and returns to the house',{tag:'@smoke'},async({page})=>{
  // Software-rendered CI can take longer per frame; retain the multi-frame flight checks.
  test.setTimeout(90000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();const scene=page.locator('#scene');
- await readyScene(page);await expect(scene).toHaveAttribute('data-camera-moving','false');const lighting=await scene.getAttribute('data-house-lighting'),activeLights=await scene.getAttribute('data-active-lights');const far=Number(await scene.getAttribute('data-camera-distance'));
+ await readyScene(page);await expect(scene).toHaveAttribute('data-camera-moving','false');const beforeAppearance=await scene.getAttribute('data-render-count');await page.getByLabel('Dag- og aftenvisning').selectOption('day');await expect.poll(()=>scene.getAttribute('data-render-count')).not.toBe(beforeAppearance);const lighting=await scene.getAttribute('data-house-lighting'),activeLights=await scene.getAttribute('data-active-lights');const far=Number(await scene.getAttribute('data-camera-distance'));
  const started=await page.evaluate(()=>{
-  const scene=document.querySelector('#scene');window.flightDistances=[];window.flightLighting=[];
-  const observer=new MutationObserver(()=>{if(scene.dataset.cameraMoving==='true'){window.flightDistances.push(Number(scene.dataset.cameraDistance));window.flightLighting.push(scene.dataset.houseLighting);}});observer.observe(scene,{attributes:true,attributeFilter:['data-camera-distance']});
+  const scene=document.querySelector('#scene');window.flightDistances=[];window.flightLighting=[];window.flightSurfaces=[];
+  const observer=new MutationObserver(()=>{if(scene.dataset.cameraMoving==='true'){window.flightDistances.push(Number(scene.dataset.cameraDistance));window.flightLighting.push(scene.dataset.houseLighting);window.flightSurfaces.push({theme:document.documentElement.dataset.theme,background:getComputedStyle(document.querySelector('.model-card')).backgroundColor});}});observer.observe(scene,{attributes:true,attributeFilter:['data-camera-distance']});
   document.querySelector('.nav[data-tab="car"]').click();return scene.dataset.cameraMoving;
  });expect(started).toBe('true');await expect(scene).toHaveAttribute('data-view','charger');
  await expect.poll(async()=>Number(await scene.getAttribute('data-camera-distance')),{timeout:15000}).toBeLessThan(far-1);await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});expect(await page.evaluate(far=>new Set(window.flightDistances.filter(d=>d>3&&d<far-1)).size,far)).toBeGreaterThan(5);
- expect(await scene.getAttribute('data-house-lighting')).toBe(lighting);expect(await scene.getAttribute('data-active-lights')).toBe(activeLights);expect(await page.evaluate(value=>window.flightLighting.every(frame=>frame===value),lighting)).toBe(true);
+ expect(await page.evaluate(()=>window.flightSurfaces.every(frame=>frame.theme==='light'&&Number(frame.background.match(/\d+/)[0])>200))).toBe(true);expect(await scene.getAttribute('data-house-lighting')).toBe(lighting);expect(await scene.getAttribute('data-active-lights')).toBe(activeLights);expect(await page.evaluate(value=>window.flightLighting.every(frame=>frame===value),lighting)).toBe(true);
  await expect.poll(async()=>Number(await scene.getAttribute('data-camera-distance'))).toBeLessThan(3);await expect(page.locator('.house-light-controls')).toBeHidden();await expect(page.locator('#plan-view')).toBeHidden();await expect(page.locator('.room-label:visible')).toHaveCount(0);
  // Observe rendered frames, rather than assuming a software GPU draws every 170 ms.
  const samples=[];for(let i=0;i<3;i++){const frame=await scene.getAttribute('data-render-count');await expect.poll(()=>scene.getAttribute('data-render-count'),{timeout:10000}).not.toBe(frame);samples.push(Number(await scene.getAttribute('data-charger-pulse')));}expect(new Set(samples).size).toBeGreaterThan(1);
@@ -30,13 +30,13 @@ test('Direct charger link, plan-to-charger transition and reduced motion work on
  await page.getByRole('button',{name:'Rum',exact:true}).click();await page.getByRole('button',{name:'Vis plantegning ovenfra'}).click();await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});await expect.poll(async()=>Number(await scene.getAttribute('data-camera-distance'))).toBeLessThan(3);await page.screenshot({path:'/tmp/engstien-charger-tablet.png'});
 });
 
-test('Charger navigation preserves Full architecture and the chosen day or night lighting',async({page})=>{
+test('Charger navigation preserves Full architecture and the chosen day or night lighting',{tag:'@smoke'},async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#rooms');const scene=page.locator('#scene');
  for(const mode of ['day','night']){
   await page.getByRole('button',{name:'Rum',exact:true}).click();await page.getByLabel('Dag- og aftenvisning').selectOption(mode);
   await page.getByRole('button',{name:'Vis hele huset udefra',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-mode','full');
   const lighting=await scene.getAttribute('data-house-lighting'),lights=await scene.getAttribute('data-active-lights');
   await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','false');
-  await expect(scene).toHaveAttribute('data-house-lighting',lighting);await expect(scene).toHaveAttribute('data-active-lights',lights);await expect(scene).toHaveAttribute('data-exterior','true');
+  await expect(scene).toHaveAttribute('data-house-lighting',lighting);await expect(scene).toHaveAttribute('data-active-lights',lights);await expect(scene).toHaveAttribute('data-exterior','true');await expect(scene).toHaveAttribute('data-appearance',mode==='day'?'light':'dark');const colors=await page.locator('.model-card').evaluate(el=>({background:getComputedStyle(el).backgroundColor,color:getComputedStyle(el.querySelector('.model-heading')).color}));const red=css=>Number(css.match(/\d+/)[0]);if(mode==='day'){expect(red(colors.background)).toBeGreaterThan(200);expect(red(colors.color)).toBeLessThan(80);}else{expect(red(colors.background)).toBeLessThan(60);expect(red(colors.color)).toBeGreaterThan(220);}
  }
 });

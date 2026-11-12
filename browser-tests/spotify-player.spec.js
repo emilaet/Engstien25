@@ -1,6 +1,6 @@
 import {test,expect} from './fixtures.js';
 
-for(const start of ['/#home','/#settings/connections'])test('Spotify PKCE login binds the callback, controls playback, refreshes expired access, and logs out locally '+start,async({page})=>{
+for(const start of ['/#home','/#settings/connections'])test('Spotify PKCE login binds the callback, controls playback, refreshes expired access, and logs out locally '+start,{tag:'@smoke'},async({page})=>{
  test.setTimeout(150000);const tokenRequests=[],apiRequests=[];
  await page.route('**/src/music-config.js*',route=>route.fulfill({contentType:'application/javascript',body:'export const musicConfig={appleDeveloperToken:"",spotifyClientId:"public-client-id"}'}));
  await page.addInitScript(()=>{

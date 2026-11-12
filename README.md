@@ -126,3 +126,7 @@ De ti godkendte forbedringspunkter er beskrevet i [UX-opdateringen](docs/ux-upgr
 ## Indstillinger
 
 **••• → Indstillinger** samler enhedsplan, Home Assistant og øvrige forbindelser samt visning/backup. Kataloget kan forberedes uden huset. Produktbilleder, farve, mål og placering redigeres i den forenklede Indretning uden materialevælger. Se [opsætning, lagring og afprøvning](docs/settings.md).
+
+## Hurtigere kontrol af ændringer
+
+Almindelige udgivelser kører hurtige modul-/servertests, otte kritiske browserforløb og adgangskodetestene. Den fulde browserpakke køres om natten eller manuelt med `full_suite`. Se [testforløb og valg af kontroller](docs/testing.md).
