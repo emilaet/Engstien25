@@ -16,7 +16,7 @@
 .family-bottom .family-feedback-message{display:none}.family-bottom:has([data-undo]:not([hidden])) .family-feedback-message{display:block;font-size:14px;color:var(--text)}
 .family-bottom [data-undo]{min-height:44px;font-size:14px;padding:0 14px;border:1px solid var(--border);border-radius:9px;background:var(--primary);color:var(--on-primary)}
 .home-layout-editing .family-bottom{display:none!important}
-:root[data-page=home] .dashboard-grid .family-item-copy{font-size:14px;line-height:1.3}.dashboard-grid .family-item-copy small{font-size:12px}.dashboard-grid .family-add input{font-size:14px}
+:root[data-page=home] .dashboard-grid .family-item-copy{line-height:1.3}.dashboard-grid .family-add input{font-size:14px}
 .dashboard-grid .family-card-title h2{font-size:20px}.dashboard-grid .count-pill{font-size:12px}
 :root[data-page=home] .dashboard-grid .weather-card .hw-weather-layout{display:flex!important;flex-direction:column;gap:0;min-height:0;flex:1}
 :root[data-page=home] .dashboard-grid .weather-card .hw-head{height:44px;min-height:44px;flex:none;gap:6px}
@@ -66,7 +66,7 @@
 @media(min-width:761px) and (max-width:1000px){:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-row:var(--widget-tablet-row,auto) / span var(--widget-tablet-rows,var(--widget-rows))!important}}
 @container widget (width < 300px){
  :root[data-page=home] .dashboard-grid .weather-card .hw-forecast,:root[data-page=home] .dashboard-grid .weather-card .hw-forecast.hourly{grid-template-columns:repeat(3,minmax(0,1fr))!important}
- .dashboard-grid .weather-card .hw-day:nth-child(n+4){display:none}.dashboard-grid .calendar-card .hw-head .hw-badge{display:none}.dashboard-grid .calendar-card .hw-calendar-foot>span{display:none}.dashboard-grid .calendar-card .hw-event{grid-template-columns:3px minmax(0,1fr)}.dashboard-grid .calendar-card .hw-date{display:none}.dashboard-grid .calendar-card .hw-event:nth-child(n+2){display:none!important}
+ .dashboard-grid .weather-card .hw-day:nth-child(n+4){display:none}.dashboard-grid .calendar-card .hw-calendar-foot>span{display:none}.dashboard-grid .calendar-card .hw-event{grid-template-columns:3px minmax(0,1fr)}.dashboard-grid .calendar-card .hw-date{display:none}.dashboard-grid .calendar-card .hw-event:nth-child(n+2){display:none!important}
 }
 @container widget (height < 250px){.dashboard-grid .calendar-card .hw-calendar-range{display:none}.dashboard-grid .calendar-card .hw-event:nth-child(n+3){display:grid!important}.dashboard-grid .calendar-card .hw-head{min-height:32px}.dashboard-grid .calendar-card .hw-calendar-foot>span{display:none}}
 @container widget (height < 190px){
@@ -88,7 +88,7 @@
 @media(max-width:1100px){.layout-context>b{display:none}.layout-context button{padding:0 7px}.layout-editor .layout-bar-copy{max-width:140px}.layout-editor .layout-bar-copy h2{font-size:13px}.layout-editor .layout-bar>button{padding:0 8px}}
 @media(max-width:760px){
  main{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}.header-right>.data-status{display:none}.mobile-data-status{display:inline;font-size:10px;letter-spacing:0;color:var(--amber)}.appearance-control select{font-size:13px}.appearance-control{padding:0 8px}
- .family-briefing{padding:10px 12px;gap:8px;align-items:stretch;flex-direction:column;min-height:0}.family-briefing h2{font-size:14px}.family-briefing h2 small{display:inline;margin-left:8px;font-size:11px}.family-briefing>div{grid-template-columns:1fr 1fr;gap:8px}.family-briefing button.briefing-mobile-overflow{display:none}.family-briefing button{min-height:54px;padding-left:8px}.family-briefing strong{font-size:14px}.family-briefing button span{font-size:12px}
+ .family-briefing{padding:10px 12px;gap:8px;align-items:stretch;flex-direction:column;min-height:0}.family-briefing h2{font-size:14px}.family-briefing h2 small{display:inline;margin-left:8px;font-size:11px}.family-briefing>div{grid-template-columns:1fr 1fr;gap:8px}.family-briefing button.briefing-mobile-overflow{display:none}.family-briefing button{padding-left:8px}.family-briefing strong{font-size:14px}.family-briefing button span{font-size:12px}
  :root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-row:var(--widget-mobile-row,auto) / span var(--widget-mobile-rows,var(--widget-rows))!important}
  .family-bottom:has([data-undo]:not([hidden])){inset:auto 12px calc(82px + env(safe-area-inset-bottom)) 12px;max-width:none;gap:8px;padding:8px}.family-bottom:has([data-undo]:not([hidden])) .family-feedback-message{font-size:13px}.family-bottom [data-undo]{padding:0 10px;font-size:13px;flex:none}
  :root.home-layout-editing header{height:118px;min-height:118px}.home-layout-editing .layout-editor{inset:8px 10px auto;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;padding:6px;min-height:96px;border-radius:14px}.layout-editor .layout-bar-copy{display:none}.layout-editor .layout-bar>button{padding:0 9px;min-height:44px}.layout-editor #toggle-layout-details{order:0}.layout-editor #undo-home-layout{order:1}.layout-editor #redo-home-layout{order:2}.layout-editor #cancel-home-layout{order:3;flex:1}.layout-editor #save-home-layout{order:4;flex:1}.layout-context{order:10;flex-basis:100%;justify-content:space-between}.layout-context>b{display:block;max-width:100px;font-size:12px}.layout-context button{padding:0 10px;min-height:44px;font-size:12px}.layout-editor .layout-details{max-width:100%;width:280px;max-height:calc(100dvh - 200px)}
@@ -102,7 +102,7 @@
 :root[data-page=home] .dashboard-grid .family-item-copy{font-size:14px!important}.dashboard-grid .family-item-copy small{font-size:12px!important}
 :root[data-page=home] .dashboard-grid #car-summary .home-car-meta,:root[data-page=home] .dashboard-grid #car-summary .home-car-meta>span{font-size:12px!important;line-height:16px}
 @container widget (width < 300px){.dashboard-grid .calendar-card .hw-head .hw-badge{display:none}}
-@container widget (height < 170px){.dashboard-grid .calendar-card .hw-event:nth-child(n+2){display:none!important}}
+@container widget (height < 170px){}
 @container widget (height < 135px) or (width < 190px){:root[data-page=home] .dashboard-grid .calendar-card .hw-event>div:last-child>b{font-size:14px!important;line-height:18px}}
 @container widget (width < 190px) and (height > 260px){
  .dashboard-grid .weather-card .hw-mini-summary{display:none}:root[data-page=home] .dashboard-grid .weather-card .hw-current{display:flex!important;height:64px;min-height:64px}.dashboard-grid .weather-card .hw-current>div{flex-direction:column;align-items:flex-start;gap:0}.dashboard-grid .weather-card .hw-current strong{font-size:32px!important}.dashboard-grid .weather-card .hw-current span small{display:none}

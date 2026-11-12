@@ -45,8 +45,8 @@ export function buildRoomLighting(scene,snapshot){
   const capacity=scope==='mixed'?12:slots;
   if(!mesh.isMesh||!roomIds.length)return;
   if(roomIds.some(id=>openPlan.includes(id)))roomIds=[...new Set([...roomIds,...openPlan])];
-  const original=mesh.material;if(Array.isArray(original)||!original.isMeshStandardMaterial)return;
-  const cacheKey=original.uuid+':'+[...roomIds].sort().join(',')+':'+scope;
+  const original=mesh.baseMaterial||mesh.material;mesh.baseMaterial=original;if(Array.isArray(original)||!original.isMeshStandardMaterial)return;
+  const cacheKey=(collection===furnitureBindings?mesh.userData.furnitureId+':':'')+original.uuid+':'+[...roomIds].sort().join(',')+':'+scope;
   if(collection===furnitureBindings&&furnitureMaterials.has(cacheKey)){mesh.material=furnitureMaterials.get(cacheKey);return;}
   const material=original.clone();material.clippingPlanes=original.clippingPlanes;mesh.material=material;
   if(collection===furnitureBindings)furnitureMaterials.set(cacheKey,material);
@@ -75,10 +75,13 @@ outgoingLight+=diffuseColor.rgb*localLight;
   };
   collection.push({mesh,original,material,roomIds,uniforms,center,scope,capacity});
  }
- function bindFurniture(furnishings){
-  for(const binding of furnitureBindings)binding.material.dispose();furnitureBindings=[];furnitureMaterials.clear();
+ function bindFurniture(furnishings,changedIds){
+  const changed=changedIds?new Set(changedIds):null;
+  const removed=furnitureBindings.filter(b=>!changed||changed.has(b.mesh.userData.furnitureId));
+  for(const binding of removed)binding.material.dispose();furnitureBindings=furnitureBindings.filter(b=>!removed.includes(b));
+  for(const [key,material]of furnitureMaterials)if(removed.some(b=>b.material===material))furnitureMaterials.delete(key);
   furnishings.updateMatrixWorld(true);
-  furnishings.traverse(mesh=>{if(mesh.userData.room)bind(mesh,[mesh.userData.room],furnitureBindings);});
+  furnishings.traverse(mesh=>{if(mesh.userData.room&&(!changed||changed.has(mesh.userData.furnitureId)))bind(mesh,[mesh.userData.room],furnitureBindings);});
  }
  function bindArchitecture(structure,floors){
   for(const [id,floor]of Object.entries(floors))bind(floor,[id]);structure.root.updateMatrixWorld(true);
@@ -99,6 +102,6 @@ outgoingLight+=diffuseColor.rgb*localLight;
   }
   return sources.filter(s=>sourceStrength(s,state)>0).map(s=>s.id);
  }
- rebuildFixtures(snapshot);
- return {root,bindArchitecture,bindFurniture,bindOutdoor(group){group.updateMatrixWorld(true);group.traverse(mesh=>bind(mesh,['entre'],bindings,null,'outside'));},syncClipping(){for(const b of bindings)if(b.material.clippingPlanes!==b.original.clippingPlanes){b.material.clippingPlanes=b.original.clippingPlanes;b.material.needsUpdate=true;}},bindExterior(mesh){const wall=walls.find(w=>w.id==='garden'),ranges=wall.openings.filter(o=>o.sill===0&&['window','glazed-assembly'].includes(o.kind)).map(o=>[wall.from[0]+o.start,wall.from[0]+o.end]);bind(mesh,[...openPlan,'entre'],bindings,{z:wall.from[1],ranges},'mixed');},update,setFurnishings(value,furnishings){rebuildFixtures(value);bindFurniture(furnishings);update(state);},get sources(){return sources;},get bindings(){return [...bindings,...furnitureBindings];}};
+ let fixtureSignature=JSON.stringify(lightLayout(snapshot));rebuildFixtures(snapshot);
+ return {root,bindArchitecture,bindFurniture,bindOutdoor(group){group.updateMatrixWorld(true);group.traverse(mesh=>bind(mesh,['entre'],bindings,null,'outside'));},syncClipping(){for(const b of bindings)if(b.material.clippingPlanes!==b.original.clippingPlanes){b.material.clippingPlanes=b.original.clippingPlanes;b.material.needsUpdate=true;}},bindExterior(mesh){const wall=walls.find(w=>w.id==='garden'),ranges=wall.openings.filter(o=>o.sill===0&&['window','glazed-assembly'].includes(o.kind)).map(o=>[wall.from[0]+o.start,wall.from[0]+o.end]);bind(mesh,[...openPlan,'entre'],bindings,{z:wall.from[1],ranges},'mixed');},update,setFurnishings(value,furnishings,changedIds){const signature=JSON.stringify(lightLayout(value));if(signature!==fixtureSignature){fixtureSignature=signature;rebuildFixtures(value);}root.visible=value.visible;if(!changedIds||changedIds.length)bindFurniture(furnishings,changedIds);update(state);},get sources(){return sources;},get bindings(){return [...bindings,...furnitureBindings];}};
 }

@@ -106,7 +106,7 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
    card.style.setProperty('--widget-width',widget.width);card.style.setProperty('--widget-span',rect.width);card.style.setProperty('--widget-height',widget.height);card.style.setProperty('--widget-rows',rect.rows);card.style.setProperty('--widget-column',rect.column+1);card.style.setProperty('--widget-row',rect.row+1);
    for(const [name,rectangles] of Object.entries(profiles)){const projected=rectangles.find(r=>r.id===widget.id);card.style.setProperty(`--widget-${name}-column`,projected.column+1);card.style.setProperty(`--widget-${name}-row`,projected.row+1);card.style.setProperty(`--widget-${name}-span`,projected.width);card.style.setProperty(`--widget-${name}-rows`,projected.rows);}
    card.classList.toggle('widget-selected',editing&&widget.id===selectedWidget);
-   const label=card.querySelector('.widget-size-label');if(label)label.textContent=gesture?.kind==='move'&&gesture.started?'Slip på den markerede plads':`${widget.width}/12 · ${rect.rows*16-12} px`;
+   const label=card.querySelector('.widget-size-label');if(label)label.textContent=gesture?.kind==='move'&&gesture.started?'Slip på den markerede plads':`${innerWidth<=760?'Fuld bredde':widget.width+'/12'} · ${rect.rows*16-12} px`;
    card.querySelector('[data-axis=width]')?.setAttribute('aria-valuenow',widget.width);
    card.querySelector('[data-axis=height]')?.setAttribute('aria-valuenow',rect.rows*16-12);
   }
@@ -123,8 +123,8 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
   if(!home||!grid){for(const stat of stats){summary.append(stat);stat.inert=false;}if(house)parking.append(house);if(grid){grid.classList.remove('dashboard-grid','is-editing','reference-layout');grid.querySelectorAll('.widget-editor,.widget-resize,.widget-size-label,.summary-widget').forEach(el=>el.remove());grid.querySelectorAll('.dashboard-widget').forEach(el=>{el.classList.remove('dashboard-widget');el.hidden=false;el.style.removeProperty('order');for(const child of el.children)child.inert=false;});}return;}
   const active=document.activeElement,inPanel=toolbar.contains(active),focus=active?.dataset,selection=focus&&Object.keys(focus).find(k=>k.startsWith('widget'));
   renderEditor();grid.classList.add('dashboard-grid');grid.classList.toggle('is-editing',editing);grid.classList.remove('reference-layout');
-  if(house)grid.append(house);
-  for(const stat of stats){let wrapper=stat.closest('.summary-widget');if(!wrapper){wrapper=document.createElement('section');wrapper.className='summary-widget';wrapper.append(stat);}grid.append(wrapper);}
+  if(house&&house.parentElement!==grid)grid.append(house);
+  for(const stat of stats){let wrapper=stat.closest('.summary-widget');if(!wrapper){wrapper=document.createElement('section');wrapper.className='summary-widget';wrapper.append(stat);}if(wrapper.parentElement!==grid)grid.append(wrapper);}
   const layout=editing?draft:saved;
   const briefing=document.querySelector('.family-briefing');if(briefing){briefing.inert=editing;const buttons=[...briefing.querySelectorAll('[data-briefing-target]')];for(const button of buttons)button.hidden=!layout.some(w=>w.id===button.dataset.briefingTarget&&w.visible!==false);const visible=buttons.filter(b=>!b.hidden);briefing.hidden=!visible.length;visible.forEach((b,i)=>b.classList.toggle('briefing-mobile-overflow',i>=2));}
   const reading=rectangles(layout).sort((a,b)=>a.row-b.row||a.column-b.column).map(r=>r.id),ordered=[...layout].sort((a,b)=>(reading.includes(a.id)?reading.indexOf(a.id):99)-(reading.includes(b.id)?reading.indexOf(b.id):99));
@@ -177,7 +177,7 @@ export function setupDashboardLayout({notify=()=>{},storage}={}){
   const nudged=event.target.closest('[data-widget-nudge]');if(nudged){nudge(nudged.dataset.widgetNudge,Number(nudged.dataset.x),Number(nudged.dataset.y));return;}
   const quick=event.target.closest('[data-layout-size]');if(quick){toolbar.querySelector(`[data-widget-preset="${selectedWidget}"][data-size="${quick.dataset.layoutSize}"]`).click();return;}
   const preset=event.target.closest('[data-widget-preset]');
-  if(preset){const before=rectangles(draft);remember();const widget=draft.find(w=>w.id===preset.dataset.widgetPreset);const size=presetSize(widget.id,preset.dataset.size);if(innerWidth>760)Object.assign(widget,size);widget[innerWidth<=760?'mobileHeightPx':'heightPx']=snapHeight(size.height*74-14);if(innerWidth>760)writePositions(draft,relocateGrid(before,widget.id,{width:Math.max(innerWidth<=1000?3:2,widget.width),rows:Math.round((widget.heightPx+12)/16)}));refresh();return;}
+  if(preset){const before=rectangles(draft);remember();const widget=draft.find(w=>w.id===preset.dataset.widgetPreset);const size=presetSize(widget.id,preset.dataset.size);if(innerWidth>760)Object.assign(widget,size);widget[innerWidth<=760?'mobileHeightPx':'heightPx']=snapHeight(innerWidth<=760?(preset.dataset.size==='compact'?132:preset.dataset.size==='wide'?356:244):size.height*74-14);if(innerWidth>760)writePositions(draft,relocateGrid(before,widget.id,{width:Math.max(innerWidth<=1000?3:2,widget.width),rows:Math.round((widget.heightPx+12)/16)}));refresh();return;}
   const button=event.target.closest('[data-widget-move]');if(button){const id=button.dataset.widgetMove,direction=Number(button.dataset.direction),rects=rectangles(draft).sort((a,b)=>a.row-b.row||a.column-b.column),index=rects.findIndex(r=>r.id===id),target=rects[index+direction];if(index<0||!target)return;remember();writePositions(draft,innerWidth<=760?shiftStack(rects,id,direction):relocateGrid(rects,id,{column:target.column,row:target.row}),{mobileOrder:true});refresh();}
  });
  document.addEventListener('change',event=>{

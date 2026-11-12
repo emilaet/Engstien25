@@ -1,5 +1,6 @@
 import {createServer} from 'node:http';
-import {readFileSync,writeFileSync,renameSync,mkdirSync,existsSync} from 'node:fs';
+import {readFileSync,mkdirSync,existsSync} from 'node:fs';
+import {readFile,writeFile,rename,stat} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {randomBytes,timingSafeEqual,scryptSync} from 'node:crypto';
 import {createHaBridge} from './home-assistant.mjs';
@@ -8,7 +9,8 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
  if(!password)throw new Error('DASHBOARD_PASSWORD skal konfigureres på serveren.');
  const salt=randomBytes(16),hash=scryptSync(password,salt,32),sessions=new Map(),attempts=new Map();
  const ha=createHaBridge({haUrl,haToken,storage,credentialStore,fetchImpl,registryImpl});
- let vehicleCache=null;
+ let vehicleCache=null;const assetCache=new Map();
+ const durable=async value=>{await storage?.flush?.();await credentialStore?.flush?.();return value;};
  const json=(res,status,value)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(value));};
  const session=req=>{const token=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('dashboard_session='))?.split('=')[1];const entry=token&&sessions.get(token);return entry&&entry.expires>Date.now()?entry:null;};
  async function body(req){let text='';for await(const part of req){text+=part;if(text.length>(req.url.startsWith('/api/settings/catalog')?262144:8192))throw new Error('For stor forespørgsel.');}return JSON.parse(text||'{}');}
@@ -41,25 +43,37 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
     const active=session(req);if(!active)return json(res,401,{error:'Log ind på dashboardserveren.'});
     if(req.method!=='GET'&&req.headers.origin&&req.headers.origin!==`${secureCookies?'https':'http'}://${req.headers.host}`)return json(res,403,{error:'Ugyldig origin.'});
     if(path==='/api/settings/catalog'&&req.method==='GET')return json(res,200,ha.catalog());
-    if(path==='/api/settings/catalog'&&req.method==='PUT'){try{return json(res,200,ha.saveCatalog(await body(req)));}catch(e){return json(res,e.status||400,{error:e.message});}}
+    if(path==='/api/settings/catalog'&&req.method==='PUT'){try{return json(res,200,await durable(ha.saveCatalog(await body(req))));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/settings/ha'&&req.method==='GET')return json(res,200,await ha.snapshot(new URL(req.url,'http://localhost').searchParams.has('refresh')));
-    if(path==='/api/settings/ha'&&req.method==='POST'){try{return json(res,200,await ha.configure(await body(req)));}catch(e){return json(res,400,{error:e.message});}}
-    if(path==='/api/settings/ha'&&req.method==='DELETE')return json(res,200,ha.disconnect());
+    if(path==='/api/settings/ha'&&req.method==='POST'){try{return json(res,200,await durable(await ha.configure(await body(req))));}catch(e){return json(res,400,{error:e.message});}}
+    if(path==='/api/settings/ha'&&req.method==='DELETE')return json(res,200,await durable(ha.disconnect()));
     if(path==='/api/settings/command'&&req.method==='POST'){try{const command=await body(req);if(!Number.isSafeInteger(command.revision))throw Error('Hent enhedskataloget før betjening.');return json(res,200,await ha.command(command));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/vehicle'&&req.method==='GET')return json(res,200,await vehicle());
     if(path==='/api/family'&&req.method==='GET')return json(res,200,await familySnapshot(active.family));
     if(path==='/api/family'&&req.method==='POST'){
-     const b=await body(req);if(!['addItem','setDone','editItem','clearCompleted','undo'].includes(b.action))return json(res,400,{error:'Ukendt handling.'});await active.family[b.action](...(b.args||[]));return json(res,200,await familySnapshot(active.family));
+     const b=await body(req);if(!['addItem','setDone','editItem','clearCompleted','undo'].includes(b.action))return json(res,400,{error:'Ukendt handling.'});await active.family[b.action](...(b.args||[]));await storage?.flush?.();return json(res,200,await familySnapshot(active.family));
     }
     return json(res,405,{error:'Live styring er ikke aktiveret. Tesla-forbindelsen er kun læseadgang.'});
    }
-   if(req.method!=='GET')return json(res,405,{error:'Ikke understøttet.'});
-   const file=resolve(staticRoot,'.'+decodeURIComponent(path==='/'?'/index.html':path));if(!file.startsWith(resolve(staticRoot)+sep))return json(res,403,{error:'Ugyldig sti.'});if(!existsSync(file))return json(res,404,{error:'Siden findes ikke.'});
-   const content=readFileSync(file);const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.woff2':'font/woff2'};res.writeHead(200,{'content-type':types[extname(file)]||'application/octet-stream','x-content-type-options':'nosniff','cache-control':'no-cache'});res.end(content);
+   if(!['GET','HEAD'].includes(req.method))return json(res,405,{error:'Ikke understøttet.'});
+   const file=resolve(staticRoot,'.'+decodeURIComponent(path==='/'?'/index.html':path));if(!file.startsWith(resolve(staticRoot)+sep))return json(res,403,{error:'Ugyldig sti.'});
+   let info;try{info=await stat(file);if(!info.isFile())throw Error();}catch{return json(res,404,{error:'Siden findes ikke.'});}
+   const tag='"'+info.size.toString(16)+'-'+info.mtimeMs.toString(16)+'"',immutable=/[-.][a-zA-Z0-9_-]{8,}\.(?:js|css|woff2|webp|png|svg)$/.test(file)&&!file.endsWith('.html');
+   const headers={'etag':tag,'last-modified':info.mtime.toUTCString(),'x-content-type-options':'nosniff','cache-control':immutable?'public, max-age=31536000, immutable':'no-cache'};
+   if(req.headers['if-none-match']===tag||!req.headers['if-none-match']&&req.headers['if-modified-since']&&Math.floor(info.mtimeMs/1000)<=Date.parse(req.headers['if-modified-since'])/1000){res.writeHead(304,headers);return res.end();}
+   let cached=assetCache.get(file);if(cached?.tag!==tag){cached={tag,content:await readFile(file)};if(assetCache.size>=64)assetCache.delete(assetCache.keys().next().value);assetCache.set(file,cached);}
+   const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.woff2':'font/woff2','.webp':'image/webp','.avif':'image/avif','.png':'image/png','.jpg':'image/jpeg','.ico':'image/x-icon'};res.writeHead(200,{...headers,'content-type':types[extname(file)]||'application/octet-stream','content-length':cached.content.length});res.end(req.method==='HEAD'?undefined:cached.content);
   }catch(e){if(!res.headersSent)json(res,400,{error:'Forespørgslen kunne ikke udføres.'});else res.end();}
  });
 }
 export function fileStorage(path){
  mkdirSync(resolve(path,'..'),{recursive:true});let data={};if(existsSync(path))data=JSON.parse(readFileSync(path,'utf8'));
- return {get length(){return Object.keys(data).length;},key:i=>Object.keys(data)[i],getItem:k=>data[k]??null,setItem(k,v){const next={...data,[k]:v};writeFileSync(path+'.tmp',JSON.stringify(next),{mode:0o600});renameSync(path+'.tmp',path);data=next;}};
+ let revision=0,persisted=0,pending=null;
+ async function flush(){
+  if(pending){await pending;if(persisted!==revision)return flush();return;}
+  if(persisted===revision)return;
+  pending=(async()=>{while(persisted!==revision){const current=revision,serialized=JSON.stringify(data);await writeFile(path+'.tmp',serialized,{mode:0o600});await rename(path+'.tmp',path);persisted=current;}})();
+  try{await pending;}finally{pending=null;}
+ }
+ return {get length(){return Object.keys(data).length;},key:i=>Object.keys(data)[i],getItem:k=>data[k]??null,setItem(k,v){data[k]=v;revision++;queueMicrotask(()=>flush().catch(()=>{}));},removeItem(k){if(Object.hasOwn(data,k)){delete data[k];revision++;queueMicrotask(()=>flush().catch(()=>{}));}},flush};
 }

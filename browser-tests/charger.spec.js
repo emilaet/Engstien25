@@ -9,7 +9,7 @@ test('Billader smoothly focuses the mounted charger, pulses while charging and r
  // Software-rendered CI can take longer per frame; retain the multi-frame flight checks.
  test.setTimeout(90000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.getByRole('button',{name:'Rum',exact:true}).click();const scene=page.locator('#scene');
- await expect(scene).toHaveAttribute('data-camera-moving','false');const lighting=await scene.getAttribute('data-house-lighting'),activeLights=await scene.getAttribute('data-active-lights');const far=Number(await scene.getAttribute('data-camera-distance'));
+ await readyScene(page);await expect(scene).toHaveAttribute('data-camera-moving','false');const lighting=await scene.getAttribute('data-house-lighting'),activeLights=await scene.getAttribute('data-active-lights');const far=Number(await scene.getAttribute('data-camera-distance'));
  const started=await page.evaluate(()=>{
   const scene=document.querySelector('#scene');window.flightDistances=[];window.flightLighting=[];
   const observer=new MutationObserver(()=>{if(scene.dataset.cameraMoving==='true'){window.flightDistances.push(Number(scene.dataset.cameraDistance));window.flightLighting.push(scene.dataset.houseLighting);}});observer.observe(scene,{attributes:true,attributeFilter:['data-camera-distance']});
@@ -26,7 +26,7 @@ test('Billader smoothly focuses the mounted charger, pulses while charging and r
 });
 test('Direct charger link, plan-to-charger transition and reduced motion work on tablet',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.setViewportSize({width:1024,height:768});await page.goto('/#car');const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(page.getByRole('heading',{name:'Billader',exact:true}).first()).toBeVisible();
- const value=await scene.getAttribute('data-charger-pulse');await page.waitForTimeout(200);await expect(scene).toHaveAttribute('data-charger-pulse',value);await expect(scene).toHaveAttribute('data-charger-pulse','1.000');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await readyScene(page);const value=await scene.getAttribute('data-charger-pulse');await page.waitForTimeout(200);await expect(scene).toHaveAttribute('data-charger-pulse',value);await expect(scene).toHaveAttribute('data-charger-pulse','1.000');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
  await page.getByRole('button',{name:'Rum',exact:true}).click();await page.getByRole('button',{name:'Vis plantegning ovenfra'}).click();await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});await expect.poll(async()=>Number(await scene.getAttribute('data-camera-distance'))).toBeLessThan(3);await page.screenshot({path:'/tmp/engstien-charger-tablet.png'});
 });
 
