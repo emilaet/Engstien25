@@ -1,3 +1,4 @@
+import {createDashboardProfileStore} from '../src/dashboard-profile.js';
 import {createServer} from 'node:http';
 import {readFileSync,mkdirSync,existsSync} from 'node:fs';
 import {readFile,writeFile,rename,stat} from 'node:fs/promises';
@@ -10,12 +11,13 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
  if(!password)throw new Error('DASHBOARD_PASSWORD skal konfigureres på serveren.');
  const salt=randomBytes(16),hash=scryptSync(password,salt,32),sessions=new Map(),attempts=new Map();
  if(notesSyncToken&&notesSyncToken.length<32)throw Error('NOTES_SYNC_TOKEN skal være mindst 32 tegn.');const notes=createNotesStore(storage);
+ const profile=createDashboardProfileStore(storage);
  const ha=createHaBridge({haUrl,haToken,storage,credentialStore,fetchImpl,registryImpl});
  let vehicleCache=null;const assetCache=new Map();
  const durable=async value=>{await storage?.flush?.();await credentialStore?.flush?.();return value;};
  const json=(res,status,value)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(value));};
  const session=req=>{const token=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('dashboard_session='))?.split('=')[1];const entry=token&&sessions.get(token);return entry&&entry.expires>Date.now()?entry:null;};
- async function body(req){const chunks=[];let bytes=0;for await(const part of req){chunks.push(part);bytes+=part.length;if(bytes>(req.url.startsWith('/api/settings/catalog')?262144:req.url.startsWith('/api/notes')||req.url.startsWith('/api/family')?65536:8192))throw new Error('For stor forespørgsel.');}return JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');}
+ async function body(req){const chunks=[];let bytes=0;for await(const part of req){chunks.push(part);bytes+=part.length;if(bytes>(req.url.startsWith('/api/settings/catalog')?262144:req.url.startsWith('/api/settings/profile')?32768:req.url.startsWith('/api/notes')||req.url.startsWith('/api/family')?65536:8192))throw new Error('For stor forespørgsel.');}return JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');}
  async function vehicle(){
   if(!ha.configured||!entities.battery)return {configured:false,readonly:true};
   try{
@@ -51,6 +53,8 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
    if(path.startsWith('/api/')){
     const active=session(req);if(!active)return json(res,401,{error:'Log ind på dashboardserveren.'});
     if(req.method!=='GET'&&req.headers.origin&&req.headers.origin!==`${secureCookies?'https':'http'}://${req.headers.host}`)return json(res,403,{error:'Ugyldig origin.'});
+    if(path==='/api/settings/profile'&&req.method==='GET'){try{return json(res,200,profile.load());}catch{return json(res,503,{error:'Den fælles dashboardopsætning kunne ikke læses. Den lokale opstilling er bevaret.'});}}
+    if(path==='/api/settings/profile'&&req.method==='PUT'){try{const data=await body(req);return json(res,200,await durable(profile.save(data.profile,data.expectedRevision)));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/settings/catalog'&&req.method==='GET')return json(res,200,ha.catalog());
     if(path==='/api/settings/catalog'&&req.method==='PUT'){try{return json(res,200,await durable(ha.saveCatalog(await body(req))));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/settings/ha'&&req.method==='GET')return json(res,200,await ha.snapshot(new URL(req.url,'http://localhost').searchParams.has('refresh')));

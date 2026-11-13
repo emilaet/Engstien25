@@ -1,3 +1,7 @@
+import {createProfileSync} from './profile-sync.js';
+import {normalizeDashboardProfile} from './dashboard-profile.js';
+import {safeStorage as profileStorageFactory} from './storage.js';
+import {createHeaderWeather} from './header-weather.js';
 import './style.css';
 import './redesign.css';
 import './reference-design.css';
@@ -21,7 +25,7 @@ import {createWidgetServices} from './widget-services.js';
 import {weatherIcon} from './home-widgets.js';
 import {createNavigationMotion} from './navigation-motion.js';
 import {createWidgetControls} from './widget-controls.js';
-import {widgetPreferences} from './widget-preferences.js';
+import {widgetPreferences,widgetOptions} from './widget-preferences.js';
 import {createSettingsPage} from './settings-page.js';
 import {createSettingsClient} from './settings-client.js';
 import {deviceControl,applyDeviceReadings,vehicleReadings} from './device-runtime.js';
@@ -55,11 +59,11 @@ document.querySelector('.date').textContent=new Intl.DateTimeFormat('da-DK',{wee
 const panel=document.querySelector('#panel');let model,modelPromise;
 const roomPanel=createRoomPanel(panel,{getState:()=>state,onSelect:openRoom,onClear:clearRoom,onViewChange:category=>{history.replaceState(history.state,'',roomLocation(selected,category));rememberCurrent();},getDeviceName:(id,fallback)=>settingsClient?.value().catalog.devices.find(d=>d.id===id)?.name||fallback,getDevice:id=>settingsClient?deviceControl(settingsClient.value().catalog,settingsClient.value().ha,id,deviceCommands.has(id)):null,onCommand:sendDeviceCommand,onChange:update,onInput:()=>{refreshSummary();model?.update(state,selected);},onPersist:save});
 roomPanel.restore(selected,initialRoute.category);
-let homeLayout,settingsClient,widgetControls;const deviceCommands=new Set();
+let homeLayout,settingsClient,widgetControls,profileSync;const deviceCommands=new Set();
 let familyShared=false;
 const widgetServices=createWidgetServices();
 const familyDashboard=createFamilyDashboard(document.querySelector('#family-dashboard'),{widgetProvider:widgetServices,onNavigate:navigate,onHideWaste:()=>homeLayout?.visibility('waste',false),onRender:snapshot=>{familyShared=snapshot.mode==='server';homeLayout?.refresh();widgetControls?.refresh();refreshWelcome();refreshDataStatus();}});
-homeLayout=setupDashboardLayout({notify:toast,onFinish:()=>familyDashboard.refresh()});
+homeLayout=setupDashboardLayout({notify:toast,onSaved:()=>{profileSync?.changed();return profileSync?.snapshot().authenticated;},onFinish:()=>familyDashboard.refresh()});
 const roomActions=document.createElement('div');roomActions.className='room-top-actions';roomActions.append(document.querySelector('.house-light-controls'));document.querySelector('.summary').append(roomActions);
 const extraControls=document.createElement('div');extraControls.className='model-menu-controls';extraControls.setAttribute('aria-label','Visningsmuligheder');
 for(const id of ['furnish-view','furniture-toggle','wall-view'])extraControls.append(document.getElementById(id));document.getElementById('home-options-menu').append(extraControls);
@@ -69,22 +73,28 @@ const furnitureBar=document.createElement('div');furnitureBar.className='furnitu
 const chargerCaption=document.createElement('div');chargerCaption.className='charger-caption';chargerCaption.innerHTML='<h3>Klar til næste tur.</h3><p>Den grønne ring pulserer, mens bilen lader.<br>Pause stopper opladningen og lyspulsen.</p><div><span>Til venstre for døren til skuret</span><span>3D · nærbillede</span></div>';document.querySelector('.model-card').append(chargerCaption);
 const chargerVisual=document.createElement('button');chargerVisual.className='charger-visual-toggle';chargerVisual.textContent='Vis ladeboksen i 3D';chargerVisual.setAttribute('aria-expanded','false');chargerVisual.onclick=()=>{const expanded=document.documentElement.dataset.chargerExpanded!=='true';document.documentElement.dataset.chargerExpanded=String(expanded);chargerVisual.setAttribute('aria-expanded',String(expanded));chargerVisual.textContent=expanded?'Vis mindre af ladeboksen':'Vis ladeboksen i 3D';};document.querySelector('#rooms-workspace').append(chargerVisual);
 const roomsVisual=document.createElement('button');roomsVisual.className='rooms-visual-toggle';roomsVisual.textContent='Vis huset i 3D';roomsVisual.setAttribute('aria-expanded','false');roomsVisual.onclick=()=>{const expanded=document.documentElement.dataset.roomsExpanded!=='true';document.documentElement.dataset.roomsExpanded=String(expanded);roomsVisual.setAttribute('aria-expanded',String(expanded));roomsVisual.textContent=expanded?'Skjul 3D-visning':'Vis huset i 3D';if(expanded)ensureModel();};document.querySelector('#rooms-workspace').append(roomsVisual);
-const appearance=createAppearance({onChange:value=>{model?.setAppearance(value);refreshWelcome();reflectAppearance(value);}});appearance.refresh();document.querySelector('.header-right').append(document.querySelector('.home-layout-menu'));
+const headerWeather=createHeaderWeather({services:widgetServices,onOpen:button=>familyDashboard.openWidget('weather',button)});
+const appearance=createAppearance({onChange:value=>{model?.setAppearance(value);refreshWelcome();reflectAppearance(value);profileSync?.changed();}});appearance.refresh();document.querySelector('.header-right').append(document.querySelector('.home-layout-menu'));
 const dataStatus=document.createElement('button');dataStatus.className='data-status';dataStatus.textContent='Demo';dataStatus.setAttribute('aria-label','Datastatus og forbindelser');dataStatus.onclick=()=>openSettings('connections');document.querySelector('.header-right').prepend(dataStatus);
 const mobileDataStatus=document.createElement('span');mobileDataStatus.className='mobile-data-status';mobileDataStatus.textContent=' · Demo';document.querySelector('header .eyebrow').append(mobileDataStatus);
 const furnitureEditor=createFurnitureEditor({provider:furnishingData,onChange:value=>{model?.setFurnishings(value);updateSceneChrome();},onFocus:(id,focus)=>{withModel(m=>m.selectFurniture(id,focus));if(focus){document.querySelector('#plan-view').setAttribute('aria-pressed','false');updateSceneChrome();}},onRoomFocus:id=>withModel(m=>id==='all'?m.home():m.focusRoom(id)),onExit:()=>{navigate('rooms');model?.home();}});
 const settingsHost=document.createElement('section');settingsHost.id='settings-page';settingsHost.hidden=true;document.querySelector('#family-dashboard').after(settingsHost);
-settingsClient=createSettingsClient({family:familyDashboard,onSnapshot:syncDeviceReadings,onVehicle:data=>{car={...car,...data,charging:['charging','away'].includes(data.status)};model?.setCharging(car.homeCharging);if(tab==='car')renderPanel();refreshSummary();updateSceneChrome();refreshDataStatus();},onConnection:connected=>{familyShared=connected;refreshDataStatus();}});
-const settingsPage=createSettingsPage(settingsHost,{client:settingsClient,services:widgetServices,family:familyDashboard,onNavigate:navigate,onEditLayout:()=>homeLayout.edit(),onPreviewLayout:()=>homeLayout.preview(),onShowSources:()=>familyDashboard.showSources(),onMusic:trigger=>familyDashboard.openMusic(trigger),onWidget:(id,trigger)=>widgetControls.open(id,{full:true,origin:trigger})});
+settingsClient=createSettingsClient({family:familyDashboard,onSnapshot:syncDeviceReadings,onVehicle:data=>{car={...car,...data,charging:['charging','away'].includes(data.status)};model?.setCharging(car.homeCharging);if(tab==='car')renderPanel();refreshSummary();updateSceneChrome();refreshDataStatus();},onConnection:connected=>{familyShared=connected;if(connected)void profileSync?.connect();else profileSync?.disconnect();refreshDataStatus();}});
+const profileDisk=profileStorageFactory();
+profileSync=createProfileSync({isEditing:()=>homeLayout.isEditing(),getProfile:()=>normalizeDashboardProfile({layout:homeLayout.current(),widgets:Object.fromEntries(Object.keys(widgetOptions).map(id=>[id,widgetPreferences.get(id)])),appearance:appearance.value.mode,density:document.documentElement.dataset.density||'compact',briefing:familyDashboard.briefingVisible}),applyProfile:profile=>{
+ homeLayout.applyShared(profile.layout);widgetPreferences.replaceAll(profile.widgets);document.documentElement.dataset.density=profile.density;profileDisk.setItem('engstien-density-v1',profile.density);if(familyDashboard.briefingVisible!==profile.briefing)familyDashboard.toggleBriefing();const selector=document.querySelector('.appearance-control select');selector.value=profile.appearance;selector.dispatchEvent(new Event('change'));void familyDashboard.refresh();
+}});
+window.addEventListener('engstien-dashboard-preference',()=>profileSync.changed());
+const settingsPage=createSettingsPage(settingsHost,{client:settingsClient,profileSync,services:widgetServices,family:familyDashboard,onNavigate:navigate,onEditLayout:()=>homeLayout.edit(),onPreviewLayout:()=>homeLayout.preview(),onShowSources:()=>familyDashboard.showSources(),onMusic:trigger=>familyDashboard.openMusic(trigger),onWidget:(id,trigger)=>widgetControls.open(id,{full:true,origin:trigger})});
 widgetControls=createWidgetControls({family:familyDashboard,layout:homeLayout,onAdvanced:id=>{openSettings('widgets');widgetControls.open(id,{full:true});},onConnections:id=>{openSettings('connections');if(id==='music')familyDashboard.openMusic(document.querySelector('#home-options'));},onOpen:(id,trigger)=>{if(['tasks','shopping'].includes(id))familyDashboard.openList(id,trigger);else if(['weather','calendar','camera','music','electricity'].includes(id))familyDashboard.openWidget(id,trigger);else if(id==='waste'){const details=document.querySelector('.waste-calendar');details.open=true;details.scrollIntoView({block:'center'});}else navigate(id==='car'?'car':'rooms');}});
-widgetPreferences.subscribe(id=>{homeLayout.refresh();widgetControls.refresh();refreshSummary();if(id==='electricity')widgetServices.electricity.load({priceArea:widgetPreferences.get('electricity').area}).then(()=>familyDashboard.refresh());});
+widgetPreferences.subscribe(id=>{profileSync?.changed();homeLayout.refresh();widgetControls.refresh();refreshSummary();if(id==='electricity')widgetServices.electricity.load({priceArea:widgetPreferences.get('electricity').area}).then(()=>familyDashboard.refresh());});
 const navigationMotion=createNavigationMotion(document.querySelector('.rail nav'));
 const settingsButton=document.createElement('button');settingsButton.id='open-settings';settingsButton.textContent='Indstillinger';settingsButton.onclick=()=>openSettings();document.querySelector('#home-options-menu').append(settingsButton);
 for(const id of ['roof-view','graphics-quality','help'])document.getElementById(id).remove();
 window.addEventListener('engstien-open-settings',e=>openSettings(e.detail||'connections'));
 settingsClient.discover();
 homeData.subscribe(value=>{state=value;update();});
-function refreshClock(){if(document.hidden)return;appearance.refresh();document.querySelector('.clock').textContent=new Intl.DateTimeFormat('da-DK',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Copenhagen'}).format(new Date());document.querySelector('.date').textContent=new Intl.DateTimeFormat('da-DK',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Copenhagen'}).format(new Date());if(tab==='home')familyDashboard.refresh();settingsClient.refresh();}
+function refreshClock(){if(document.hidden)return;headerWeather.refresh();appearance.refresh();document.querySelector('.clock').textContent=new Intl.DateTimeFormat('da-DK',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Copenhagen'}).format(new Date());document.querySelector('.date').textContent=new Intl.DateTimeFormat('da-DK',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Copenhagen'}).format(new Date());if(tab==='home')familyDashboard.refresh();settingsClient.refresh();void profileSync?.refresh();}
 document.querySelector('.clock').textContent=new Intl.DateTimeFormat('da-DK',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Copenhagen'}).format(new Date());
 setInterval(refreshClock,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshClock();});
 async function ensureModel(){

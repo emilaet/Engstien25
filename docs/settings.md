@@ -12,7 +12,7 @@ Planen gemmes lokalt som `engstien-devices-v1`. Ved manglende lagring vises en b
 
 **Skærm og dashboard → Hent backup** eksporterer en valideret JSON-fil med enhedskatalog, koblinger, dashboardlayout og visningsvalg. Adgangskoder, HA-tokens, Spotify-/Apple-konti og private nøgler indgår ikke. Møbler og referencebilleder har deres egen eksport under Indretning. Import kontrollerer fil, typer, rum, ID'er, koblinger og layout før gemning; en erstatning bekræftes særskilt. Et importeret layout anvendes efter genindlæsning.
 
-På GitHub Pages er selve dashboardet stadig en krypteret statisk app. Der sendes ingen HA-token til Pages, og ingen HA-adgangsnøgle kan indtastes der. Kør den eksisterende Node-dashboardserver ved Home Assistant, og åbn dens adresse for at få rigtig HA-adgang. Log ind under **Indstillinger → Forbindelser** med dashboardserverens egen adgangskode.
+På GitHub Pages er selve dashboardet stadig en krypteret statisk app. Der sendes ingen HA-token til Pages, og ingen HA-adgangsnøgle kan indtastes der. Kør den eksisterende Node-dashboardserver ved Home Assistant, og åbn dens adresse for at få rigtig HA-adgang. Log ind under **Indstillinger → Forbindelser** med dashboardserverens egen adgangskode. Serveren kan også køre uden HA og dele dashboardopstilling og widgetindstillinger allerede nu; se [fælles dashboardopsætning](dashboard-sync.md). Aktuel lagringsstatus og eventuelle konflikter vises under **Skærm og dashboard**.
 
 Ved første serverlogin hentes serverens katalog. Browserens tidligere lokale plan bevares. Den kan overføres eksplicit under Skærm og dashboard, efter bekræftelse; der sker ingen automatisk sammenfletning. Gemte koblinger deles derefter via serverens datafil.
 

@@ -114,13 +114,17 @@
 @container widget (width > 340px) and (height < 175px){
  :root[data-page=home] .dashboard-widget>.hw-weather-layout>.hw-head{padding-right:0!important;margin:0!important}
 }
-@container widget (height < 110px){
+@container widget (height < 150px){
  :root[data-page=home] .dashboard-grid #car-summary .home-car-header{margin-bottom:3px}
- :root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:24px!important;line-height:1.05!important;margin:0 0 6px!important}
+ :root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:23px!important;line-height:1.05!important;margin:0 0 4px!important}
  :root[data-page=home] .dashboard-grid #car-summary .home-car-details{gap:3px!important}
  :root[data-page=home] .dashboard-grid #car-summary .home-car-meta,:root[data-page=home] .dashboard-grid #car-summary .home-car-meta>span{font-size:11px!important;line-height:13px;margin:0!important}
  :root[data-page=home] .dashboard-grid #car-summary .home-car-progress{height:6px!important;min-height:6px}
  :root[data-page=home] .dashboard-grid #car-summary .card-source{font-size:8px;line-height:10px;margin-top:2px}
+}
+@container widget (height < 100px) and (width < 290px){
+ :root[data-page=home] .dashboard-grid #car-summary .home-car-header{flex-direction:row;align-items:center;gap:7px}
+ :root[data-page=home] .dashboard-grid #car-summary .home-car-status{font-size:0;line-height:0;gap:0}
 }
 .ep-breakdown{font-size:12px;border-top:1px solid var(--border);margin-top:12px;padding-top:12px}
 .ep-breakdown summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none}

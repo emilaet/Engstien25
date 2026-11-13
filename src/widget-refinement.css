@@ -112,3 +112,15 @@
 }
 
 .list-open-summary svg{width:18px;height:18px;display:block;stroke:currentColor;fill:none}
+
+/* The Tesla card itself opens Billader; a second footer link only steals height. */
+:root[data-page=home] .dashboard-grid #car-summary .home-car-link{display:none!important}
+:root[data-page=home] .dashboard-grid #car-summary .card-source{flex:none;overflow:visible}
+.header-weather{display:flex;align-items:center;justify-content:center;gap:7px;min-width:64px;height:48px;min-height:44px;padding:6px 10px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:16px;font:inherit;font-size:15px;line-height:1;white-space:nowrap;flex:none}
+.header-weather .hw-weather-art{width:25px;height:25px;display:block;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.header-weather:hover{background:var(--soft)}.header-weather:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.header-weather[data-status=cached] strong{color:var(--muted)}.header-weather strong{font-size:inherit;font-weight:500}
+@media(max-width:1000px){.header-weather{min-width:56px;gap:5px;padding:5px 8px;font-size:13px}.header-weather .hw-weather-art{width:22px;height:22px}}
+@media(max-width:760px){.header-weather{height:44px;min-width:52px;padding:4px 7px;border-radius:14px;font-size:12px}.header-weather .hw-weather-art{width:20px;height:20px}}
+
+.family-full-list label.list-linked-item{border:1px solid var(--amber);border-radius:12px;padding:10px;background:var(--amber-soft)}

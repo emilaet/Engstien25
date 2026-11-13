@@ -55,7 +55,7 @@ const mobileHeights={electricity:244,calendar:132,waste:180,weather:180,car:132,
 export function homeRectangles(layout,{minimum=2,stack=false,compactIds=[]}={}){const standard=sameDefault(layout),stock=stack&&!layout.some(w=>w.mobileOrder!==undefined);return arrangeGrid(layout.map(w=>({...w,...(stock?{mobileOrder:mobilePriority.indexOf(w.id)}:{}),rows:compactIds.includes(w.id)?5:Math.round(((stock?(w.mobileHeightPx??mobileHeights[w.id]):cardHeight(w,standard,stack))+12)/16)})),{minimum,stack});}
 
 
-export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={}){
+export function setupDashboardLayout({onFinish=()=>{},onSaved=()=>{},notify=()=>{},storage}={}){
  const disk=safeStorage(storage);
  let saved=defaultLayout();
  try{saved=migrateLayout(JSON.parse(disk.getItem(layoutKey)??disk.getItem(legacyLayoutKey)));}catch{}
@@ -158,7 +158,7 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
  }
  function finish(save){
   endGesture(true);
-  if(save){saved=structuredClone(draft);disk.setItem(layoutKey,JSON.stringify(saved));announce(disk.persistent?'Dit layout er gemt på denne enhed.':'Lagring er ikke tilgængelig. Layoutet bevares kun, mens siden er åben.');}
+  if(save){saved=structuredClone(draft);disk.setItem(layoutKey,JSON.stringify(saved));const shared=onSaved();announce(shared?'Opstillingen er gemt lokalt og synkroniseres med huset.':disk.persistent?'Dit layout er gemt på denne enhed.':'Lagring er ikke tilgængelig. Layoutet bevares kun, mens siden er åben.');}
   editing=false;recoveryDisk.removeItem(draftLayoutKey);document.documentElement.classList.remove('home-layout-editing');details(false);toolbar.hidden=true;area.querySelector('#home-options').disabled=false;refresh();area.querySelector('#home-options').focus({preventScroll:true});onFinish();
  }
  area.querySelector('#home-options').onclick=()=>{const menu=area.querySelector('#home-options-menu');menu.hidden=!menu.hidden;area.querySelector('#home-options').setAttribute('aria-expanded',String(!menu.hidden));};
@@ -249,5 +249,5 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
  document.addEventListener('pointerup',event=>{if(gesture&&gesture.pointerId===event.pointerId)endGesture();});
  document.addEventListener('pointercancel',event=>{if(gesture&&gesture.pointerId===event.pointerId)endGesture(true);});
  document.addEventListener('lostpointercapture',event=>{if(gesture&&gesture.pointerId===event.pointerId)endGesture(true);});
- return {refresh,visibility(id,visible){if(editing)return;saved=saved.map(w=>w.id===id?{...w,visible}:w);draft=structuredClone(saved);disk.setItem(layoutKey,JSON.stringify(saved));refresh();},edit(){if(!editing)startEditing();},preview(){if(!editing)startEditing();remember();draft=defaultLayout();refresh();},setHome(value){if(!value&&gesture)endGesture(true);home=value;toolbar.hidden=!home||!editing;document.documentElement.classList.toggle('home-layout-editing',home&&editing);area.querySelector('#home-options').disabled=home&&editing;area.hidden=false;area.querySelector('#home-options').setAttribute('aria-label',home?'Tilpas Hjem':'Flere muligheder');area.querySelector('#edit-home-layout').hidden=!home;status.hidden=!home||status.hidden;closeMenu();refresh();}};
+ return {refresh,current:()=>structuredClone(saved),isEditing:()=>editing,applyShared(value){if(editing)throw Error('Afslut dashboardredigering før den fælles opsætning hentes.');if(!validLayout(value))throw Error('Dashboardlayoutet er ugyldigt.');saved=structuredClone(migrateLayout(value));draft=structuredClone(saved);disk.setItem(layoutKey,JSON.stringify(saved));refresh();},visibility(id,visible){if(editing)return;saved=saved.map(w=>w.id===id?{...w,visible}:w);draft=structuredClone(saved);disk.setItem(layoutKey,JSON.stringify(saved));onSaved();refresh();},edit(){if(!editing)startEditing();},preview(){if(!editing)startEditing();remember();draft=defaultLayout();refresh();},setHome(value){if(!value&&gesture)endGesture(true);home=value;toolbar.hidden=!home||!editing;document.documentElement.classList.toggle('home-layout-editing',home&&editing);area.querySelector('#home-options').disabled=home&&editing;area.hidden=false;area.querySelector('#home-options').setAttribute('aria-label',home?'Tilpas Hjem':'Flere muligheder');area.querySelector('#edit-home-layout').hidden=!home;status.hidden=!home||status.hidden;closeMenu();refresh();}};
 }
