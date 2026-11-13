@@ -84,7 +84,8 @@
  :root[data-page=home] .waste-card .next-collection-body strong{font-size:13px;line-height:1.4}
  :root[data-page=home] .waste-card .next-collection-body>div>span{font-size:11px;line-height:1.4}
  :root[data-page=home] .camera-card .hw-head{position:absolute;z-index:2;inset:12px 12px auto;min-height:44px!important;margin:0!important;padding:6px 40px 6px 8px!important;background:color-mix(in srgb,var(--surface) 94%,transparent);border-radius:12px}
- :root[data-page=home] .camera-card .hw-head .hw-badge{display:none}
+ :root[data-page=home] .camera-card .hw-head .hw-badge{display:inline;font-size:9px;background:transparent}
+ :root[data-page=home] .camera-card .hw-camera-image>span,:root[data-page=home] .camera-card .hw-camera-image>em{display:none}
  :root[data-page=home] .camera-card .hw-camera-image{position:absolute;inset:0;height:100%;min-height:0;margin:0}
  :root[data-page=home] .camera-card .hw-camera-foot{position:absolute;z-index:2;right:10px;bottom:8px;min-height:44px;margin:0;padding:0;background:var(--surface);border-radius:12px}
  :root[data-page=home] .camera-card .hw-camera-foot>span{display:none!important}
@@ -109,3 +110,5 @@
  :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary small{font-size:11px;line-height:14px;overflow-wrap:anywhere}
  :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary>.hw-weather-art{width:24px;height:24px;flex:none}
 }
+
+.list-open-summary svg{width:18px;height:18px;display:block;stroke:currentColor;fill:none}

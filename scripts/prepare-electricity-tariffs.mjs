@@ -4,6 +4,6 @@ import {createTariffProvider} from '../src/electricity-tariffs.js';
 // unavailable due to CORS, rate limits or temporary outages; never fake rates.
 const provider=createTariffProvider({fetchImpl:(url,options)=>fetch(url,{...options,headers:{Accept:'application/json','User-Agent':'Engstien25/tariff-publisher (github.com/emilaet/Engstien25)'}})});
 const data=await provider.load({gridCompany:'dinel',force:true});
-if(data.status!=='live')throw Error('Could not prepare the electricity tariff fallback: '+data.error);
+if(data.status!=='live'){const message='Could not prepare the electricity tariff fallback: '+data.error;console.error('::error title=Electricity tariff source::'+message.replaceAll('%','%25').replaceAll('\n','%0A').replaceAll('\r','%0D'));process.exit(1);}
 await writeFile(process.argv[2]||'.electricity-tariffs.json',JSON.stringify({version:1,grid:data.grid,updatedAt:data.updatedAt,records:data.records}));
 console.log('Verified Dinel tariffs and electricity taxes prepared for encrypted publication.');
