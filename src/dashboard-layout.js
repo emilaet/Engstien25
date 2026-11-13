@@ -1,10 +1,12 @@
 import {arrangeGrid,relocateGrid,reorderStack,snapGridRow,shiftStack} from './dashboard-grid.js';
+import {widgetPreferences} from './widget-preferences.js';
 import {safeStorage} from './storage.js';
 export const draftLayoutKey='engstien-home-layout-draft-v1';
 export const layoutKey='engstien-home-layout-v3';
 export const legacyLayoutKey='engstien-home-layout-v2';
 export const previousLayoutKey='engstien-home-layout-v1';
 export const widgetDefinitions=[
+ {id:'electricity',name:'Elpriser',selector:'.electricity-card',width:4,height:5},
  {id:'music',name:'Musik',selector:'.music-card',width:3,height:3},
  {id:'weather',name:'Vejrudsigt',selector:'.weather-card',width:4,height:5},
  {id:'camera',name:'Hoveddørskamera',selector:'.camera-card',width:4,height:5},
@@ -23,31 +25,33 @@ const positioned=w=>(w.column===undefined&&w.row===undefined||Number.isInteger(w
 const sizes=w=>w&&typeof w.id==='string'&&(w.visible===undefined||typeof w.visible==='boolean')&&Number.isInteger(w.width)&&w.width>=2&&w.width<=12&&[2,3,4,5,7,9].includes(w.height)&&(w.heightPx===undefined||Number.isInteger(w.heightPx)&&w.heightPx>=132&&w.heightPx<=1092)&&(w.mobileHeightPx===undefined||Number.isInteger(w.mobileHeightPx)&&w.mobileHeightPx>=132&&w.mobileHeightPx<=1092)&&positioned(w);
 const legacyDefault=()=>[['house',8,5],['waste',4,5],['tasks',4,5],['shopping',4,5],['car',4,5],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
 const classicLayout=()=>[['house',4,5],['camera',4,5],['weather',4,5],['calendar',6,4],['waste',3,4],['car',3,4],['tasks',6,4],['shopping',6,4],['music',3,3],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
-export const defaultLayout=()=>[['house',4,5],['calendar',4,5],['weather',4,5],['camera',4,3],['car',4,3],['waste',4,3],['tasks',4,4],['shopping',4,4],['music',4,4],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
-const validPreviousWidgets=value=>Array.isArray(value)&&value.length===11&&new Set(value.map(w=>w?.id)).size===11&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id&&d.id!=='music'));
-export function validLayout(value){return Array.isArray(value)&&value.length===widgetDefinitions.length&&new Set(value.map(w=>w?.id)).size===widgetDefinitions.length&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id));}
+const previousDefaultLayout=()=>[['house',4,5],['calendar',4,5],['weather',4,5],['camera',4,3],['car',4,3],['waste',4,3],['tasks',4,4],['shopping',4,4],['music',4,4],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
+export const defaultLayout=()=>[...previousDefaultLayout(),{id:'electricity',width:4,height:5,visible:true}];
+const validPreviousWidgets=value=>Array.isArray(value)&&value.length===11&&new Set(value.map(w=>w?.id)).size===11&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id&&d.id!=='music'&&d.id!=='electricity'));
+export function validLayout(value){return Array.isArray(value)&&[12,widgetDefinitions.length].includes(value.length)&&new Set(value.map(w=>w?.id)).size===value.length&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id))&&(value.length===13||!value.some(w=>w.id==='electricity'));}
 export function migrateLayout(value){
- if(validLayout(value))return value;
- if(validPreviousWidgets(value)){const untouched=[classicLayout(),defaultLayout()].some(layout=>{const original=layout.filter(w=>w.id!=='music');return value.every((w,i)=>w.id===original[i].id&&w.width===original[i].width&&w.height===original[i].height&&(w.visible!==false)===(original[i].visible!==false)&&w.column===undefined&&w.heightPx===undefined&&w.mobileHeightPx===undefined&&w.mobileOrder===undefined);});return untouched?defaultLayout():[...structuredClone(value),{...defaultLayout().find(w=>w.id==='music'),heightPx:196}];}
+ if(validLayout(value)&&value.length===13)return value;
+ if(validLayout(value)&&value.length===12){const standard=matchesDefault(value,previousDefaultLayout())?'current':matchesDefault(value,classicLayout())?'classic':false;const existing=structuredClone(value);const rows=homeRectangles(existing);return [...existing,{id:'electricity',width:4,height:5,heightPx:244,visible:true,...(value.some(w=>w.row!==undefined)?{column:0,row:Math.max(...rows.filter(r=>r.visible!==false).map(r=>r.row+r.rows))}:{})}];}
+ if(validPreviousWidgets(value)){const untouched=[classicLayout(),defaultLayout()].some(layout=>{const original=layout.filter(w=>w.id!=='music');return value.every((w,i)=>w.id===original[i].id&&w.width===original[i].width&&w.height===original[i].height&&(w.visible!==false)===(original[i].visible!==false)&&w.column===undefined&&w.heightPx===undefined&&w.mobileHeightPx===undefined&&w.mobileOrder===undefined);});return untouched?defaultLayout():[...structuredClone(value),{...defaultLayout().find(w=>w.id==='music'),heightPx:196},{...defaultLayout().find(w=>w.id==='electricity'),heightPx:244}];}
  if(!Array.isArray(value)||![7,8].includes(value.length)||!value.every(w=>sizes(w)&&oldIds.includes(w.id))||new Set(value.map(w=>w.id)).size!==value.length)return defaultLayout();
  const legacy=value.length===7&&!value.some(w=>w.id==='house')?[{id:'house',width:8,height:5},...value]:value;
  if(legacy.length!==8||!oldIds.every(id=>legacy.some(w=>w.id===id)))return defaultLayout();
  const original=legacyDefault(),untouched=legacy.every((w,i)=>w.id===original[i].id&&w.width===original[i].width&&w.height===original[i].height&&(w.visible===undefined||w.visible===original[i].visible));
  if(untouched)return defaultLayout();
- return [...structuredClone(legacy),...['camera','weather','calendar','music'].map(id=>({...defaultLayout().find(w=>w.id===id),heightPx:defaultHeights[id]}))];
+ return [...structuredClone(legacy),...['camera','weather','calendar','music','electricity'].map(id=>({...defaultLayout().find(w=>w.id===id),heightPx:defaultHeights[id]}))];
 }
 export function moveWidget(layout,id,target){const next=structuredClone(layout),from=next.findIndex(w=>w.id===id);if(from<0)return next;const [widget]=next.splice(from,1);next.splice(Math.max(0,Math.min(next.length,target)),0,widget);return next;}
 const presetSize=(id,size)=>size==='compact'?(['weather','calendar'].includes(id)?{width:2,height:5}:id==='car'?{width:2,height:3}:['lights','climate','curtains'].includes(id)?{width:2,height:2}:{width:3,height:4}):size==='wide'?{width:6,height:3}:{width:4,height:4};
-const classicHeights={music:212,house:260,camera:260,weather:260,calendar:228,waste:228,car:228,tasks:196,shopping:196,lights:134,climate:134,curtains:134};
-const defaultHeights={house:244,calendar:244,weather:244,camera:196,car:196,waste:196,tasks:196,shopping:196,music:196,lights:132,climate:132,curtains:132};
+const classicHeights={electricity:244,music:212,house:260,camera:260,weather:260,calendar:228,waste:228,car:228,tasks:196,shopping:196,lights:134,climate:134,curtains:134};
+const defaultHeights={electricity:244,house:244,calendar:244,weather:244,camera:196,car:196,waste:196,tasks:196,shopping:196,music:196,lights:132,climate:132,curtains:132};
 const heightSteps=[2,3,4,5,7,9];
 const snapHeight=value=>Math.max(132,Math.min(1092,Math.round((value+12)/16)*16-12));
 const matchesDefault=(layout,reference)=>layout.length===reference.length&&layout.every((w,i)=>{const d=reference[i];return w.id===d.id&&w.width===d.width&&w.height===d.height&&(w.visible!==false)===(d.visible!==false);});
-const sameDefault=layout=>matchesDefault(layout,defaultLayout())?'current':matchesDefault(layout,classicLayout())?'classic':false;
+const sameDefault=layout=>matchesDefault(layout,defaultLayout())||matchesDefault(layout,previousDefaultLayout())?'current':matchesDefault(layout.filter(w=>w.id!=='electricity'),classicLayout())?'classic':false;
 const cardHeight=(widget,standard,mobile=false)=>mobile&&widget.mobileHeightPx!==undefined?widget.mobileHeightPx:widget.heightPx??(standard?(standard==='classic'?classicHeights:defaultHeights)[widget.id]:widget.height*74-14);
-const mobilePriority=['calendar','waste','weather','car','tasks','shopping','house','camera','music','lights','climate','curtains'];
-const mobileHeights={calendar:132,waste:180,weather:180,car:132,tasks:196,shopping:196,house:132,camera:132,music:132,lights:132,climate:132,curtains:132};
-export function homeRectangles(layout,{minimum=2,stack=false}={}){const standard=sameDefault(layout),stock=stack&&!layout.some(w=>w.mobileOrder!==undefined);return arrangeGrid(layout.map(w=>({...w,...(stock?{mobileOrder:mobilePriority.indexOf(w.id)}:{}),rows:Math.round(((stock?(w.mobileHeightPx??mobileHeights[w.id]):cardHeight(w,standard,stack))+12)/16)})),{minimum,stack});}
+const mobilePriority=['calendar','waste','weather','car','electricity','tasks','shopping','house','camera','music','lights','climate','curtains'];
+const mobileHeights={electricity:244,calendar:132,waste:180,weather:180,car:132,tasks:196,shopping:196,house:132,camera:132,music:132,lights:132,climate:132,curtains:132};
+export function homeRectangles(layout,{minimum=2,stack=false,compactIds=[]}={}){const standard=sameDefault(layout),stock=stack&&!layout.some(w=>w.mobileOrder!==undefined);return arrangeGrid(layout.map(w=>({...w,...(stock?{mobileOrder:mobilePriority.indexOf(w.id)}:{}),rows:compactIds.includes(w.id)?5:Math.round(((stock?(w.mobileHeightPx??mobileHeights[w.id]):cardHeight(w,standard,stack))+12)/16)})),{minimum,stack});}
 
 
 export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={}){
@@ -58,10 +62,11 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
  try{const value=JSON.parse(disk.getItem(previousLayoutKey));if(Array.isArray(value)&&[7,8,11,12].includes(value.length))previous=migrateLayout(value);}catch{}
  let draft=structuredClone(saved),editing=false,home=false,gesture=null,selectedWidget='weather',undoStack=[],redoStack=[],autoScroll=0,resizeFrame=0,baselineDraft='';
  let session=null;try{session=globalThis.sessionStorage;}catch{}const recoveryDisk=safeStorage(session);
- try{const recovery=JSON.parse(recoveryDisk.getItem(draftLayoutKey));if(recovery?.base===JSON.stringify(saved)&&validLayout(recovery.draft)){draft=recovery.draft;editing=true;baselineDraft=recovery.baseline||JSON.stringify(saved);selectedWidget=widgetDefinitions.some(w=>w.id===recovery.selected)?recovery.selected:'weather';undoStack=(recovery.undo||[]).filter(validLayout);redoStack=(recovery.redo||[]).filter(validLayout);}}catch{}
+ try{const recovery=JSON.parse(recoveryDisk.getItem(draftLayoutKey));if(recovery?.base&&JSON.stringify(migrateLayout(JSON.parse(recovery.base)))===JSON.stringify(saved)&&validLayout(recovery.draft)){draft=migrateLayout(recovery.draft);editing=true;baselineDraft=recovery.baseline?JSON.stringify(migrateLayout(JSON.parse(recovery.baseline))):JSON.stringify(saved);selectedWidget=widgetDefinitions.some(w=>w.id===recovery.selected)?recovery.selected:'weather';undoStack=(recovery.undo||[]).filter(validLayout).map(migrateLayout);redoStack=(recovery.redo||[]).filter(validLayout).map(migrateLayout);}}catch{}
  const dirty=()=>editing&&JSON.stringify(draft)!==baselineDraft;
  function persistDraft(){if(dirty())recoveryDisk.setItem(draftLayoutKey,JSON.stringify({base:JSON.stringify(saved),draft,baseline:baselineDraft,selected:selectedWidget,undo:undoStack,redo:redoStack}));else recoveryDisk.removeItem(draftLayoutKey);}
- const viewHeight=(w,standard)=>cardHeight(w,standard,innerWidth<=760);
+ const compactIds=()=>['shopping','tasks'].filter(id=>widgetPreferences.get(id).view==='compact');
+ const viewHeight=(w,standard)=>compactIds().includes(w.id)?68:cardHeight(w,standard,innerWidth<=760);
 
  const summary=document.querySelector('.summary'),stats=[...summary.children],house=document.querySelector('#house-overview'),parking=document.querySelector('#home-overview-parking');
  const area=document.createElement('div');area.className='home-layout-menu';
@@ -93,7 +98,7 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
   toolbar.querySelector('#undo-home-layout').disabled=!undoStack.length;toolbar.querySelector('#redo-home-layout').disabled=!redoStack.length;
   toolbar.querySelector('.layout-visible-count').textContent=`${draft.filter(w=>w.visible!==false).length} af ${draft.length}`;
  }
- function rectangles(layout,{minimum=innerWidth<=1000?3:2,stack=innerWidth<=760}={}){return homeRectangles(layout,{minimum,stack});}
+ function rectangles(layout,{minimum=innerWidth<=1000?3:2,stack=innerWidth<=760}={}){return homeRectangles(layout,{minimum,stack,compactIds:compactIds()});}
  function writePositions(layout,rects,{mobileOrder=false}={}){
   const byId=new Map(rects.map(r=>[r.id,r])),reading=[...rects].sort((a,b)=>a.row-b.row||a.column-b.column);
   if(innerWidth<=760){if(mobileOrder||gesture?.kind==='move')for(const [index,r] of reading.entries())layout.find(w=>w.id===r.id).mobileOrder=index;}
@@ -243,5 +248,5 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
  document.addEventListener('pointerup',event=>{if(gesture&&gesture.pointerId===event.pointerId)endGesture();});
  document.addEventListener('pointercancel',event=>{if(gesture&&gesture.pointerId===event.pointerId)endGesture(true);});
  document.addEventListener('lostpointercapture',event=>{if(gesture&&gesture.pointerId===event.pointerId)endGesture(true);});
- return {refresh,edit(){if(!editing)startEditing();},preview(){if(!editing)startEditing();remember();draft=defaultLayout();refresh();},setHome(value){if(!value&&gesture)endGesture(true);home=value;toolbar.hidden=!home||!editing;document.documentElement.classList.toggle('home-layout-editing',home&&editing);area.querySelector('#home-options').disabled=home&&editing;area.hidden=false;area.querySelector('#home-options').setAttribute('aria-label',home?'Tilpas Hjem':'Flere muligheder');area.querySelector('#edit-home-layout').hidden=!home;status.hidden=!home||status.hidden;closeMenu();refresh();}};
+ return {refresh,visibility(id,visible){if(editing)return;saved=saved.map(w=>w.id===id?{...w,visible}:w);draft=structuredClone(saved);disk.setItem(layoutKey,JSON.stringify(saved));refresh();},edit(){if(!editing)startEditing();},preview(){if(!editing)startEditing();remember();draft=defaultLayout();refresh();},setHome(value){if(!value&&gesture)endGesture(true);home=value;toolbar.hidden=!home||!editing;document.documentElement.classList.toggle('home-layout-editing',home&&editing);area.querySelector('#home-options').disabled=home&&editing;area.hidden=false;area.querySelector('#home-options').setAttribute('aria-label',home?'Tilpas Hjem':'Flere muligheder');area.querySelector('#edit-home-layout').hidden=!home;status.hidden=!home||status.hidden;closeMenu();refresh();}};
 }

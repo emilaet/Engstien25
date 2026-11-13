@@ -1,0 +1,82 @@
+/* A quiet visual mark with a generous touch target. */
+.dashboard-widget{position:relative}
+.widget-options{position:absolute;z-index:6;right:7px;top:5px;width:36px;height:36px;min-height:36px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);opacity:.65;cursor:pointer}
+.widget-options svg{width:18px;height:18px;fill:currentColor;stroke:none}
+.widget-options:hover,.widget-options[aria-expanded=true]{opacity:1;background:var(--soft)}
+.widget-options:focus-visible{opacity:1;outline:2px solid var(--amber);outline-offset:1px}
+.dashboard-widget>.hw-head,.dashboard-widget>.hw-weather-layout>.hw-head,.dashboard-widget>.family-card-title{padding-right:32px}
+.dashboard-widget .hw-head>h2{min-width:0}
+.dashboard-widget .house-overview-copy .home-light-status{right:48px}
+.dashboard-widget .list-card-menu{display:none!important}
+.dashboard-grid.is-editing .widget-options{visibility:hidden;pointer-events:none}
+.widget-context-menu{position:fixed;z-index:1500;width:260px;max-width:calc(100vw - 16px);padding:7px;border:1px solid var(--border);border-radius:15px;background:var(--surface);color:var(--text);box-shadow:0 15px 45px #0002}
+.widget-context-menu button{display:block;width:100%;min-height:44px;text-align:left;padding:9px 12px;border:0;border-radius:9px;background:transparent;font:inherit;font-size:13px;color:inherit}
+.widget-context-menu button:hover,.widget-context-menu button:focus-visible{background:var(--soft)}
+.widget-context-menu button:disabled{opacity:.4}
+.widget-settings-dialog{width:min(490px,calc(100vw - 24px));max-height:90dvh;padding:22px;border:1px solid var(--border);border-radius:24px;background:var(--surface);color:var(--text);overflow:auto}
+.widget-settings-dialog::backdrop{background:#18231c66;backdrop-filter:blur(5px)}
+.widget-settings-dialog .hw-dialog-head{padding:0;margin:0 0 20px;gap:15px;display:flex;justify-content:space-between;align-items:flex-start}
+.widget-settings-dialog .hw-dialog-head small{font-size:9px;letter-spacing:1.5px;color:var(--muted)}
+.widget-settings-dialog h2{font-size:26px;margin:3px 0 0;line-height:1.3}
+.widget-settings-dialog .hw-dialog-head>button{min-width:40px;min-height:40px;font-size:25px;border-radius:50%;background:var(--soft);color:var(--text)}
+.widget-settings-form{display:grid;gap:18px}
+.wc-field{display:grid;gap:7px;font-size:13px}
+.wc-field select,.wc-field input{min-height:46px;width:100%;max-width:100%;font:inherit;background:var(--soft);color:var(--text);border:1px solid var(--border);border-radius:11px;padding:10px 12px}
+.wc-check{display:flex;gap:12px;align-items:center;min-height:44px;font-size:14px}
+.wc-check input{width:21px;height:21px;accent-color:var(--primary);flex:none}
+.wc-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap}
+.wc-actions button,.wc-more,.wc-connection button,.settings-widgets button{min-height:44px;padding:10px 14px;border:1px solid var(--border);border-radius:11px;color:var(--text);background:var(--soft);font:inherit;font-size:13px}
+.wc-actions .primary{background:var(--primary);color:var(--primary-text,#fff)}
+.wc-help,.wc-connection p{margin:0;font-size:12px;line-height:1.65;color:var(--muted)}
+.wc-message:empty{display:none}
+.wc-connection{border-top:1px solid var(--border);padding-top:18px;display:grid;gap:13px}
+.wc-connection h3{font-size:15px;margin:0}
+.settings-widgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.settings-widgets .settings-card{margin:0}
+.list-title-button{padding:0;min-height:28px;text-align:left;font:inherit;line-height:inherit;background:transparent;color:inherit}
+.family-grid .widget-compact{padding:0 16px!important;cursor:pointer;min-height:0!important}
+.family-grid .widget-compact>:not(.family-card-title):not(.widget-options):not(.widget-editor):not(.widget-resize):not(.widget-size-label){display:none!important}
+.family-grid .widget-compact>.family-card-title{display:flex;align-items:center;height:100%;padding-right:32px;margin:0!important}
+.widget-compact .list-show-all,.widget-compact .list-card-menu,.widget-compact .list-title-short{display:none!important}
+.widget-compact .list-title-long{display:inline!important}
+.widget-compact .family-card-title h2{width:100%;font-size:17px!important;line-height:1.4}
+.widget-compact .list-title-button{display:block;width:100%;min-height:44px}
+.widget-compact .widget-options{top:calc(50% - 18px)}
+.is-editing .widget-compact .widget-resize-height,.is-editing .widget-compact .widget-resize-both{display:none!important}
+.full-list-add{display:flex;gap:10px;align-items:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.full-list-add label{flex:1;min-width:0;font-size:12px;display:grid;gap:6px}
+.full-list-add input{width:100%;min-width:0;min-height:46px;font:inherit;font-size:16px;background:var(--soft);color:var(--text);border:1px solid var(--border);border-radius:11px;padding:10px}
+.full-list-add button{min-height:46px;padding:10px 14px;background:var(--primary);color:var(--primary-text,#fff);border-radius:11px}
+.wc-no-artwork .music-cover,.wc-no-timeline .music-timeline,.wc-no-power .home-car-meta>span:first-child,.wc-no-remaining .home-car-meta>span:last-child,.wc-no-waste-icons .waste-icons,.wc-no-details .hw-event-detail{display:none!important}
+/* Prices use colour and written prices; negative prices extend below zero. */
+.electricity-card{display:flex;flex-direction:column;gap:6px;padding:16px;min-width:0;overflow:hidden;background:linear-gradient(145deg,var(--surface),var(--soft))}
+.electricity-card .hw-head{margin:0;min-height:24px}
+.electricity-card .hw-head h2{font-size:17px;margin:0;font-weight:500}
+.ep-summary{display:flex;gap:9px;align-items:center;flex:none;min-width:0}
+.ep-summary>strong{font-size:30px;line-height:1.15;font-weight:600;letter-spacing:-1px}
+.ep-summary>span{font-size:11px;line-height:1.3;color:var(--muted)}
+.ep-summary small{display:block;font-size:9px}
+.ep-summary>button{margin-left:auto;font-size:10px;padding:4px 0;white-space:nowrap;color:var(--text);min-height:30px;background:transparent}
+.ep-chart{min-height:0;flex:1;position:relative}
+.ep-scroll{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:none;height:100%;min-height:70px;position:relative;overscroll-behavior-x:contain}
+.ep-scroll::-webkit-scrollbar{display:none}
+.ep-hour{border:0;flex:0 0 calc((100% - (var(--ep-hours) - 1)*8px)/var(--ep-hours));min-width:42px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:stretch;gap:3px;border-radius:9px;padding:5px 4px 2px;min-height:0;background:transparent;font:inherit;color:var(--text)}
+.ep-hour.ep-now{background:#c3a36d20}
+.ep-hour:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+.ep-value{text-align:center;font-size:10px;font-weight:500;white-space:nowrap}
+.ep-track{display:block;position:relative;flex:1;min-height:30px;border-bottom:1px solid var(--border)}
+.ep-track:after{content:"";position:absolute;top:var(--ep-zero);left:-4px;right:-4px;border-top:1px solid var(--border)}
+.ep-bar{position:absolute;left:calc(50% - 7px);width:14px;max-height:100%;border-radius:8px 8px 2px 2px;min-height:2px}
+.ep-low{background:#56a878}.ep-medium{background:#edb951}.ep-high{background:#e46c68}
+.ep-time{text-align:center;font-size:10px;line-height:1.3;white-space:nowrap}.ep-time small{display:block;font-size:8px;color:var(--muted)}
+.ep-average{margin:0;font-size:10px;color:var(--muted);flex:none}.ep-average b{color:var(--text);font-weight:500}
+.ep-source{margin:0;font-size:9px;line-height:1.4;color:var(--muted);flex:none}
+.ep-empty{flex:1;font-size:12px;color:var(--muted)}
+.ep-empty button{min-height:36px;border:1px solid var(--border);border-radius:10px;padding:6px 12px;background:var(--soft);color:var(--text)}
+.hw-electricity-dialog .electricity-card{min-height:350px;border-radius:18px}.hw-electricity-dialog .ep-scroll{min-height:200px}
+.hw-electricity-dialog>.hw-detail-body{padding:0 20px 24px;display:grid;gap:15px}
+@container widget (height < 180px){.electricity-card .hw-head h2{font-size:13px}.electricity-card{padding:10px;gap:3px}.ep-summary>strong{font-size:22px}.ep-summary>span{font-size:9px}.ep-summary small{font-size:8px}.ep-average,.ep-source{display:none}.ep-summary>button{font-size:9px}.ep-scroll{min-height:42px}.ep-track{min-height:12px}.ep-value,.ep-time{font-size:9px}}
+@container widget (width < 220px){.ep-summary>button{font-size:0}.ep-summary>button:after{content:'↗';font-size:16px}.electricity-card .hw-head h2{font-size:14px}}
+@media(max-width:760px){.widget-options{width:44px;height:44px;right:2px;top:1px}.widget-options svg{width:17px;height:17px}.widget-compact .widget-options{top:calc(50% - 22px)}.widget-settings-dialog{padding:20px}.widget-settings-dialog h2{font-size:24px}.full-list-add{position:sticky;bottom:0;background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}}
+
+.ep-selection{margin:0;font-size:10px;line-height:1.4;flex:none;color:var(--text)}.ep-hour[aria-pressed=true]{outline:1px solid var(--amber);outline-offset:-1px;background:var(--soft)}

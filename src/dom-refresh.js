@@ -4,7 +4,7 @@ const itemKey=node=>node.querySelector('[data-item]')?.dataset.item;
 function rememberRows(card){for(const row of card.querySelectorAll('.family-item'))row._renderedMarkup=row.outerHTML;}
 function refreshList(before,next){
  for(const selector of ['.family-card-top','.list-storage-status','.family-card-foot']){const old=before.querySelector(selector),value=next.querySelector(selector);if(old&&value&&old.innerHTML!==value.innerHTML)old.innerHTML=value.innerHTML;}
- const count=before.querySelector('[data-list-all]'),nextCount=next.querySelector('[data-list-all]');if(count&&nextCount){count.textContent=nextCount.textContent;count.setAttribute('aria-label',nextCount.getAttribute('aria-label'));}
+ const count=before.querySelector('.list-show-all'),nextCount=next.querySelector('.list-show-all');if(count&&nextCount){count.textContent=nextCount.textContent;count.setAttribute('aria-label',nextCount.getAttribute('aria-label'));}
  // Source/phone changes can alter the controls without replacing the live form
  // or losing an unrelated desktop draft.
  for(const selector of ['.family-add','.list-card-menu']){const old=before.querySelector(selector),incoming=next.querySelector(selector);if(old&&incoming)old.hidden=incoming.hidden;}
@@ -21,7 +21,7 @@ export function refreshDashboard(host,markup){
   const old=new Map([...oldGrid.children].map(node=>[cardKey(node),node]));
   for(const node of [...newGrid.children]){const before=old.get(cardKey(node)),signature=node.outerHTML;if(before?._renderedMarkup===signature)continue;
    if(before&&node.matches('.tasks-card,.shopping-card')){refreshList(before,node);before._renderedMarkup=signature;continue;}
-   if(before&&node.matches('.weather-card,.calendar-card')){before.replaceChildren(...node.childNodes);before._renderedMarkup=signature;continue;}
+   if(before&&node.matches('.weather-card,.calendar-card,.electricity-card')){const left=before.querySelector('.ep-scroll')?.scrollLeft;before.replaceChildren(...node.childNodes);if(left!==undefined){const scroll=before.querySelector('.ep-scroll');if(scroll){scroll.scrollLeft=left;scroll.dataset.initialized='true';}}before._renderedMarkup=signature;continue;}
    node._renderedMarkup=signature;rememberRows(node);if(before)before.replaceWith(node);else oldGrid.append(node);
   }
  }else for(const node of newGrid?.children||[]){node._renderedMarkup=node.outerHTML;rememberRows(node);}

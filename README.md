@@ -134,3 +134,5 @@ Almindelige udgivelser kører hurtige modul-/servertests, otte kritiske browserf
 Telefonen har en visning til daglig touch-betjening uden tekstfelter. Avanceret opsætning foretages på computer/tablet. Valg af rum eller møbel i Indretning flytter kameraet automatisk. På iPhone understøttes Føj til hjemmeskærm med appikon og safe-area-layout; loginbeskyttelsen er uændret og kan kræve indtastning af adgangskoden. Den fysiske iPhone/Safari skal stadig afprøves.
 
 Hjemmeskærmsikonet bruger et lyst e₂₅-mærke i Jakarta på mørkegrøn baggrund. PNG-filer til iPhone/Android og et enkelt SVG-favicon ligger i `public/`; vektorkilden er `src/assets/app-icon.svg`. Ikonerne kan gendannes med `node scripts/render-app-icons.mjs`. Se [seneste appgennemgang og forbedringsforslag](docs/mobile-and-app-review.md).
+
+Alle 13 widgets har en diskret trepriksmenu. Fælles opsætning findes under **Indstillinger → Widgets**. Lister kan vises som et titelfelt, der åbner en modal med hele listen og tilføjelse. Elpriser viser timepriser med vandret rulning, valgbart prisområde og moms. Se [widgetindstillinger og prisdata](docs/widget-settings.md).
