@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {arrangeGrid,relocateGrid,reorderStack,overlaps,snapGridRow,shiftStack} from '../src/dashboard-grid.js';
+import {arrangeGrid,relocateGrid,reorderStack,overlaps,snapGridRow,shiftStack,packMobile} from '../src/dashboard-grid.js';
 const base=()=>arrangeGrid([{id:'a',width:4,rows:17},{id:'b',width:4,rows:17},{id:'c',width:4,rows:17},{id:'d',width:6,rows:15},{id:'e',width:6,rows:15}]);
 function clear(rects){for(const a of rects){assert.ok(a.column>=0&&a.column+a.width<=12&&a.row>=0);for(const b of rects)if(a!==b)assert.equal(overlaps(a,b),false,`${a.id} and ${b.id} overlap`);}}
 test('Legacy automatic layout keeps its rows, and explicit empty spaces remain empty',()=>{const b=base();assert.deepEqual(b.map(r=>[r.column,r.row]),[[0,0],[4,0],[8,0],[0,17],[6,17]]);const moved=relocateGrid(b,'a',{column:2,row:55});assert.equal(moved[0].row,55);assert.deepEqual(moved.slice(1),b.slice(1));clear(moved);assert.deepEqual(arrangeGrid(moved),moved);});
@@ -17,4 +17,11 @@ test('Drag alignment tolerates slight hand movement near row edges without preve
 test('Tall phone cards can move above short cards, and one-click arrows move exactly one place both ways',()=>{
  const original=[{id:'small',width:12,column:0,row:0,rows:9},{id:'tall',width:12,column:0,row:9,rows:50},{id:'last',width:12,column:0,row:59,rows:13}];
  const up=reorderStack(original,'tall',1);assert.equal(up[0].id,'tall');clear(up);const down=shiftStack(up,'tall',1);assert.deepEqual(down,original);assert.deepEqual(shiftStack(down,'tall',-1),up);assert.equal(reorderStack(up,'tall',100)[2].id,'tall');
+});
+test('Mobile half tiles share rows without overlapping full tiles or changing reading order',()=>{
+ const source=[{id:'a',mobileWidth:6,rows:9},{id:'b',mobileWidth:6,rows:17},{id:'c',mobileWidth:12,rows:13},{id:'d',mobileWidth:6,rows:5},{id:'e',mobileWidth:12,rows:9}],copy=structuredClone(source),r=arrangeGrid(source,{stack:true});clear(r);assert.deepEqual(r.map(v=>[v.id,v.column,v.row,v.width]),[['a',0,0,6],['b',6,0,6],['c',0,17,12],['d',0,30,6],['e',0,35,12]]);assert.deepEqual(source,copy);
+ for(const picked of r){for(const shift of [-1,1]){const moved=shiftStack(r,picked.id,shift);clear(moved);assert.equal(moved.find(v=>v.id===picked.id).width,picked.width);}for(const top of [0,10,100])clear(reorderStack(r,picked.id,top,9));}assert.deepEqual(packMobile(r),r);
+});
+test('Mobile dragging exchanges neighboring halves and places a full-width card before the first half row',()=>{
+ const r=packMobile([{id:'calendar',width:6,rows:9},{id:'music',width:6,rows:9},{id:'camera',width:12,rows:30}]);const right=reorderStack(r,'calendar',0,9);assert.deepEqual(right.map(r=>r.id),['music','calendar','camera']);clear(right);const up=reorderStack(r,'camera',0,3);assert.equal(up[0].id,'camera');assert.equal(up[0].width,12);clear(up);
 });

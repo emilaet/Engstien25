@@ -1,0 +1,224 @@
+/* Let an exhausted card hand wheel/touch scrolling back to the page. */
+:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget,
+:root[data-page=home] .family-grid :is(.family-list,.hw-agenda,.collection-list){overscroll-behavior-y:auto!important}
+html{scrollbar-width:thin!important}
+/* The same component rules run on a phone and inside the desktop phone frame. */
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]){
+ --mobile-gutter:12px;--mobile-card-inset:14px;--mobile-card-radius:20px;
+}
+:root[data-page=home][data-dashboard-preview=mobile] #family-dashboard{
+ padding:11px 11px 100px!important;
+}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid.dashboard-grid>.dashboard-widget{
+ grid-column:var(--widget-mobile-column,1) / span var(--widget-mobile-span,12)!important;
+ grid-row:var(--widget-mobile-row,auto) / span var(--widget-mobile-rows,var(--widget-rows))!important;
+ border-radius:var(--mobile-card-radius);overflow:hidden!important;overscroll-behavior-y:auto;
+ --widget-inset:var(--mobile-card-inset);
+}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid :is(.family-list,.hw-agenda,.collection-list,.summary-widget>.stat){overflow:hidden!important;overscroll-behavior-y:auto!important}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .ep-scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;overscroll-behavior-y:auto;touch-action:auto}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .dashboard-widget>.widget-options{top:5px;right:5px;min-width:44px;width:44px;height:44px;border-radius:14px;color:var(--muted)}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .dashboard-widget>.widget-options .menu-dots{width:14px;height:14px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .dashboard-widget.widget-compact>.widget-options{top:calc(50% - 22px)}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing{padding:10px 12px;gap:8px;border-radius:18px;margin-bottom:12px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing h2{font-size:12px;line-height:18px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing h2 small{font-size:10px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;gap:8px;max-height:none;overflow:visible}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing button{min-height:52px;padding:4px 0 4px 8px;gap:6px;align-items:center;border-left-width:2px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing strong{font-size:12px;line-height:16px;white-space:normal;overflow-wrap:anywhere}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing .briefing-detail-short{font-size:10px;line-height:14px;margin-top:3px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .briefing-waste-icons{gap:2px;flex:none}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .briefing-waste-icons img{width:20px;height:20px}
+/* Half tiles keep their identity and a primary action; details stay in the full view. */
+:root[data-page=home] .dashboard-widget.mobile-half:not(.camera-card):not(.summary-widget):not(.house-overview):not(.widget-compact){padding:14px!important}
+:root[data-page=home] .mobile-half :is(.hw-head,.family-card-title){min-height:30px!important;margin:0 0 8px!important;padding-right:26px;gap:4px;align-items:center;flex-wrap:nowrap}
+:root[data-page=home] .mobile-half :is(.hw-head h2,.family-card-title h2){font-size:13px!important;line-height:18px;letter-spacing:-.3px;white-space:normal;overflow:visible;text-overflow:clip;max-width:100%;min-width:0}
+:root[data-page=home] .mobile-half .hw-head h2>svg{display:none}
+:root[data-page=home] .mobile-half :is(.hw-badge,.hw-weather-head-actions,.hw-mini-current,.hw-calendar-range,.hw-calendar-foot,.music-account-button,.music-state){display:none!important}
+:root[data-page=home] .mobile-half .hw-head h2>button{font:inherit;line-height:18px;min-height:30px;white-space:normal;gap:4px}
+:root[data-page=home] .mobile-half .hw-label-long{display:none}
+:root[data-page=home] .mobile-half .hw-label-short{display:inline}
+:root[data-page=home] .mobile-half .hw-agenda{display:block!important;padding:0;min-height:0;flex:1}
+:root[data-page=home] .mobile-half .hw-agenda>.hw-event:not(:first-child){display:none!important}
+:root[data-page=home] .mobile-half .hw-event{display:block;min-height:44px!important;padding:0!important}
+:root[data-page=home] .mobile-half :is(.hw-event>.hw-date,.hw-event>i,.hw-event-detail){display:none!important}
+:root[data-page=home] .mobile-half .hw-event>div:last-child>b{display:block;font-size:13px;line-height:18px;white-space:normal;overflow-wrap:anywhere}
+:root[data-page=home] .mobile-half .hw-event-brief{display:block;font-size:11px;line-height:16px;margin:5px 0 0}
+:root[data-page=home] .mobile-half .hw-service-prompt{font-size:12px;line-height:18px;margin:0;overflow-wrap:anywhere}
+:root[data-page=home] .mobile-half .hw-weather-title{font-size:13px!important}
+:root[data-page=home] .mobile-half .hw-weather-title small{font-size:10px;line-height:14px}
+:root[data-page=home] .mobile-half :is(.hw-current,.hw-forecast,.hw-weather-foot,.hw-source){display:none!important}
+:root[data-page=home] .mobile-half .hw-mini-summary{display:flex!important;min-height:44px;margin:0;padding:0;gap:8px;align-items:center;justify-content:flex-start}
+:root[data-page=home] .mobile-half .hw-mini-summary>.hw-weather-art{width:26px;height:26px;flex:none}
+:root[data-page=home] .mobile-half .hw-mini-summary>span{display:block;min-width:0}
+:root[data-page=home] .mobile-half .hw-mini-summary strong{font-size:28px;line-height:32px}
+:root[data-page=home] .mobile-half .hw-mini-summary small{font-size:12px;line-height:18px;display:block}
+:root[data-page=home] .mobile-half :is(.list-title-long,.list-show-all,.list-storage-status,.family-card-subtitle,.family-card-foot,.family-add,.notes-list-actions,.notes-sync-status){display:none!important}
+:root[data-page=home] .mobile-half .list-title-short{display:inline}
+:root[data-page=home] .mobile-half .list-title-icon{width:20px;height:20px;flex:none}
+:root[data-page=home] .mobile-half .list-title-button{gap:6px;min-height:30px;white-space:normal}
+:root[data-page=home] .mobile-half .list-open-summary{display:flex!important;align-items:flex-end;min-height:44px;padding:4px 0 0;margin-top:auto;font-size:12px;line-height:18px;gap:4px}
+:root[data-page=home] .mobile-half .list-open-summary>span:last-child{display:none}
+:root[data-page=home] .mobile-half .family-list{display:none!important}
+:root[data-page=home] .mobile-half.widget-compact{padding:10px 42px 10px 12px!important}
+:root[data-page=home] .mobile-half.widget-compact :is(.family-card-title,.family-card-title h2){margin:0!important;padding:0;min-height:44px!important;display:flex;align-items:center}
+:root[data-page=home] .mobile-half.widget-compact .list-open-summary{display:none!important}
+:root[data-page=home] .mobile-half .ep-summary{display:flex;flex-wrap:wrap;gap:2px 6px;margin:0 0 6px}
+:root[data-page=home] .mobile-half .ep-summary>strong{font-size:27px;line-height:32px;letter-spacing:-1px}
+:root[data-page=home] .mobile-half .ep-summary>span{font-size:10px;min-width:0}
+:root[data-page=home] .mobile-half :is(.ep-summary>span small,.ep-average,.ep-source){display:none!important}
+:root[data-page=home] .mobile-half .ep-summary>button{font-size:11px;min-height:24px;margin:0;padding:0}
+:root[data-page=home] .mobile-half .ep-hour{min-width:36px}
+:root[data-page=home] .mobile-half .ep-chart{gap:3px}
+:root[data-page=home] .mobile-half .music-connect-state{justify-content:space-between;gap:4px;min-height:0}
+:root[data-page=home] .mobile-half .music-connect-state>strong{font-size:12px;line-height:18px;white-space:normal}
+:root[data-page=home] .mobile-half .music-connect-state>p{display:none}
+:root[data-page=home] .mobile-half .music-connect-state>button{font-size:11px;line-height:16px;min-height:32px;padding:0;text-align:left;white-space:normal}
+:root[data-page=home] .mobile-half :is(.music-timeline,.music-track>span){display:none!important}
+:root[data-page=home] .mobile-half .music-now{min-height:30px;gap:6px;margin:0}
+:root[data-page=home] .mobile-half .music-cover{width:28px;height:28px;min-width:28px}
+:root[data-page=home] .mobile-half .music-track strong{font-size:12px;line-height:16px;white-space:normal;overflow-wrap:anywhere}
+:root[data-page=home] .mobile-half .music-transport{gap:0;justify-content:center;min-height:44px}
+:root[data-page=home] .mobile-half .music-transport button{width:36px;min-width:36px;height:44px;min-height:44px}
+:root[data-page=home] .mobile-half .music-transport .music-play{width:44px;height:44px;min-width:44px}
+:root[data-page=home] .mobile-half.camera-card .hw-head{inset:8px 8px auto;padding:4px 30px 4px 6px!important;min-height:40px!important;border-radius:10px}
+:root[data-page=home] .mobile-half.camera-card .hw-head h2{font-size:12px!important}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-foot{right:8px;bottom:8px;min-height:44px}
+:root[data-page=home] .mobile-half.camera-card [data-hw=camera-open]{font-size:0;gap:0;width:44px;height:44px;padding:10px}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-foot>span{display:none!important}
+:root[data-page=home] .mobile-half.summary-widget{padding:14px!important}
+:root[data-page=home] .mobile-half .home-car-header{display:block;min-height:30px;margin:0;padding-right:26px}
+:root[data-page=home] .mobile-half .widget-heading{font-size:13px;gap:6px;line-height:20px;white-space:normal}
+:root[data-page=home] .mobile-half .widget-symbol{height:20px;width:20px;flex:none}
+:root[data-page=home] .mobile-half .home-car-status{position:static;display:none!important}
+:root[data-page=home] .mobile-half #charge-summary{font-size:29px!important;line-height:34px!important;margin:0!important;white-space:nowrap}
+:root[data-page=home] .mobile-half #charge-summary .home-target{font-size:15px!important}
+:root[data-page=home] .mobile-half :is(.home-car-meta,.card-source){font-size:10px!important;line-height:14px!important;white-space:normal}
+:root[data-page=home] .mobile-half .home-car-meta{margin:5px 0 0!important;gap:2px!important}
+:root[data-page=home] .mobile-half .home-car-source{display:none!important}
+:root[data-page=home] .mobile-half .home-car-link{display:none!important}
+:root[data-page=home] .mobile-half .card-source{margin-top:auto!important}
+:root[data-page=home] .mobile-half .stat{gap:5px!important}
+:root[data-page=home] .mobile-half .stat-icon{height:24px;width:24px;flex:none}
+:root[data-page=home] .mobile-half .stat strong{font-size:25px;line-height:30px}
+:root[data-page=home] .mobile-half.house-overview .home-model{display:none}
+:root[data-page=home] .mobile-half.house-overview .house-overview-copy{position:static;display:flex;flex-direction:column;width:100%;height:100%;padding:14px;gap:4px;background:var(--surface)}
+:root[data-page=home] .mobile-half.house-overview .house-overview-copy h2{font-size:13px;line-height:18px;padding-right:28px}
+:root[data-page=home] .mobile-half.house-overview :is(.eyebrow,.home-climate-status,.home-model-caption){display:none}
+:root[data-page=home] .mobile-half.house-overview .home-light-status{font-size:12px;line-height:18px;margin:0}
+:root[data-page=home] .mobile-half.house-overview .open-rooms{min-height:44px;font-size:12px;margin-top:auto;padding:6px 8px}
+:root[data-page=home] .mobile-half.waste-card .waste-callout{font-size:10px;line-height:16px;letter-spacing:1px;padding-right:28px}
+:root[data-page=home] .mobile-half.waste-card :is(.source-badge,.waste-next-preview,.waste-calendar,.waste-note,.next-collection>p){display:none!important}
+:root[data-page=home] .mobile-half.waste-card .next-collection-body{gap:6px;margin-top:4px;align-items:start}
+:root[data-page=home] .mobile-half.waste-card .next-collection-body strong{font-size:12px;line-height:17px}
+:root[data-page=home] .mobile-half.waste-card .waste-icons{gap:2px}
+:root[data-page=home] .mobile-half.waste-card .waste-icons img{height:20px;width:20px}
+:root[data-page=home] .mobile-half.waste-card .family-card-foot{display:flex!important;min-height:32px;margin-top:auto}
+:root[data-page=home] .mobile-half.waste-card .family-card-foot button{font-size:11px;min-height:32px;white-space:normal}
+@media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
+ html{overflow-x:clip;overflow-y:auto;scrollbar-width:none!important}
+ body{overscroll-behavior-y:auto!important}
+ :root main{padding:calc(12px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(84px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;overflow:visible;max-height:none}
+ :root main>header{row-gap:8px;margin-bottom:12px}
+ header h1{font-size:25px;line-height:30px}
+ header .eyebrow{font-size:9px;letter-spacing:2px;margin-bottom:3px}
+ .header-right .appearance-trigger{height:44px;min-height:44px;width:44px;padding:10px;gap:0}
+ .header-right .appearance-trigger>:not(.appearance-symbol){display:none}
+ .home-layout-menu #home-options{width:44px;height:44px;min-height:44px;min-width:44px;border-radius:14px}
+ :root main>header .header-live-widgets{display:grid;grid-template-columns:68px minmax(0,1fr);width:100%;height:46px;gap:0;overflow:hidden;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+ .header-live-widgets .header-weather{width:68px;min-width:0;height:44px;min-height:44px;padding:5px 8px;border:0;border-right:1px solid var(--border);border-radius:0;background:none;box-shadow:none;gap:5px}
+ .header-weather .hw-weather-art{width:22px;height:22px;min-width:22px}
+ .header-weather strong{font-size:16px}
+ .header-live-widgets .header-tesla{height:44px;min-height:44px;width:100%;max-width:none;padding:4px 10px;gap:6px;box-shadow:none;border:0;border-radius:0;background:var(--green-soft)}
+ .header-tesla-main>span{font-size:11px;gap:5px}
+ .header-tesla-main strong{font-size:18px;line-height:20px}
+ .header-tesla-main small{font-size:10px;line-height:14px}
+ .header-tesla-eta{gap:0}.header-tesla-eta strong{font-size:10px;line-height:12px}.header-tesla-eta small{font-size:9px;line-height:11px}.header-tesla-eta .header-tesla-source{font-size:9px;line-height:11px}
+ .rail{height:calc(60px + env(safe-area-inset-bottom));padding:4px 12px calc(4px + env(safe-area-inset-bottom))}
+ .rail .nav{height:50px;gap:2px}.rail .nav svg{width:21px;height:21px}
+ .page-footer{font-size:10px;line-height:16px;gap:6px;padding-top:14px}
+ .layout-editor .layout-bar{display:grid;grid-template-columns:40px 40px 40px minmax(0,1fr) minmax(0,1.3fr);gap:4px}
+ .layout-editor .layout-bar>button{padding:4px;min-width:0;min-height:44px;font-size:11px;white-space:normal}
+ .layout-editor .layout-widgets-text{display:none}
+}
+
+/* Secondary labels never compete with the overflow button in a half tile. */
+.ep-title-short,.list-summary-number,.header-tesla-mobile-status{display:none}
+:root[data-page=home] .dashboard-widget.mobile-half{--widget-menu-space:24px;--widget-heading-gap:6px;--widget-heading-size:13px}
+:root[data-page=home] .dashboard-grid .mobile-half .family-card-title{padding-right:24px!important;margin-bottom:6px!important;min-height:30px!important}
+:root[data-page=home] .dashboard-grid .mobile-half .list-title-button{gap:6px;white-space:nowrap}
+:root[data-page=home] .mobile-half .list-title-short{white-space:nowrap}
+:root[data-page=home] .dashboard-grid .mobile-half .list-open-summary{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:4px;line-height:18px;flex:1;min-height:0}
+:root[data-page=home] .mobile-half .list-summary-number{display:block;font-size:36px;line-height:40px;font-weight:500;letter-spacing:-1.5px;color:var(--text)}
+:root[data-page=home] .mobile-half .list-summary-label{display:block;font-size:12px;line-height:18px}
+:root[data-page=home] .mobile-half :is(.list-summary-inline,.list-summary-arrow){display:none!important}
+:root[data-page=home] .mobile-half.widget-compact .list-open-summary{display:none!important}
+:root[data-page=home] .mobile-half .ep-title-long{display:none}
+:root[data-page=home] .mobile-half .ep-title-short{display:inline}
+:root[data-page=home] .mobile-half .ep-summary{display:grid!important;grid-template-columns:minmax(0,1fr) 32px;grid-template-rows:auto auto;gap:0 4px;margin-bottom:6px}
+:root[data-page=home] .mobile-half .ep-summary>strong{grid-column:1;grid-row:1}
+:root[data-page=home] .mobile-half .ep-summary>span{grid-column:1;grid-row:2;flex:none;line-height:12px}
+:root[data-page=home] .mobile-half .ep-summary>button{grid-column:2;grid-row:1 / span 2;font-size:0!important;min-width:32px;min-height:40px;align-self:center;margin:0}
+:root[data-page=home] .mobile-half .ep-summary>button:after{content:'↗';font-size:18px}
+:root[data-page=home] .dashboard-grid>.mobile-half.house-overview .house-overview-copy{position:static;padding:14px!important;background:var(--surface)!important;pointer-events:auto}
+:root[data-page=home] .dashboard-grid>.mobile-half.house-overview .house-overview-copy h2{font-size:12px!important;line-height:16px;padding-right:24px;letter-spacing:-.3px}
+:root[data-page=home] .dashboard-grid>.mobile-half.house-overview .home-light-status{position:static!important;display:block!important;max-width:none;margin:0!important;font-size:12px!important;line-height:16px}
+:root[data-page=home] .dashboard-grid>.mobile-half.house-overview .open-rooms{position:static!important;min-height:44px;width:100%;font-size:12px!important;margin-top:auto}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-image{position:absolute;inset:0;height:100%;margin:0;min-height:0}
+:root[data-page=home] .mobile-half.camera-card .hw-head{position:absolute;z-index:2;background:color-mix(in srgb,var(--surface) 94%,transparent)}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-foot{position:absolute;z-index:2;background:var(--surface);border-radius:12px;margin:0;padding:0}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-image>span{display:block!important;position:absolute;inset:auto auto 10px 8px;font-size:7px;padding:4px;background:var(--text);color:var(--surface)}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-image>em{display:none}
+@container widget (width < 130px){
+ :root[data-page=home] .mobile-half .list-title-icon{display:none}
+ :root[data-page=home] .mobile-half .list-summary-label{font-size:11px}
+}
+@container widget (height < 120px){
+ :root[data-page=home] .mobile-half.electricity-card .hw-head{min-height:24px!important;margin-bottom:4px!important}
+ :root[data-page=home] .mobile-half.electricity-card .ep-summary{display:flex!important;gap:5px;min-height:24px;margin-bottom:4px;flex-wrap:nowrap}
+ :root[data-page=home] .mobile-half.electricity-card .ep-summary>strong{font-size:21px;line-height:24px}
+ :root[data-page=home] .mobile-half.electricity-card .ep-summary>span{font-size:9px;line-height:12px}
+ :root[data-page=home] .mobile-half.electricity-card .ep-summary>button{display:none}
+ :root[data-page=home] .mobile-half .list-summary-number{font-size:30px;line-height:34px}
+}
+
+@media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
+ .header-tesla-main .header-tesla-status{display:none}
+ .header-tesla-main .header-tesla-mobile-status{display:block}
+ .header-live-widgets .header-tesla:not([data-state=charging]),.header-live-widgets .header-tesla[data-quality=cached]{background:var(--soft)}
+}
+
+:root[data-page=home] .dashboard-grid>.family-card.mobile-half:not(.widget-compact) .list-open-summary{flex-direction:column;justify-content:center;align-items:flex-start;gap:4px}
+:root[data-page=home] .mobile-half .list-summary-number{flex:none;margin:0;text-align:left}
+:root[data-page=home] .mobile-half .list-summary-label{flex:none}
+.ep-summary>button{display:inline-flex;align-items:center;gap:4px}
+.ep-summary>button>svg{width:14px;height:14px;flex:none}
+.ep-summary>button:after{content:none!important}
+:root[data-page=home] .mobile-half .ep-summary>button{display:flex;align-items:center;justify-content:center}
+:root[data-page=home] .mobile-half .ep-summary>button>svg{height:18px;width:18px}
+:root[data-page=home] .mobile-half{cursor:pointer}
+@container widget (height < 120px){:root[data-page=home] .mobile-half.electricity-card .ep-summary>button{display:none}}
+
+/* Fraction icons stack in the small briefing so the date and status can breathe. */
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing button{min-height:44px;padding-top:3px;padding-bottom:3px}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .briefing-waste-icons{display:grid;grid-template-columns:20px;gap:2px}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-image>span{font-size:9px}
+@media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
+ .rail nav .nav.active{color:var(--on-primary)!important}
+}
+@media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
+ /* Changing appearance must not tween pale text across a pale active surface. */
+ .rail nav.has-nav-motion .nav,.rail nav[data-motion-ready=true] .nav-selection{transition:none}
+}
+@container widget (height < 200px){
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card :is(.music-timeline,.music-state){display:none!important}
+}
+@container widget (height < 150px){
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card .music-card-playback:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:6px;align-items:center;min-height:44px}
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card .music-track strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:16px;white-space:normal;overflow-wrap:anywhere}
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card .music-now{min-height:0;margin:0}
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card .music-transport{min-height:44px;height:44px;margin:0}
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card .music-transport :is([data-music=previous],[data-music=next]){display:none}
+ :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .music-player-card .music-play{min-width:44px;width:44px;height:44px;min-height:44px}
+ :root[data-page=home] .mobile-half .music-cover{display:none!important}
+}

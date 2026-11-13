@@ -5,7 +5,7 @@ export const dashboardProfileKey='engstien-household-profile-v1';
 const object=value=>value&&typeof value==='object'&&!Array.isArray(value);
 export function normalizeDashboardProfile(value){
  if(!object(value)||!validLayout(value.layout)||!object(value.widgets)||!['auto','day','night'].includes(value.appearance)||!['compact','comfortable'].includes(value.density)||typeof value.briefing!=='boolean')throw Error('Dashboardopsætningen er ugyldig.');
- const fields=['id','width','height','visible','heightPx','mobileHeightPx','mobileOrder','mobileVisible','mobileView','column','row'];
+ const fields=['id','width','height','visible','heightPx','mobileHeightPx','mobileOrder','mobileVisible','mobileView','mobileWidth','column','row'];
  const layout=migrateLayout(value.layout).map(widget=>Object.fromEntries(fields.filter(key=>widget[key]!==undefined).map(key=>[key,widget[key]])));
  return {layout,widgets:Object.fromEntries(Object.keys(widgetOptions).map(id=>[id,normalizeWidgetOptions(id,value.widgets[id])])),appearance:value.appearance,density:value.density,briefing:value.briefing};
 }

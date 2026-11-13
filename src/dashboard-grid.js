@@ -6,11 +6,22 @@ function clearBelow(rect,placed){
  while(hits.length){rect.row=Math.max(...hits.map(other=>other.row+other.rows));hits=placed.filter(other=>overlaps(rect,other));}
  return rect;
 }
+// Keep mobile reading order intact. Two half-width cards share a row; a full
+// card starts below that row, including when the two cards have different heights.
+export function packMobile(items){
+ let row=0,column=0,height=0;return items.map(item=>{const width=item.mobileWidth??item.width??12;
+  if(width===12&&column){row+=height;column=0;height=0;}
+  const rect={id:item.id,column,row,width:width===6?6:12,rows:item.rows};
+  height=Math.max(height,item.rows);column+=rect.width;
+  if(column===12){row+=height;column=0;height=0;}
+  return rect;
+ });
+}
 export function arrangeGrid(items,{minimum=2,stack=false}={}){
  const entries=items.filter(item=>item.visible!==false).map((item,index)=>({...item,index,width:stack?12:clamp(Math.max(minimum,item.width),2,12),rows:Math.max(1,item.rows)}));
  if(stack){
   entries.sort((a,b)=>a.mobileOrder!==undefined||b.mobileOrder!==undefined?(a.mobileOrder??a.index)-(b.mobileOrder??b.index):(a.row??a.index)-(b.row??b.index)||(a.column??0)-(b.column??0));
-  let row=0;return entries.map(item=>{const rect={id:item.id,column:0,row,width:12,rows:item.rows};row+=item.rows;return rect;});
+  return packMobile(entries.map(item=>({...item,width:item.mobileWidth??12})));
  }
  const placed=[];
  for(const item of entries.filter(item=>Number.isInteger(item.column)&&Number.isInteger(item.row)).sort((a,b)=>a.row-b.row||a.column-b.column||a.index-b.index)){
@@ -38,11 +49,11 @@ export function relocateGrid(rectangles,id,{column,row,width,rows}){
  for(const rect of rest.sort((a,b)=>a.row-b.row||a.column-b.column))placed.push(clearBelow(rect,placed));
  return rectangles.map(rect=>placed.find(other=>other.id===rect.id));
 }
-export function reorderStack(rectangles,id,top){
+export function reorderStack(rectangles,id,top,column=0){
  const picked=rectangles.find(rect=>rect.id===id);if(!picked)return rectangles.map(rect=>({...rect}));
- const rest=rectangles.filter(rect=>rect.id!==id).sort((a,b)=>a.row-b.row),center=top;
- let index=rest.findIndex(rect=>center<=rect.row+rect.rows/2);if(index<0)index=rest.length;rest.splice(index,0,picked);
- let row=0;return rest.map(rect=>{const next={...rect,column:0,row};row+=rect.rows;return next;});
+ const ordered=[...rectangles].sort((a,b)=>a.row-b.row||a.column-b.column),from=ordered.findIndex(rect=>rect.id===id),rest=ordered.filter(rect=>rect.id!==id);
+ let index=rest.findIndex(rect=>{const center=rect.column+rect.width/2,before=column<center-.05||Math.abs(column-center)<=.05&&ordered.indexOf(rect)<from;return top<=rect.row+rect.rows/2&&(rect.width===12||top<rect.row||before);});if(index<0)index=rest.length;rest.splice(index,0,picked);
+ return packMobile(rest);
 }
 export function snapGridRow(row,rectangles){
  const edges=[0,...rectangles.flatMap(r=>[r.row,r.row+r.rows])],nearest=edges.reduce((a,b)=>Math.abs(b-row)<Math.abs(a-row)?b:a);
@@ -50,6 +61,6 @@ export function snapGridRow(row,rectangles){
 }
 
 export function shiftStack(rectangles,id,direction){
- const ordered=[...rectangles].sort((a,b)=>a.row-b.row),from=ordered.findIndex(r=>r.id===id);if(from<0)return ordered.map(r=>({...r}));
- const [picked]=ordered.splice(from,1);ordered.splice(Math.max(0,Math.min(ordered.length,from+direction)),0,picked);let row=0;return ordered.map(r=>{const next={...r,row,column:0};row+=r.rows;return next;});
+ const ordered=[...rectangles].sort((a,b)=>a.row-b.row||a.column-b.column),from=ordered.findIndex(r=>r.id===id);if(from<0)return ordered.map(r=>({...r}));
+ const [picked]=ordered.splice(from,1);ordered.splice(Math.max(0,Math.min(ordered.length,from+direction)),0,picked);return packMobile(ordered);
 }

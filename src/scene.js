@@ -93,10 +93,10 @@ const scene=new THREE.Scene();scene.background=null;
   moveCamera(target.clone().add(new THREE.Vector3(1.90,.12,-.12)),target);
  }
  function setView(view){
-  if(view===activeView)return;if(view!=='charger')setExterior(false);activeView=view;host.dataset.view=view;updateChargerFill(chargerFill,daylight,view==='charger');
+  if(view===activeView)return;if(view!=='charger')setExterior(false);activeView=view;host.dataset.view=view;renderer.domElement.style.touchAction=view==='home'?'pan-y':'none';updateChargerFill(chargerFill,daylight,view==='charger');
   host.setAttribute('aria-label',view==='charger'?'3D-nærbillede af billader':'Interaktiv 3D-model af huset');
   structure.setChargerView(view==='charger');structure.setCutaway(isFull?false:cutaway);exterior.setView({full:isFull,cutaway:isFull?false:cutaway});localLights.syncClipping();updateRoof();renderer.shadowMap.needsUpdate=true;
-  if(view==='home'){home();togglePlan();updateRoof();}else if(view==='charger')focusCharger();else{resize();const preview=perspective.clone(),framing=frameOverview(preview);moveCamera(preview.position,framing.target);overview=true;}
+  if(view==='home'){home();togglePlan();updateRoof();controls.enabled=false;}else if(view==='charger')focusCharger();else{resize();const preview=perspective.clone(),framing=frameOverview(preview);moveCamera(preview.position,framing.target);overview=true;}
  }
  // Original level carport footprint and the two original end posts.
  const a=toPlan([1717,739]),b=toPlan([2247,1267]);
