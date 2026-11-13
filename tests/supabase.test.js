@@ -7,6 +7,11 @@ import {createSupabaseAccount} from '../src/supabase-account.js';
 const user='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
 const memory=()=>{const m=new Map();return {getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};};
 const answer=(value,status=200)=>({ok:status<400,status,json:async()=>value});
+test('Rejected credentials remain signed out, preserve an actionable error code and allow a clean retry',async()=>{
+ const disk=memory();let valid=false;const cloud=createSupabaseAccount({url:'https://project.supabase.co',publishableKey:'public-test',storage:disk,fetchImpl:async()=>valid?answer({access_token:'fake',refresh_token:'fake-refresh',expires_in:3600,user:{id:user,email:'app@example.test'}}):answer({code:'invalid_credentials',msg:'Invalid login credentials'},400)});
+ await assert.rejects(cloud.login('app@example.test','incorrect'),/E-mail eller adgangskode er forkert/);assert.equal(cloud.snapshot().authenticated,false);assert.equal(cloud.snapshot().errorCode,'invalid_credentials');assert.equal(disk.getItem('engstien-supabase-session-v1'),null);
+ valid=true;await cloud.login('app@example.test','test-only');assert.equal(cloud.snapshot().authenticated,true);assert.equal(cloud.snapshot().errorCode,null);assert.ok(!JSON.stringify(cloud.snapshot()).includes('test-only'));
+});
 test('The actual Supabase SQL isolates two accounts, rejects anonymous access and stale writes, and is safe to rerun',async()=>{
  const db=new PGlite();try{
   await db.exec(`create role anon; create role authenticated; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true),'')::uuid $$; grant usage on schema public,auth to anon,authenticated; insert into auth.users values ('${user}'),('${other}');`);

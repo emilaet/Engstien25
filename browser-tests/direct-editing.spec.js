@@ -5,7 +5,7 @@ const card=(page,id)=>page.locator(`[data-widget-id=${id}]`);
 async function resize(page,id,axis,dx,dy,{release=true}={}){
  await card(page,id).click({position:{x:8,y:8}});const h=page.locator(`[data-widget-resize=${id}][data-axis=${axis}]`);await h.scrollIntoViewIfNeeded();const b=await h.boundingBox();await page.mouse.move(b.x+b.width/2,b.y+b.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2+dx,b.y+b.height/2+dy,{steps:8});if(release)await page.mouse.up();
 }
-async function geometry(page){return page.locator('.dashboard-widget:visible').evaluateAll(els=>els.map(e=>{const b=e.getBoundingClientRect();return {id:e.dataset.widgetId,x:b.x,y:b.y,w:b.width,h:b.height}}));}
+async function geometry(page){return page.locator('.dashboard-widget:visible').evaluateAll(els=>els.map(e=>{const b=e.getBoundingClientRect();return {id:e.dataset.widgetId,x:b.x+scrollX,y:b.y+scrollY,w:b.width,h:b.height}}));}
 test('Editing unlocks the real dashboard without shrinking it or revealing hidden widgets',{tag:'@smoke'},async({page})=>{
  await page.setViewportSize({width:1194,height:834});await page.goto('/');const before=await geometry(page);await editDashboard(page);await expect(page.locator('.layout-details')).toBeHidden();expect(await geometry(page)).toEqual(before);expect((await page.locator('.layout-editor').boundingBox()).height).toBeLessThan(80);await expect(page.locator('.dashboard-widget:visible')).toHaveCount(9);await expect(page.locator('[data-widget-resize=camera][data-axis=both]')).toBeVisible();await page.getByRole('button',{name:'Annuller',exact:true}).click();expect(await geometry(page)).toEqual(before);
 });

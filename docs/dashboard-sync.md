@@ -7,11 +7,17 @@ Projektets Node-dashboardserver har nu en fælles profil for husstanden. Efter l
 Profilen omfatter:
 
 - Widgetrækkefølge, placering, størrelser og synlighed.
-- De separate højder og rækkefølger til mobilvisningen.
+- Mobilens separate højder, rækkefølge, synlighed og kompakte listevisning.
 - Alle widgetters visningsindstillinger og planlagte Notes-koblinger.
 - Dag/aften/auto, læsetæthed og dagsblikkets synlighed.
 
 Node-serveren har én profil for huset. Supabase har en privat profil for hver appkonto. Telefonen bruger profilens mobilopsætning, så den stadig passer til skærmen. Musik- og kalenderlogin, adgangskoder, tokens, møbelbilleder og usendte layoutudkast indgår ikke. Enhedskatalog og lister har deres eksisterende separate serverlagring.
+
+## Tilpas telefonen fra computeren
+
+Åbn **Indstillinger → Skærm og dashboard → Tilpas mobildashboard**. Telefon-previewen viser 390 px bredde; vælg widgets, visning, højde og rækkefølge. Vælg **Gem dashboard**, eller **Annuller** for at forlade kladden. Skift mellem **iPad / computer** og **Mobil** i redigeringsbjælken for at arbejde med hver opstilling. Nulstilling gælder kun den valgte opstilling. Begge gemmes på samme konto efter login, uden at mobilvalg ændrer iPad-placeringerne.
+
+På telefonen starter oversigten med kalender, elpriser, huskeliste, handleliste, kamera og musik. Vejr og Tesla ligger i toppen, og tømninger åbnes fra dagsblikket. Andre kort kan tilvælges. Når huskortet er skjult, indlæses 3D-modellen først ved behov.
 
 ## Flyt den nuværende opstilling
 

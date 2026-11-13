@@ -1,0 +1,85 @@
+/* One header row on tablets and computers. Phones retain a readable status row. */
+:root main>header{display:flex;align-items:center;justify-content:space-between;gap:16px;height:auto!important;min-height:68px;margin-bottom:18px}
+:root main>header>.header-right{display:flex;align-items:center;gap:10px;min-width:0;padding-top:0}
+.header-live-widgets{align-items:center;gap:8px}.header-live-widgets .header-weather{height:50px;min-width:56px;border-radius:16px}
+.header-tesla{width:284px;min-height:50px;padding:6px 10px;gap:8px;border-radius:16px}
+.header-tesla-main{gap:3px}.header-tesla-main strong{font-size:20px}.header-tesla-main small{font-size:10px;line-height:1.2}
+.header-tesla-eta{gap:1px}.header-tesla-eta strong{font-size:11px;line-height:14px}.header-tesla-eta small{font-size:9px;line-height:11px}.header-tesla-eta .header-tesla-source{font-size:7px;line-height:9px}
+.date-short{display:none}
+@media(min-width:761px) and (max-width:1200px){:root main>header{gap:10px}.header-right>.date{display:inline;font-size:11px;white-space:nowrap}.date-full{display:none}.date-short{display:inline}.header-tesla{width:242px}.header-tesla-icon{display:none}.header-live-widgets .header-weather{min-width:50px}.header-right>.clock{display:inline;font-size:20px}.header-right .appearance-control{padding:0}}
+@media(min-width:761px) and (max-width:900px){:root main>header{gap:8px}:root main>header>.header-right{gap:6px}header h1{font-size:27px}header .eyebrow{font-size:9px;letter-spacing:2px}.header-tesla{width:174px;padding:6px 8px;gap:6px}.header-tesla-main>span{font-size:0;gap:0}.header-tesla-main strong{font-size:18px}.header-tesla-main small{font-size:9px}.header-tesla-eta strong{font-size:10px}.header-tesla-eta small{font-size:8px}.header-live-widgets{gap:6px}.header-live-widgets .header-weather{width:50px;min-width:50px;padding:5px;gap:4px}.header-weather .hw-weather-art{width:21px;height:21px}.header-right>.clock{font-size:18px}.header-right .appearance-label{display:none}.header-right .appearance-trigger{min-width:0;width:56px;padding:8px;gap:6px}}
+.account-login-feedback{line-height:1.5}.account-login-feedback[role=alert]{color:var(--red,#b33437)}
+.account-login-help{font-size:12px;line-height:1.6;padding:14px;border-radius:12px;background:var(--amber-soft)}.account-login-help p{margin:6px 0 0}
+/* Compact charging controls keep more useful information above the fold. */
+:root[data-page=car] .charge-controls{gap:12px;height:auto}
+:root[data-page=car] .battery-card,:root[data-page=car] .target-card{padding:20px;border-radius:22px}
+:root[data-page=car] .charge-card-heading h2{font-size:12px}
+:root[data-page=car] .charge-freshness{font-size:11px;margin:6px 0 10px}
+:root[data-page=car] .charge-number{font-size:56px;line-height:1.05;margin:10px 0 14px}
+:root[data-page=car] .charge-number>span{font-size:32px}.charge-number .charge-goal{font-size:28px}
+:root[data-page=car] .charge-track{height:12px;margin:0}
+:root[data-page=car] .battery-ticks{font-size:10px;margin-top:8px}
+:root[data-page=car] .charge-eta{margin-top:12px;padding:10px 12px;font-size:13px;min-height:0}
+:root[data-page=car] .charge-eta small{font-size:10px}
+:root[data-page=car] .charge-stat{padding:16px 18px;border-radius:20px}
+:root[data-page=car] .charge-stat>p{font-size:12px;margin:0 0 9px}
+:root[data-page=car] .charge-stat strong{font-size:30px;line-height:1.2}
+:root[data-page=car] .charge-stat>span{font-size:11px;line-height:1.5;margin-top:8px}
+.charge-target-slider{margin-top:12px;display:grid;grid-template-columns:1fr auto;gap:3px 12px}
+.charge-target-heading output{font-size:24px;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--green)}
+.charge-target-slider input[type=range]{grid-column:1/-1;width:100%;height:44px;margin:0;background:none;accent-color:var(--green);cursor:ew-resize;touch-action:pan-y;appearance:none;-webkit-appearance:none}
+.charge-target-slider input::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:linear-gradient(to right,var(--green) var(--charge-fill),var(--soft) var(--charge-fill))}
+.charge-target-slider input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:25px;height:25px;margin-top:-8.5px;border:3px solid var(--surface);border-radius:50%;background:var(--green);box-shadow:0 1px 6px #0003}
+.charge-target-slider input::-moz-range-track{height:8px;border-radius:8px;background:var(--soft)}.charge-target-slider input::-moz-range-progress{height:8px;border-radius:8px;background:var(--green)}.charge-target-slider input::-moz-range-thumb{width:21px;height:21px;border:3px solid var(--surface);border-radius:50%;background:var(--green)}
+.charge-target-slider input:disabled{opacity:.5;cursor:default}.charge-slider-ticks{grid-column:1/-1;display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+.charge-target-slider>p{grid-column:1/-1;font-size:11px;color:var(--muted);line-height:1.5;margin:6px 0}
+:root[data-page=car] .target-card .charge-target-heading h3{font-size:17px;margin:0}
+:root[data-page=car] .target-card .charge-target-heading>span{display:none}
+:root[data-page=car] .charge-pause{min-height:44px;margin-top:12px;font-size:13px}
+:root[data-page=car] .price-note{font-size:10px;line-height:1.5;margin-top:12px}
+:root[data-page=car] .charge-advanced{font-size:11px;margin-top:10px}
+/* Both projections edit the same saved profile with independent mobile fields. */
+.layout-profile-picker{display:flex;gap:3px;padding:3px;border-radius:12px;background:var(--soft);flex:none}
+.layout-profile-picker button{min-height:38px;padding:5px 9px;border-radius:9px;font-size:11px;white-space:nowrap}
+.layout-profile-picker [aria-pressed=true]{background:var(--surface);box-shadow:0 1px 5px #0001}
+.mobile-widget-view{display:grid;gap:6px;font-size:11px;margin-top:12px}.mobile-widget-view select{width:100%;min-height:44px;font:inherit;padding:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text)}
+.mobile-dashboard-preview-label{font-size:12px;line-height:1.5;color:var(--muted);width:min(390px,100%);margin:0 auto 12px;text-align:center}
+.mobile-dashboard-preview-label[hidden]{display:none}
+:root[data-page=home][data-dashboard-preview=mobile] #family-dashboard{width:min(390px,100%);margin:0 auto 100px!important;padding:15px 15px 100px!important;border:1px solid var(--border);border-radius:28px;background:var(--soft);box-shadow:var(--shadow);overflow:visible}
+:root[data-page=home][data-dashboard-preview=mobile] .family-grid.dashboard-grid>.dashboard-widget{grid-column:1 / span 12!important;grid-row:var(--widget-mobile-row,auto) / span var(--widget-mobile-rows,var(--widget-rows))!important;min-width:0}
+:root[data-dashboard-preview=mobile] .widget-resize-width,:root[data-dashboard-preview=mobile] .widget-resize-both{display:none!important}
+:root[data-dashboard-preview=mobile] .family-add,:root[data-dashboard-preview=mobile] .list-card-menu,:root[data-dashboard-preview=mobile] .edit-item{display:none!important}
+:root[data-dashboard-preview=mobile] .family-briefing{padding:12px;flex-direction:column;align-items:stretch;gap:8px}
+:root[data-dashboard-preview=mobile] .family-briefing h2{font-size:13px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+:root[data-dashboard-preview=mobile] .family-briefing h2 small{margin:0;font-size:10px}
+:root[data-dashboard-preview=mobile] .family-briefing>div{grid-template-columns:1fr;grid-auto-rows:48px;gap:8px;max-height:160px;overflow:auto;overscroll-behavior:contain}
+:root[data-dashboard-preview=mobile] .family-briefing button{min-height:48px;padding:3px 0 3px 10px}.family-briefing strong{line-height:1.35}
+:root[data-dashboard-preview=mobile] .family-briefing strong{font-size:13px}
+:root[data-dashboard-preview=mobile] .family-briefing .briefing-detail-full{display:none}
+:root[data-dashboard-preview=mobile] .family-briefing .briefing-detail-short{display:block;font-size:11px;margin-top:3px}
+@media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
+ :root main{display:block!important;height:auto!important;min-height:100dvh;margin:0!important;padding:calc(16px + env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom))!important}
+ :root main>header{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:10px;min-height:0;margin-bottom:16px}
+ :root main>header>.header-right{grid-column:2;grid-row:1;gap:8px!important}
+ :root main>header .header-live-widgets{grid-column:1/-1;grid-row:2;width:100%;justify-self:stretch;gap:8px}
+ .header-right>.date,.header-right>.clock{display:none!important}
+ .header-live-widgets .header-weather{height:56px;width:52px;min-width:52px}
+ .header-tesla{width:auto;flex:1;min-height:56px;padding:7px 10px}.header-tesla-icon{display:none}.header-tesla-main strong{font-size:19px}
+ header h1{font-size:28px}header .eyebrow{font-size:9px;letter-spacing:2px}
+ .family-briefing{padding:12px;gap:8px;margin-bottom:12px;flex-direction:column;align-items:stretch}
+ .family-briefing h2{font-size:13px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+ .family-briefing h2 small{font-size:10px;margin:0}
+ .family-briefing>div{grid-template-columns:1fr;grid-auto-rows:48px;gap:8px;max-height:160px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+ .family-briefing button{min-height:48px;padding:3px 0 3px 10px}
+ .family-briefing strong{font-size:13px;line-height:1.35}.family-briefing .briefing-detail-full{display:none}.family-briefing .briefing-detail-short{display:block;font-size:11px;margin-top:3px}
+ :root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget{grid-column:1/span 12!important;grid-row:var(--widget-mobile-row,auto)/span var(--widget-mobile-rows,var(--widget-rows))!important;border-radius:22px}
+ .rail{position:fixed;inset:auto 0 0;width:100%;height:calc(64px + env(safe-area-inset-bottom));padding:6px 16px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--border);background:var(--surface);z-index:50}
+ .rail .brand,.rail .rail-bottom{display:none}.rail nav{display:flex;width:100%;margin:0;gap:12px;justify-content:space-evenly}.rail .nav{height:52px;width:76px;gap:4px;border-radius:14px}.rail .nav svg{width:22px;height:22px}.rail .nav small{font-size:10px}
+ .layout-profile-picker{display:none}.layout-bar-copy{display:none}
+ :root[data-page=car] .charge-controls .battery-card,:root[data-page=car] .charge-controls .target-card{padding:16px}
+ :root[data-page=car] .charge-number{font-size:44px;margin:8px 0 12px}.charge-number .charge-goal{font-size:24px}
+ :root[data-page=car] .charge-status{font-size:11px;min-height:32px}
+ :root[data-page=car] .charge-stat{padding:14px}.charge-stat strong{font-size:27px}
+ :root[data-page=car] .charge-controls{gap:10px}
+ .family-all-dialog,.note-editor{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+}

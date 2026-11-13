@@ -10,7 +10,11 @@ Appen bliver på GitHub Pages. Supabase Free leverer login og en database med br
 4. Efter udgivelsen åbnes **Indstillinger → Skærm og dashboard → Din Engstien-konto** i appen. På computer findes login også under Forbindelser. Log ind med appbrugerens e-mail og adgangskode. Loginfeltet på telefonen tillader bevidst indtastning; almindelige dashboardkontroller åbner fortsat ikke tastaturet.
 5. På en konto uden en gemt profil gemmes den aktuelle browsers opstilling. En konto med en profil henter den automatisk, også i en privat browsersession. Efter login skal status være **Opstillingen er gemt fælles for huset**.
 
-Samme appkonto på flere enheder giver samme opstilling. Forskellige appkonti har separate profiler. Mobilhøjder og mobilrækkefølge gemmes med profilen, så telefonen stadig tilpasses skærmen. Login opbevares i `sessionStorage` og genbruges i den aktuelle browsersession. Log ud fjerner loginoplysningerne. Refresh-tokens indgår aldrig i profil eller backup.
+Samme appkonto på flere enheder giver samme opstilling. Forskellige appkonti har separate profiler. Mobilens rækkefølge, højder, synlighed og listevisning gemmes særskilt med profilen. På computeren åbner **Indstillinger → Skærm og dashboard → Tilpas mobildashboard** en 390 px telefon-preview. Gemning her ændrer ikke iPad-layoutet. De samme felter følger kontoen til telefonen; der skal ikke køres ny SQL ved denne opgradering. Login opbevares i `sessionStorage` og genbruges i den aktuelle browsersession. Log ud fjerner loginoplysningerne. Refresh-tokens indgår aldrig i profil eller backup.
+
+## Hvis login afvises
+
+**E-mail eller adgangskode er forkert** er et svar fra Supabase Auth. Kontrollér, at appbrugerens e-mail findes under **Authentication → Users** i det rigtige projekt. Databasens adgangskode, den krypterede hjemmesides adgangskode og Supabase-administratorkontoens adgangskode er separate fra appbrugerens login. Del ingen af adgangskoderne i chat eller kode. Efter et afvist forsøg bevarer appen e-mailen og tømmer adgangskodefeltet, så et nyt forsøg er enkelt. Produktionslogin kan kun bekræftes med ejerens egen appkonto.
 
 ## Hvad synkroniseres?
 

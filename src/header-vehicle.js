@@ -1,9 +1,10 @@
+import {phoneMedia} from './mobile-app.js';
 import {chargeStates,chargeTiming} from './vehicle-data.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function createHeaderVehicle({getVehicle,onOpen,weatherButton}={}){
  const group=document.createElement('div');group.className='header-live-widgets';weatherButton.before(group);group.append(weatherButton);
  const button=document.createElement('button');button.type='button';button.className='header-tesla';button.onclick=()=>onOpen();group.append(button);
- const wide=matchMedia('(min-width:1601px)'),place=()=>{if(wide.matches)document.querySelector('.header-right .date').before(group);else document.querySelector('main>header').append(group);};wide.addEventListener('change',place);place();
+ const phone=matchMedia(phoneMedia),place=()=>{if(phone.matches)document.querySelector('main>header').append(group);else document.querySelector('.header-right .date').before(group);};phone.addEventListener('change',place);place();
  function refresh(){const car=getVehicle(),charging=['charging','away'].includes(car.status),timing=chargeTiming(car),status=car.quality==='cached'?'Sidst kendte data':charging?(car.status==='away'?'Lader ude':'Lader nu'):'Lader ikke · '+(chargeStates[car.status]||'Ukendt status'),source=car.quality==='demo'?'Eksempel':car.quality==='cached'?'Sidst kendte':'Home Assistant';
   const battery=Number.isFinite(car.battery)?car.battery.toLocaleString('da-DK',{maximumFractionDigits:0})+' %':'—',target=charging&&Number.isFinite(car.target)?' · til '+car.target+' %':'';
   button.dataset.state=car.status;button.dataset.quality=car.quality;button.setAttribute('aria-label',`Tesla ${battery}. ${status}${target}.${timing?' Ca. '+timing.duration+' tilbage, færdig '+timing.prefix+timing.clock+'.':''} ${source}. Åbn Billader.`);

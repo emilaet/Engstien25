@@ -2,6 +2,7 @@ import {tariffUrls,normalizeTariffs} from '../src/electricity-tariffs.js';
 import {tariffFixture} from '../tests/fixtures/tariffs.js';
 import {electricityFixture} from '../tests/fixtures/electricity.js';
 import {weatherFixture} from '../tests/fixtures/weather.js';
+import {defaultDashboardProfile} from '../src/dashboard-profile.js';
 import { test, expect } from '@playwright/test';
 import { randomBytes } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -67,6 +68,16 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   expect(errors).toEqual([]);
   expect(requests.filter(r => !r.startsWith(url) && !r.startsWith('data:') && !r.startsWith('https://api.open-meteo.com/v1/forecast?') && !r.startsWith('https://www.elprisenligenu.dk/api/v1/prices/') && !r.startsWith('https://api.energidataservice.dk/dataset/DatahubPricelist?'))).toEqual([]);
   await page.reload();await expect(page.locator('input[type=password]')).toBeVisible();
+});
+
+test('The encrypted mobile app explains rejected account credentials and accepts a subsequent valid login',async({page})=>{
+ const accountId='11111111-1111-4111-8111-111111111111',project='https://ammeopgcgdlohtjadcsq.supabase.co',errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:390,height:844});await page.route('https://**',route=>route.abort());
+ await page.route(project+'/**',route=>{const r=route.request(),path=new URL(r.url()).pathname;if(path.includes('/auth/v1/token')){const b=r.postDataJSON();return b.password==='incorrect-test-password'?route.fulfill({status:400,json:{code:'invalid_credentials',msg:'Invalid login credentials'}}):route.fulfill({json:{access_token:'test-account-token',refresh_token:'test-refresh',expires_in:3600,user:{id:accountId,email:b.email}}});}return route.fulfill({json:[{revision:1,updated_at:new Date().toISOString(),profile:defaultDashboardProfile()}]});});
+ await page.goto(url);await page.locator('input[type=password]').fill(password);await page.getByRole('button',{name:'Åbn husoversigt'}).click();await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible();
+ await page.locator('#home-options').click();await page.getByRole('button',{name:'Indstillinger',exact:true}).click();await page.getByRole('button',{name:'Skærm og dashboard',exact:true}).click();
+ await page.getByLabel('E-mail',{exact:true}).fill('app@example.test');await page.getByLabel('Adgangskode til Engstien',{exact:true}).fill('incorrect-test-password');await page.getByRole('button',{name:'Log ind og hent min opstilling',exact:true}).click();await expect(page.locator('.account-login-feedback')).toHaveText('E-mail eller adgangskode er forkert.');await expect(page.locator('.account-login-help')).toContainText('Authentication → Users');await expect(page.getByLabel('E-mail',{exact:true})).toHaveValue('app@example.test');await expect(page.getByLabel('Adgangskode til Engstien',{exact:true})).toHaveValue('');
+ await page.getByLabel('Adgangskode til Engstien',{exact:true}).fill('valid-test-password');await page.getByRole('button',{name:'Log ind og hent min opstilling',exact:true}).click();await expect(page.locator('.settings-profile')).toContainText('Opstillingen er gemt fælles for huset.');await expect(page.locator('.account-login-help')).toHaveCount(0);expect(errors).toEqual([]);
 });
 
 test('Missing password fails closed and never starts a deployable build', async () => {
