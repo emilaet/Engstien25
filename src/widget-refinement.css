@@ -1,0 +1,111 @@
+/* Final card geometry: scrolling is the fallback for saved sizes below the content's natural height. */
+:root[data-page=home] .family-grid.dashboard-grid>.dashboard-widget:not(.house-overview):not(.widget-compact){overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;overscroll-behavior-y:contain}
+:root[data-page=home] .dashboard-widget>.widget-options{top:calc(var(--widget-inset) - 8px);right:calc(var(--widget-inset) - 8px);width:44px;height:44px;min-height:44px;display:grid;place-items:center;line-height:0;padding:0;letter-spacing:0}
+:root[data-page=home] .dashboard-widget>.widget-options .menu-dots{display:block;width:16px;height:16px;min-width:16px;fill:currentColor;stroke:none}
+:root[data-page=home] .dashboard-widget.widget-compact>.widget-options{top:calc(50% - 22px)}
+.home-layout-menu #home-options{display:grid;place-items:center;padding:0;line-height:0;font-size:0;letter-spacing:0}
+.home-layout-menu #home-options .menu-dots{display:block;width:20px;height:20px;fill:currentColor;stroke:none}
+/* Readable list rows. No fixed height or text mask may crop a multiline note. */
+:root[data-page=home] .dashboard-grid .family-list{mask-image:none;padding:0 2px 6px 0;min-height:0!important;flex:1 1 auto;scroll-padding-block:12px}
+:root[data-page=home] .dashboard-grid .family-item{height:auto!important;min-height:64px!important;padding:12px 0!important;align-items:center;gap:8px}
+:root[data-page=home] .dashboard-grid .family-item-main{display:grid;grid-template-columns:22px minmax(0,1fr);min-height:40px;height:auto;column-gap:12px;row-gap:5px;align-items:center;align-content:center}
+:root[data-page=home] .dashboard-grid .family-item-main .family-check{grid-column:1;grid-row:1 / span 2;align-self:center}
+:root[data-page=home] .dashboard-grid .family-item .family-item-copy{height:auto!important;max-height:none!important;overflow:visible!important;white-space:normal;display:block;line-height:1.5!important;font-size:14px!important;letter-spacing:0;min-width:0;overflow-wrap:anywhere}
+:root[data-page=home] .dashboard-grid .family-item-copy>span{display:block;line-height:1.5}
+:root[data-page=home] .dashboard-grid .family-item-copy small{display:block!important;font-size:12px!important;line-height:1.5;margin:4px 0 0!important}
+:root[data-page=home] .dashboard-grid .family-item-copy small:before{content:none}
+:root[data-page=home] .dashboard-grid .family-item .due-tag{grid-column:2;justify-self:start;margin:0;padding:3px 7px;line-height:1.4;font-size:10px;white-space:normal;letter-spacing:0}
+:root[data-page=home] .dashboard-grid .family-item .edit-item{flex:none;min-width:44px;min-height:44px;margin:0;align-self:center}
+:root[data-page=home] .dashboard-grid .family-card-title{flex:none;align-items:center;margin-bottom:12px!important}
+:root[data-page=home] .dashboard-grid .family-add{margin-top:12px;flex:none}
+.list-open-summary{display:none}
+@container widget (width < 300px){
+ :root[data-page=home] .dashboard-grid .family-card-title .list-show-all{display:none!important}
+ :root[data-page=home] .dashboard-grid .list-title-button{gap:8px}
+ :root[data-page=home] .dashboard-grid .list-title-icon{width:24px;height:24px}
+ :root[data-page=home] .dashboard-grid .family-card-title h2{font-size:15px!important}
+}
+@container widget (height < 220px){
+ :root[data-page=home] .dashboard-grid>.family-card:not(.waste-card):not(.widget-compact) .family-card-title{min-height:32px!important;margin-bottom:6px!important}
+ :root[data-page=home] .dashboard-grid>.family-card:not(.waste-card) :is(.family-list,.family-add,.notes-list-actions,.notes-sync-status,.list-storage-status,.family-card-foot){display:none!important}
+ :root[data-page=home] .dashboard-grid .family-card-title .list-show-all{display:none!important}
+ :root[data-page=home] .dashboard-grid>.family-card:not(.widget-compact) .list-open-summary{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:44px;flex:1;padding:0;background:transparent;text-align:left;color:var(--muted);font:inherit;font-size:12px;line-height:1.4;letter-spacing:0}
+ :root[data-page=home] .dashboard-grid .family-card .list-title-button{min-height:28px}
+}
+/* The briefing remains a shortcut when its optional dashboard widget is hidden. */
+.family-briefing{gap:20px;padding:16px 20px;align-items:center}
+.family-briefing h2{flex:none;min-width:0;margin:0;font-size:15px;line-height:1.5;letter-spacing:0!important;word-spacing:normal;font-weight:500}
+.family-briefing h2>span{display:block;white-space:normal;line-height:1.5}
+.family-briefing h2 small{display:block;font-size:11px;line-height:1.5;margin:3px 0 0;letter-spacing:0;font-weight:400}
+.family-briefing>div{min-width:0;gap:16px}
+.family-briefing button{display:flex;align-items:center;gap:12px;min-width:0;padding:4px 0 4px 16px;text-align:left}
+.family-briefing .briefing-copy{display:block;flex:1;min-width:0}
+.family-briefing strong{display:block;font-size:15px;font-weight:500;line-height:1.45;letter-spacing:0;overflow-wrap:anywhere}
+.family-briefing .briefing-detail-full,.family-briefing .briefing-detail-short{font-size:12px;line-height:1.5;margin-top:4px;letter-spacing:0}
+.family-briefing button>b{position:static;flex:none;margin-left:auto;line-height:1}
+.family-briefing .briefing-waste-icons{display:flex;gap:5px;flex:none;align-items:center;margin:0}
+.briefing-waste-icons img{width:30px;height:30px;border-radius:5px;display:block}
+.family-waste-dialog{width:min(620px,calc(100vw - 24px));max-height:88dvh;padding:24px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:24px;overflow:auto}
+.family-waste-dialog::backdrop{background:#17251e80;backdrop-filter:blur(5px)}
+.family-waste-dialog .hw-dialog-head{padding:0;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin:0 0 16px}
+.family-waste-dialog h2{font-size:26px;line-height:1.3;margin:6px 0 0;letter-spacing:-.6px}.family-waste-dialog .hw-dialog-head small{font-size:10px;letter-spacing:2px;color:var(--muted)}
+.family-waste-dialog [data-waste-close]{width:44px;height:44px;min-width:44px;border-radius:12px;background:var(--soft);color:var(--text);font-size:24px}
+.waste-data-status{font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 20px}
+.waste-upcoming{display:grid;gap:12px;list-style:none;padding:0;margin:0}.waste-upcoming li{display:flex;align-items:center;gap:16px;border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--soft)}.waste-upcoming li:first-child{background:var(--alert-soft)}
+.waste-upcoming .waste-icons{display:flex;gap:5px;flex:none;margin:0}.waste-upcoming .waste-icons img{display:block;width:40px;height:40px}.waste-upcoming li>div:last-child{min-width:0}.waste-upcoming h3{font-size:16px;font-weight:500;margin:4px 0;line-height:1.4;letter-spacing:0;overflow-wrap:anywhere}.waste-upcoming small,.waste-upcoming time{font-size:12px;line-height:1.5;color:var(--muted)}
+@media(max-width:760px){.family-briefing{padding:16px;gap:12px}.family-briefing>div{grid-template-columns:1fr;gap:12px;width:100%}.family-briefing button{padding-left:12px;width:100%}.family-briefing button.briefing-mobile-overflow{display:flex}.family-briefing h2{width:100%;display:flex;align-items:baseline;justify-content:space-between;gap:12px}.family-briefing h2 small{margin:0}.family-waste-dialog{padding:20px}.family-waste-dialog h2{font-size:22px}.waste-upcoming li{gap:12px;padding:14px}.waste-upcoming .waste-icons img{width:32px;height:32px}}
+.waste-modal-foot{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;line-height:1.5;color:var(--muted)}.waste-modal-foot p{margin:0 0 12px}.waste-modal-foot button{font:inherit;min-height:44px;padding:10px 14px;background:var(--soft);border:1px solid var(--border);border-radius:12px;color:var(--text)}
+.ep-error-detail{font-size:11px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+@container widget (width < 240px){.dashboard-widget .hw-head{flex-wrap:wrap;row-gap:6px}.ep-summary{flex-wrap:wrap;gap:4px 8px}.ep-summary>span{min-width:0;flex:1}.ep-summary>button{margin-left:0}}
+/* A small card presents primary information; its full view keeps the details. */
+.calendar-card .hw-head h2>button,.waste-title-button{display:flex;align-items:center;min-height:28px;padding:0;font:inherit;letter-spacing:inherit;text-align:left;color:inherit;background:transparent}
+@container widget (height < 150px){
+ :root[data-page=home] .calendar-card .hw-head{min-height:28px!important;margin-bottom:6px!important}
+ :root[data-page=home] .calendar-card .hw-calendar-range,:root[data-page=home] .calendar-card .hw-calendar-foot{display:none!important}
+ :root[data-page=home] .calendar-card .hw-agenda{display:block!important;overflow:auto;min-height:0;flex:1}
+ :root[data-page=home] .calendar-card .hw-agenda>.hw-event:not(:first-child){display:none!important}
+ :root[data-page=home] .calendar-card .hw-event{min-height:44px!important;padding:0!important}
+ :root[data-page=home] .electricity-card .ep-chart,:root[data-page=home] .electricity-card .ep-average,:root[data-page=home] .electricity-card .ep-source{display:none!important}
+ :root[data-page=home] .electricity-card .hw-head{min-height:24px!important;margin-bottom:6px!important}
+ :root[data-page=home] .music-player-card{gap:0}
+ :root[data-page=home] .music-player-card .hw-head{min-height:24px!important;height:24px;margin:0!important}
+ :root[data-page=home] .music-player-card .hw-head h2>button{min-height:24px}
+ :root[data-page=home] .music-player-card .music-connect-state{gap:0;justify-content:space-between;min-height:0}
+ :root[data-page=home] .music-player-card .music-connect-state p{display:none}
+ :root[data-page=home] .music-player-card .music-connect-state strong{font-size:12px;line-height:1.4}
+ :root[data-page=home] .music-player-card .music-timeline,:root[data-page=home] .music-player-card .music-state{display:none}
+ :root[data-page=home] .music-player-card .music-card-playback{min-height:0;gap:0}
+ :root[data-page=home] .music-player-card .music-now{min-height:26px;gap:8px}
+ :root[data-page=home] .music-player-card .music-cover{height:26px;width:26px;min-width:26px}
+ :root[data-page=home] .music-player-card .music-track strong{font-size:12px;line-height:14px}
+ :root[data-page=home] .music-player-card .music-track>span{font-size:10px;line-height:12px;margin:0}
+ :root[data-page=home] .waste-card .waste-next-preview,:root[data-page=home] .waste-card .waste-calendar,:root[data-page=home] .waste-card .next-collection>p{display:none!important}
+ :root[data-page=home] .waste-card .next-collection-body{margin-top:0;gap:8px}
+ :root[data-page=home] .waste-card .next-collection-body strong{font-size:13px;line-height:1.4}
+ :root[data-page=home] .waste-card .next-collection-body>div>span{font-size:11px;line-height:1.4}
+ :root[data-page=home] .camera-card .hw-head{position:absolute;z-index:2;inset:12px 12px auto;min-height:44px!important;margin:0!important;padding:6px 40px 6px 8px!important;background:color-mix(in srgb,var(--surface) 94%,transparent);border-radius:12px}
+ :root[data-page=home] .camera-card .hw-head .hw-badge{display:none}
+ :root[data-page=home] .camera-card .hw-camera-image{position:absolute;inset:0;height:100%;min-height:0;margin:0}
+ :root[data-page=home] .camera-card .hw-camera-foot{position:absolute;z-index:2;right:10px;bottom:8px;min-height:44px;margin:0;padding:0;background:var(--surface);border-radius:12px}
+ :root[data-page=home] .camera-card .hw-camera-foot>span{display:none!important}
+}
+@container widget (width < 400px) and (height < 180px){
+ :root[data-page=home] .weather-card .hw-forecast,:root[data-page=home] .weather-card .hw-weather-foot{display:none!important}
+ :root[data-page=home] .weather-card .hw-head{margin-bottom:10px!important}
+ :root[data-page=home] .weather-card .hw-current{flex:1;min-height:42px!important;margin:0!important}
+ :root[data-page=home] .weather-card .hw-source{margin-top:8px}
+}
+@container widget (height < 180px){
+ :root[data-page=home] .dashboard-grid .weather-card .hw-forecast,:root[data-page=home] .dashboard-grid .weather-card .hw-weather-foot,:root[data-page=home] .dashboard-grid .weather-card .hw-source,:root[data-page=home] .dashboard-grid .weather-card .hw-mini-current{display:none!important}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-head{margin:0 0 6px!important;flex-wrap:nowrap}
+}
+@container widget (height < 120px){
+ :root[data-page=home] .dashboard-grid .weather-card .hw-current{display:none!important}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-head{min-height:44px!important;height:44px!important;margin:0 0 4px!important;flex:none}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-mode{display:none!important}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary{display:flex!important;min-height:38px;height:auto;flex:1;margin:0;padding:0;gap:8px;align-items:center;justify-content:flex-start}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary>span{display:flex;align-items:center;gap:8px;min-width:0}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary strong{font-size:27px;line-height:30px}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary small{font-size:11px;line-height:14px;overflow-wrap:anywhere}
+ :root[data-page=home] .dashboard-grid .weather-card .hw-mini-summary>.hw-weather-art{width:24px;height:24px;flex:none}
+}

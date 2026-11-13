@@ -1,3 +1,4 @@
+import {menuIcon} from './menu-icon.js';
 import {arrangeGrid,relocateGrid,reorderStack,snapGridRow,shiftStack} from './dashboard-grid.js';
 import {widgetPreferences} from './widget-preferences.js';
 import {safeStorage} from './storage.js';
@@ -43,7 +44,7 @@ export function migrateLayout(value){
 export function moveWidget(layout,id,target){const next=structuredClone(layout),from=next.findIndex(w=>w.id===id);if(from<0)return next;const [widget]=next.splice(from,1);next.splice(Math.max(0,Math.min(next.length,target)),0,widget);return next;}
 const presetSize=(id,size)=>size==='compact'?(['weather','calendar'].includes(id)?{width:2,height:5}:id==='car'?{width:2,height:3}:['lights','climate','curtains'].includes(id)?{width:2,height:2}:{width:3,height:4}):size==='wide'?{width:6,height:3}:{width:4,height:4};
 const classicHeights={electricity:244,music:212,house:260,camera:260,weather:260,calendar:228,waste:228,car:228,tasks:196,shopping:196,lights:134,climate:134,curtains:134};
-const defaultHeights={electricity:244,house:244,calendar:244,weather:244,camera:196,car:196,waste:196,tasks:196,shopping:196,music:196,lights:132,climate:132,curtains:132};
+const defaultHeights={electricity:244,house:244,calendar:244,weather:244,camera:196,car:196,waste:196,tasks:308,shopping:308,music:196,lights:132,climate:132,curtains:132};
 const heightSteps=[2,3,4,5,7,9];
 const snapHeight=value=>Math.max(132,Math.min(1092,Math.round((value+12)/16)*16-12));
 const matchesDefault=(layout,reference)=>layout.length===reference.length&&layout.every((w,i)=>{const d=reference[i];return w.id===d.id&&w.width===d.width&&w.height===d.height&&(w.visible!==false)===(d.visible!==false);});
@@ -70,7 +71,7 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
 
  const summary=document.querySelector('.summary'),stats=[...summary.children],house=document.querySelector('#house-overview'),parking=document.querySelector('#home-overview-parking');
  const area=document.createElement('div');area.className='home-layout-menu';
- area.innerHTML='<button id="home-options" aria-label="Tilpas Hjem" aria-expanded="false" aria-controls="home-options-menu">•••</button><div id="home-options-menu" hidden><button id="edit-home-layout">Rediger dashboard</button></div>';
+ area.innerHTML='<button id="home-options" aria-label="Tilpas Hjem" aria-expanded="false" aria-controls="home-options-menu">'+menuIcon+'</button><div id="home-options-menu" hidden><button id="edit-home-layout">Rediger dashboard</button></div>';
  document.querySelector('.header-right').append(area);
  const toolbar=document.createElement('section');toolbar.className='layout-editor';toolbar.hidden=true;toolbar.setAttribute('aria-label','Rediger dashboard');
  toolbar.innerHTML=`<div class="layout-bar"><div class="layout-bar-copy"><h2 tabindex="-1">Rediger dashboard</h2><span class="layout-dirty" aria-live="off">Ingen ændringer</span></div><button id="toggle-layout-details" aria-label="Widgets og størrelser" aria-expanded="false" aria-controls="layout-details"><span aria-hidden="true">⊞</span><span class="layout-widgets-text">Widgets</span></button><button id="undo-home-layout" aria-label="Fortryd layoutændring" title="Fortryd">↶</button><button id="redo-home-layout" aria-label="Gentag layoutændring" title="Gentag">↷</button><button id="cancel-home-layout">Annuller</button><button id="save-home-layout" class="primary">Gem dashboard</button></div><div class="layout-context" aria-label="Valgt widget"></div><div class="layout-details" id="layout-details" hidden><div class="layout-details-head"><h3>Widgets og størrelser</h3><button id="close-layout-details" aria-label="Luk widgetindstillinger">×</button></div><div class="layout-selected"></div><div class="layout-list-heading"><b>Vis på dashboardet</b><span class="layout-visible-count"></span></div><div class="layout-widget-list"></div><div class="layout-reset-actions"><button id="restore-previous-home-layout" ${previous?'':'hidden'}>Tidligere layout</button><button id="reset-home-layout">Gendan standard</button></div></div>`;
@@ -131,7 +132,7 @@ export function setupDashboardLayout({onFinish=()=>{},notify=()=>{},storage}={})
   if(house&&house.parentElement!==grid)grid.append(house);
   for(const stat of stats){let wrapper=stat.closest('.summary-widget');if(!wrapper){wrapper=document.createElement('section');wrapper.className='summary-widget';wrapper.append(stat);}if(wrapper.parentElement!==grid)grid.append(wrapper);}
   const layout=editing?draft:saved;
-  const briefing=document.querySelector('.family-briefing');if(briefing){briefing.inert=editing;const buttons=[...briefing.querySelectorAll('[data-briefing-target]')];for(const button of buttons)button.hidden=!layout.some(w=>w.id===button.dataset.briefingTarget&&w.visible!==false);const visible=buttons.filter(b=>!b.hidden);briefing.hidden=!visible.length;visible.forEach((b,i)=>b.classList.toggle('briefing-mobile-overflow',i>=2));}
+  const briefing=document.querySelector('.family-briefing');if(briefing){briefing.inert=editing;const buttons=[...briefing.querySelectorAll('[data-briefing-target]')];for(const button of buttons)button.hidden=button.dataset.briefingTarget!=='waste'&&!layout.some(w=>w.id===button.dataset.briefingTarget&&w.visible!==false);const visible=buttons.filter(b=>!b.hidden);briefing.hidden=!visible.length;visible.forEach((b,i)=>b.classList.toggle('briefing-mobile-overflow',i>=2));}
   const reading=rectangles(layout).sort((a,b)=>a.row-b.row||a.column-b.column).map(r=>r.id),ordered=[...layout].sort((a,b)=>(reading.includes(a.id)?reading.indexOf(a.id):99)-(reading.includes(b.id)?reading.indexOf(b.id):99));
   ordered.forEach((widget,index)=>{
    const content=document.querySelector(widgetDefinitions.find(w=>w.id===widget.id).selector),card=content?.closest('.summary-widget')||content;if(!card)return;

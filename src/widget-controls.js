@@ -1,3 +1,4 @@
+import {menuIcon} from './menu-icon.js';
 import {widgetOptions,widgetPreferences} from './widget-preferences.js';
 import {isPhoneUI} from './mobile-app.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17,7 +18,7 @@ export function createWidgetControls({family,layout,onAdvanced,onConnections,onO
   for(const scroll of document.querySelectorAll('.ep-scroll:not([data-initialized])')){if(!scroll.getClientRects().length)continue;scroll.dataset.initialized='true';const current=scroll.querySelector('.ep-now');if(current)scroll.scrollLeft=Math.max(0,current.offsetLeft-scroll.firstElementChild.offsetLeft);}
   for(const card of document.querySelectorAll('.family-grid .dashboard-widget')){const id=card.dataset.widgetId;if(!widgetOptions[id])continue;
    const p=preferences.get(id);card.classList.toggle('widget-compact',['tasks','shopping'].includes(id)&&p.view==='compact');card.dataset.widgetOptions=id;
-   if(!card.querySelector(':scope > .widget-options')){const button=document.createElement('button');button.type='button';button.className='widget-options';button.dataset.widgetOptions=id;button.setAttribute('aria-label','Indstillinger for '+title(id));button.setAttribute('aria-haspopup','menu');button.setAttribute('aria-controls','widget-context-menu');button.setAttribute('aria-expanded','false');button.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="10" r="1.2"/><circle cx="10" cy="10" r="1.2"/><circle cx="15" cy="10" r="1.2"/></svg>';card.append(button);}
+   if(!card.querySelector(':scope > .widget-options')){const button=document.createElement('button');button.type='button';button.className='widget-options';button.dataset.widgetOptions=id;button.setAttribute('aria-label','Indstillinger for '+title(id));button.setAttribute('aria-haspopup','menu');button.setAttribute('aria-controls','widget-context-menu');button.setAttribute('aria-expanded','false');button.innerHTML=menuIcon;card.append(button);}
    if(id==='house'){card.querySelector('.home-climate-status')?.toggleAttribute('hidden',!p.showTemperature);card.querySelector('.home-light-status')?.toggleAttribute('hidden',!p.showLights);}
    if(id==='music'){card.classList.toggle('wc-no-artwork',!p.showArtwork);card.classList.toggle('wc-no-timeline',!p.showTimeline);}
    if(id==='car'){card.classList.toggle('wc-no-power',!p.showPower);card.classList.toggle('wc-no-remaining',!p.showRemaining);}

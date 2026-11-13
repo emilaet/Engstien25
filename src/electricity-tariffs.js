@@ -13,17 +13,25 @@ const systemNotes=['Elafgift','Systemtarif','Transmissions nettarif'];
 const localHour=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Copenhagen',hour:'2-digit',hourCycle:'h23'});
 export function tariffUrls(grid='dinel'){
  const company=gridCompanies[grid];if(!company)throw Error('Vælg netselskab.');
- const url=filter=>'https://api.energidataservice.dk/dataset/DatahubPricelist?'+new URLSearchParams({filter:JSON.stringify(filter),sort:'ValidFrom DESC',limit:'500'});
+ const columns=['ValidFrom','ValidTo','GLN_Number','ChargeTypeCode','Note',...Array.from({length:24},(_,i)=>'Price'+(i+1))].join(',');
+ const url=filter=>'https://api.energidataservice.dk/dataset/DatahubPricelist?'+new URLSearchParams({filter:JSON.stringify(filter),sort:'ValidFrom desc',limit:'500',columns});
  return [url({GLN_Number:[company.gln],ChargeTypeCode:company.codes,ChargeType:['D03']}),url({Note:systemNotes})];
 }
 export function normalizeTariffs(records){
  if(!Array.isArray(records)||records.length>1000)throw Error('Ugyldige tarifdata.');
  return records.map(r=>{
   const from=String(r.ValidFrom||'').slice(0,10),to=r.ValidTo?String(r.ValidTo).slice(0,10):null;
-  const prices=Array.from({length:24},(_,i)=>r['Price'+(i+1)]??r.Price1);
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||to&&!/^\d{4}-\d{2}-\d{2}$/.test(to)||to&&to<=from||prices.some(p=>typeof p!=='number'||!Number.isFinite(p)||p<0||p>100))throw Error('Ugyldige tarifsatser.');
+  const prices=Array.from({length:24},(_,i)=>{const value=r['Price'+(i+1)]??r.Price1;return typeof value==='string'&&/^-?\d+(?:\.\d+)?$/.test(value)?Number(value):value;});
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||to&&!/^\d{4}-\d{2}-\d{2}$/.test(to)||to&&to<=from||prices.some(p=>typeof p!=='number'||!Number.isFinite(p)||p< -100||p>100))throw Error('Ugyldige tarifsatser.');
   return {from,to,prices,note:String(r.Note||''),gln:String(r.GLN_Number||''),code:String(r.ChargeTypeCode||'')};
  });
+}
+// DataHub also returns cancelled revisions and historical rows with no price.
+// They must not invalidate a different, currently effective tariff.
+export function applicableTariffRecords(records,day){
+ if(!Array.isArray(records)||records.length>1000)throw Error('Tarifkilden returnerede et ugyldigt svar.');
+ const tomorrow=new Date(Date.parse(day+'T12:00:00Z')+86400000).toISOString().slice(0,10);
+ return records.filter(r=>{const from=String(r.ValidFrom||'').slice(0,10),to=r.ValidTo?String(r.ValidTo).slice(0,10):null;return (!to||to>day)&&from<=tomorrow&&(!to||to>from);});
 }
 function rate(records,day,hour,predicate){
  const candidates=records.filter(r=>r.from<=day&&(!r.to||day<r.to)&&predicate(r)).sort((a,b)=>b.from.localeCompare(a.from));
@@ -44,10 +52,17 @@ export function totalElectricityPrice(period,tariffs,options={}){
  const subtotal=Object.values(breakdown).reduce((a,b)=>a+b,0),vat=options.vat===false?0:subtotal*.25;
  return {...breakdown,subtotal,vat,total:subtotal+vat};
 }
-export function createTariffProvider({storage,fetchImpl=fetch,now=()=>new Date(),onChange=()=>{}}={}){
- const disk=safeStorage(storage);let grid='dinel',data=null,error='',busy=false,pending=null,cached=false,lastAttempt=0;
+export function createTariffProvider({storage,fetchImpl=fetch,now=()=>new Date(),onChange=()=>{},bundledSnapshot=import.meta.env?.VITE_TARIFF_SNAPSHOT}={}){
+ const disk=safeStorage(storage);let grid='dinel',data=null,error='',busy=false,pending=null,cached=false,bundled=false,lastAttempt=0;
  const key=()=>`engstien-tariffs-v1:${grid}`;
- const snapshot=()=>({grid,records:data?.records||[],updatedAt:data?.updatedAt||null,status:data?(cached||error?'cached':'live'):busy?'loading':'unavailable',error});
+ const snapshot=()=>({grid,records:bundled&&now().getTime()-Date.parse(data.updatedAt)>7*86400000?[]:data?.records||[],updatedAt:data?.updatedAt||null,status:data?(cached||error?'cached':'live'):busy?'loading':'unavailable',error});
+ function restoreBundled(){try{
+  const c=typeof bundledSnapshot==='string'?JSON.parse(bundledSnapshot):bundledSnapshot,age=now().getTime()-Date.parse(c?.updatedAt);
+  if(c?.version!==1||c.grid!==grid||!Number.isFinite(age)||age<0||age>7*86400000)return;
+  const records=normalizeTariffs(c.records.map(r=>({ValidFrom:r.from,ValidTo:r.to,Note:r.note,GLN_Number:r.gln,ChargeTypeCode:r.code,...Object.fromEntries(r.prices.map((p,i)=>['Price'+(i+1),p]))})));
+  if(!totalElectricityPrice({at:now().toISOString(),price:0},{records},{grid}))return;
+  data={grid,records,updatedAt:c.updatedAt};cached=true;bundled=true;
+ }catch{}}
  function restore(){try{const c=JSON.parse(disk.getItem(key()));if(c?.grid!==grid||!Array.isArray(c.records)||!Number.isFinite(Date.parse(c.updatedAt))||Date.parse(c.updatedAt)>now().getTime()||now().getTime()-Date.parse(c.updatedAt)>2*86400000)return;
   // Revalidate persisted data with exactly the same rules as a network response.
   const records=normalizeTariffs(c.records.map(r=>({ValidFrom:r.from,ValidTo:r.to,Note:r.note,GLN_Number:r.gln,ChargeTypeCode:r.code,...Object.fromEntries(r.prices.map((p,i)=>['Price'+(i+1),p]))})));
@@ -55,12 +70,12 @@ export function createTariffProvider({storage,fetchImpl=fetch,now=()=>new Date()
  }catch{}}
  return {snapshot,async load({gridCompany=grid,force=false}={}){
   if(pending){await pending;return gridCompany!==grid?this.load({gridCompany,force}):snapshot();}
-  if(gridCompany!==grid){grid=gridCompanies[gridCompany]?gridCompany:'dinel';data=null;error='';lastAttempt=0;restore();}else if(!data)restore();
-  if(!force&&(error&&now().getTime()-lastAttempt<60000||data&&now().getTime()-Date.parse(data.updatedAt)<12*3600000))return snapshot();
+  if(gridCompany!==grid){grid=gridCompanies[gridCompany]?gridCompany:'dinel';data=null;error='';bundled=false;lastAttempt=0;restore();}else if(!data)restore();if(!data)restoreBundled();
+  if(!force&&(error&&now().getTime()-lastAttempt<60000||data&&!bundled&&now().getTime()-Date.parse(data.updatedAt)<12*3600000))return snapshot();
   lastAttempt=now().getTime();busy=true;onChange();pending=(async()=>{try{
-   const sets=await Promise.all(tariffUrls(grid).map(async url=>{const response=await fetchImpl(url,{signal:AbortSignal.timeout(12000),credentials:'omit'});if(!response.ok)throw Error('Tariffer kunne ikke hentes.');const body=await response.json();return normalizeTariffs(body.records);}));
-   const records=sets.flat();if(!totalElectricityPrice({at:now().toISOString(),price:0},{records},{grid}))throw Error('Dagens tariffer er ikke tilgængelige.');
-   data={grid,records,updatedAt:now().toISOString()};error='';cached=false;disk.setItem(key(),JSON.stringify(data));
-  }catch{error='Nettarif og afgifter kunne ikke hentes.';}finally{busy=false;pending=null;onChange();}})();await pending;return snapshot();
+   const sets=await Promise.all(tariffUrls(grid).map(async url=>{const response=await fetchImpl(url,{signal:AbortSignal.timeout(12000),credentials:'omit'});if(!response.ok)throw Error('Tarifkilden svarer med HTTP '+response.status+'.');const body=await response.json();return normalizeTariffs(applicableTariffRecords(body.records,copenhagenDay(now())));}));
+   const records=sets.flat();if(!totalElectricityPrice({at:now().toISOString(),price:0},{records},{grid}))throw Error('Der mangler en gyldig nettarif eller afgift for '+gridCompanies[grid].name+'.');
+   data={grid,records,updatedAt:now().toISOString()};error='';cached=false;bundled=false;disk.setItem(key(),JSON.stringify(data));
+  }catch(reason){error=reason?.name==='TimeoutError'?'Tarifkilden tog for lang tid om at svare.':reason instanceof TypeError?'Forbindelsen til tarifkilden kunne ikke oprettes.':reason.message||'Nettarif og afgifter kunne ikke hentes.';}finally{busy=false;pending=null;onChange();}})();await pending;return snapshot();
  }};
 }

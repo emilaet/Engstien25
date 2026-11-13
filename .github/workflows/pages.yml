@@ -29,7 +29,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.event_name == 'schedule' && 'nightly-tests' || 'pages' }}
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -75,9 +75,12 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - run: npm run test:preview
       - name: Build encrypted preview
-        if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
-        run: npm run build:pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          node scripts/prepare-electricity-tariffs.mjs .electricity-tariffs.json
+          npm run build:pages
         env:
+          ELECTRICITY_TARIFFS_FILE: .electricity-tariffs.json
           PREVIEW_PASSWORD: ${{ secrets.PREVIEW_PASSWORD }}
           APPLE_MUSIC_TEAM_ID: ${{ secrets.APPLE_MUSIC_TEAM_ID }}
           APPLE_MUSIC_KEY_ID: ${{ secrets.APPLE_MUSIC_KEY_ID }}
@@ -85,11 +88,11 @@ jobs:
           VITE_GOOGLE_CALENDAR_CLIENT_ID: ${{ vars.GOOGLE_CALENDAR_CLIENT_ID }}
           VITE_SPOTIFY_CLIENT_ID: ${{ vars.SPOTIFY_CLIENT_ID }}
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         with:
           path: .preview/site
   deploy:
-    if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
     permissions:

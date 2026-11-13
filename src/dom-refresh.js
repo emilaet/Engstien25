@@ -3,7 +3,7 @@ const cardKey=node=>[...node.classList].find(c=>c.endsWith('-card')&&c!=='family
 const itemKey=node=>node.querySelector('[data-item]')?.dataset.item;
 function rememberRows(card){for(const row of card.querySelectorAll('.family-item'))row._renderedMarkup=row.outerHTML;}
 function refreshList(before,next){
- for(const selector of ['.family-card-top','.list-storage-status','.family-card-foot']){const old=before.querySelector(selector),value=next.querySelector(selector);if(old&&value&&old.innerHTML!==value.innerHTML)old.innerHTML=value.innerHTML;}
+ for(const selector of ['.family-card-top','.list-storage-status','.family-card-foot','.list-open-summary']){const old=before.querySelector(selector),value=next.querySelector(selector);if(old&&value&&old.innerHTML!==value.innerHTML)old.innerHTML=value.innerHTML;}
  const count=before.querySelector('.list-show-all'),nextCount=next.querySelector('.list-show-all');if(count&&nextCount){count.textContent=nextCount.textContent;count.setAttribute('aria-label',nextCount.getAttribute('aria-label'));}
  // Source/phone changes can alter the controls without replacing the live form
  // or losing an unrelated desktop draft.

@@ -37,3 +37,13 @@ test('Supplier markup is validated and old electricity options migrate with net 
  assert.equal(normalizeWidgetOptions('electricity',{vat:true}).grid,'dinel');assert.equal(normalizeWidgetOptions('electricity',{supplierMarkup:'6.25'}).supplierMarkup,6.25);
  for(const value of [-1,201,'wrong',null])assert.equal(normalizeWidgetOptions('electricity',{supplierMarkup:value}).supplierMarkup,0);
 });
+test('Cancelled revisions, invalid historical rows and decimal-string prices do not suppress a valid live tariff',async()=>{
+ const provider=createTariffProvider({storage:memory(),now:()=>new Date(period.at),fetchImpl:async url=>({ok:true,json:async()=>{const data=tariffFixture(url);return {...data,records:[{ValidFrom:'2024-01-01',ValidTo:'2024-02-01',Price1:null},{ValidFrom:'2026-11-01',ValidTo:'2026-11-01',Price1:null},...data.records.map(r=>({...r,...Object.fromEntries(Object.keys(r).filter(k=>/^Price\d+$/.test(k)).map(k=>[k,String(r[k])]))}))]};}})});
+ const data=await provider.load();assert.equal(data.status,'live');assert.ok(Math.abs(totalElectricityPrice(period,data,options).total-1.15)<1e-10);
+});
+test('An encrypted-build snapshot serves verified tariffs through browser outages and expires after seven days',async()=>{
+ const at=new Date(period.at),bundledSnapshot={version:1,grid:'dinel',updatedAt:at.toISOString(),records:records()},fetchImpl=async()=>{throw new TypeError('CORS or offline');};
+ const provider=createTariffProvider({storage:memory(),now:()=>at,fetchImpl,bundledSnapshot});const snapshot=await provider.load();assert.equal(snapshot.status,'cached');assert.ok(Math.abs(totalElectricityPrice(period,snapshot,options).total-1.15)<1e-10);
+ for(const updatedAt of ['2026-11-01T00:00:00Z','2026-11-14T00:00:00Z']){const expired=createTariffProvider({storage:memory(),now:()=>at,fetchImpl,bundledSnapshot:{...bundledSnapshot,updatedAt}});assert.equal((await expired.load()).records.length,0);}
+ const differentGrid=createTariffProvider({storage:memory(),now:()=>at,fetchImpl,bundledSnapshot});assert.equal((await differentGrid.load({gridCompany:'n1'})).records.length,0);
+});

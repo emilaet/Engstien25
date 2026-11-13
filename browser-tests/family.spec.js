@@ -26,7 +26,7 @@ test('Renosyd example schedule uses loaded category pictograms and explains sour
 test('Family dashboard keeps tablet entry and touch-only mobile lists',async({page})=>{
  for(const [width,height] of [[1024,768],[390,844]]){
   await page.setViewportSize({width,height});await page.goto('/');await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
-  if(width>760){await page.getByRole('textbox',{name:'Ny vare på handlelisten'}).fill('Æbler');await page.getByRole('button',{name:'Tilføj vare'}).click();await expect(page.getByRole('checkbox',{name:'Æbler',exact:true}).first()).toBeVisible();}else{await expect(page.getByRole('textbox',{name:'Ny vare på handlelisten'})).toBeHidden();await expect(page.locator('.notes-list-actions').first()).toBeVisible();}
+  if(width>760){await page.getByRole('textbox',{name:'Ny vare på handlelisten'}).fill('Æbler');await page.getByRole('button',{name:'Tilføj vare'}).click();await expect(page.getByRole('checkbox',{name:'Æbler',exact:true}).first()).toBeVisible();}else{await expect(page.getByRole('textbox',{name:'Ny vare på handlelisten'})).toBeHidden();await expect(page.getByRole('button',{name:'Åbn hele handleliste',exact:true})).toBeVisible();}
   await page.screenshot({path:`/tmp/engstien-family-${width}.png`,fullPage:true});
  }
 });

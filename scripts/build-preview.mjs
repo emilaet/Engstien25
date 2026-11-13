@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { readFile, readdir, rm, mkdir, writeFile } from 'node:fs/promises';
+import {totalElectricityPrice} from '../src/electricity-tariffs.js';
 import {appleDeveloperToken} from './apple-music-token.mjs';
 
 const plain = '.preview/plain';
@@ -18,6 +19,12 @@ function run(script, args, env = process.env) {
 }
 try {
   const buildEnv = { ...process.env };
+  if(process.env.ELECTRICITY_TARIFFS_FILE){
+    const snapshot=JSON.parse(await readFile(process.env.ELECTRICITY_TARIFFS_FILE,'utf8'));
+    const age=Date.now()-Date.parse(snapshot.updatedAt);
+    if(snapshot.version!==1||!Number.isFinite(age)||age<0||age>7*86400000||!totalElectricityPrice({at:new Date().toISOString(),price:0},snapshot,{grid:snapshot.grid}))throw Error('Refusing to embed invalid electricity tariffs.');
+    buildEnv.VITE_TARIFF_SNAPSHOT=JSON.stringify(snapshot);
+  }
   delete buildEnv.PREVIEW_PASSWORD;
   delete buildEnv.STATICRYPT_PASSWORD;
   buildEnv.VITE_APPLE_MUSIC_DEVELOPER_TOKEN=appleDeveloperToken(buildEnv);

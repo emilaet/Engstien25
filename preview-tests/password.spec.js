@@ -1,3 +1,4 @@
+import {tariffUrls,normalizeTariffs} from '../src/electricity-tariffs.js';
 import {tariffFixture} from '../tests/fixtures/tariffs.js';
 import {electricityFixture} from '../tests/fixtures/electricity.js';
 import {weatherFixture} from '../tests/fixtures/weather.js';
@@ -5,14 +6,15 @@ import { test, expect } from '@playwright/test';
 import { randomBytes } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { readFile, readdir, access } from 'node:fs/promises';
+import { readFile, readdir, access, writeFile, rm } from 'node:fs/promises';
 
 // Ephemeral short test password (8 characters): never saved, printed or used for deployment.
 const password = randomBytes(4).toString('hex');
-let server, url;
+let server, url;const tariffFile='/tmp/engstien-preview-tariffs-'+process.pid+'.json';
 test.beforeAll(async () => {
+  await writeFile(tariffFile,JSON.stringify({version:1,grid:'dinel',updatedAt:new Date().toISOString(),records:tariffUrls().flatMap(url=>normalizeTariffs(tariffFixture(url).records))}));
   const result = spawnSync(process.execPath, ['scripts/build-preview.mjs'], {
-    env: { ...process.env, PREVIEW_PASSWORD: password }, encoding: 'utf8',
+    env: { ...process.env, PREVIEW_PASSWORD: password, ELECTRICITY_TARIFFS_FILE:tariffFile }, encoding: 'utf8',
   });
   expect(result.status, 'Encrypted build must succeed').toBe(0);
   expect((await readdir('.preview/site')).sort()).toEqual(['.nojekyll','app-icon-192.png','app-icon-512.png','apple-touch-icon.png','favicon.svg','index.html','manifest.webmanifest']);
@@ -29,14 +31,14 @@ test.beforeAll(async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   url = `http://127.0.0.1:${server.address().port}/Engstien25/`;
 });
-test.afterAll(async () => { if (server) await new Promise(resolve => server.close(resolve)); });
+test.afterAll(async () => { await rm(tariffFile,{force:true});if (server) await new Promise(resolve => server.close(resolve)); });
 
 test('Wrong password stays locked; correct password opens working 3D without external assets', async ({ page }) => {
   const errors = [], requests = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', req => requests.push(req.url()));
   await page.route('https://api.open-meteo.com/v1/forecast?**',route=>route.fulfill({json:weatherFixture()}));
-  await page.route('https://api.energidataservice.dk/dataset/DatahubPricelist?**',route=>route.fulfill({json:tariffFixture(route.request().url())}));
+  await page.route('https://api.energidataservice.dk/dataset/DatahubPricelist?**',route=>route.fulfill({status:503,body:'Simulated browser tariff outage'}));
   await page.route('https://www.elprisenligenu.dk/api/v1/prices/**',route=>{const m=route.request().url().match(/prices\/(\d{4})\/(\d{2}-\d{2})_(DK[12])/);return route.fulfill({json:electricityFixture(m[1]+'-'+m[2])});});
   await page.goto(url);
   await expect(page.locator('#app')).toHaveCount(0);
@@ -52,6 +54,7 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   await page.getByRole('button', { name: 'Åbn husoversigt' }).click();
   await expect(page.getByRole('heading',{name:'Hjem',exact:true})).toBeVisible({timeout:20000});
   await expect(page.getByRole('heading',{name:'Handleliste',exact:true})).toBeVisible();
+  await expect(page.locator('.family-grid .electricity-card .ep-summary>strong')).toHaveText(/\d/);await expect(page.locator('.family-grid .electricity-card')).toContainText('Sidst kendte satser');
   await page.getByRole('button',{name:'Rum',exact:true}).click();
   await expect(page.locator('#scene canvas')).toBeVisible();
   await expect(page.locator('#scene')).toHaveAttribute('data-render-finish','native',{timeout:30000});

@@ -2,7 +2,7 @@
 
 Alle almindelige kort bruger tokens i `src/widget-controls.css`:
 
-- Indvendig afstand: 20 px på computer, 18 px på telefon. Gemte bredder, højder, farver og venstremenu ændres ikke.
+- Indvendig afstand: 20 px på computer, 18 px på telefon. Eksplicit gemte bredder/højder og venstremenu bevares. Standardens store lister får mere højde; lave og kompakte lister bruger et resumé med adgang til hele listen.
 - Overskrifter: Jakarta, 17 px, vægt 500. Små kort tilpasser skriftstørrelsen via eksisterende container queries.
 - Titelikon: 28 px rund baggrund, 17 px stregikon og 10 px afstand til titlen; 24 px i lave kort. Handle- og huskeliste bruger et checkmark. Tesla bruger ladeikonet.
 - Trepriksmenu: 16 px synligt ikon, mindst 44 × 44 px trykflade. Overskrifter reserverer en separat plads til menuen. Hover og tastaturfokus bevarer en tydelig markering.
@@ -39,3 +39,17 @@ Identifikatorer og DataHub-format er krydskontrolleret med den offentlige [Energ
 Tariffer caches separat pr. netselskab i højst to døgn, genhentes normalt efter 12 timer og vises som sidst kendte ved genbrug eller fejl. Hver times gyldighed kontrolleres også på cachede satser. En udløbet elafgift genbruges ikke i et nyt år. Netværksfejl begrænser genforsøg; vejr og de øvrige widgets venter ikke på priskilderne. Manglende tariffer giver “Totalprisen afventer nettarif og afgifter”, aldrig en skjult tilbagevenden til spotpris.
 
 Det administrerede testmiljø blokerer både OKs hjemmeside og tarif-API'et. Direkte adgang til de aktuelle satser og browser-CORS er derfor ikke verificeret her. Modul-/browsertests bruger syntetiske DataHub-svar; tallene er **ikke** Dinels officielle satser. Kontrolscenariet med 0,76 kr. spot inkl. moms → 1,15 kr. total dokumenterer regnerækkefølgen, ikke et bekræftet livepris-match.
+
+## Tilpasning til små kort og tarifkilder
+
+`widget-refinement.css` samler de sidste regler for rækker, små kort og SVG-menuer. Menupunkternes prikker tegnes geometrisk omkring midten, med 16 px SVG i widgetten og 20 px i Hjem-menuen; begge beholder mindst 44 px trykflade. Listenavne og noter har normal bogstavafstand, 1,5 i linjehøjde og 12 px luft over/under punkter. Ingen tekstmaskering bruges i listerne.
+
+Lave lister viser titel og antal tilbage; tryk åbner hele listen. Korte kalenderkort viser næste aftale og åbnes fra overskriften. Små vejrkort viser aktuelle forhold; prognosen findes via udvid. Små elpriskort viser totalprisen og åbner søjlerne i den fulde visning. Korte kameraer bruger billedet som baggrund med læsbare kontroller ovenpå. Store kort viser flere detaljer med rulning ved behov. Standardens store desktoplister er 308 px høje; individuelle pixelmål bevares.
+
+Affaldspiktogrammerne indgår også i overblikket øverst. Genvejen åbner en dialog med alle kommende afhentninger, uanset om den separate widget er skjult. Dialogen kan fjerne den separate widget fra Hjem uden at fjerne genvejen. Renosyd-datoerne er fortsat udtrykkeligt eksempler.
+
+Tarifdata læses i det format, som den offentlige datakilde leverer, herunder numeriske decimalstrenge. Udløbne og annullerede versioner fjernes før validering, så en historisk række uden pris ikke slår aktuelle tariffer ud. Ved fejl oplyses, om spot- eller tarifkilden mangler. Der opfindes ingen manglende satser.
+
+Ved produktion bygger `scripts/prepare-electricity-tariffs.mjs` en valideret Dinel-kopi fra den offentlige kilde. `build-preview.mjs` validerer kopien igen og indlejrer den **inde i den krypterede app**. Browseren forsøger stadig at opdatere direkte, men kan falde tilbage til denne bekræftede kopi ved CORS, timeout eller rate limits. Kopien gælder kun for sit netselskab, sin datogyldighed og højst syv dage efter kontrollen. Både skat og net skal være gyldige, ellers vises manglende totalpris. Den natlige, beståede udgivelse fornyer kopien. Der publiceres ingen separat, ukrypteret fil med appdata.
+
+Den krypterede browsertest kontrollerer konkret, at totalprisen vises, selv om tarif-API'et returnerer 503. Den samlede størrelseskontrol dækker 11 bredder × 6 højder × 3 skærmstørrelser for alle 13 widgets; separate kontroller sikrer læsbare hovedoplysninger i de laveste mobilkort.

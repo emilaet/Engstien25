@@ -21,9 +21,9 @@ export function createElectricityProvider({storage,fetchImpl=fetch,now=()=>new D
   if(priceArea!==area){area=priceArea==='DK2'?'DK2':'DK1';data=null;error='';restore();}else if(!data)restore();
   const day=copenhagenDay(now());if(!force&&error&&lastAttempt?.area===area&&lastAttempt.day===day&&now().getTime()-lastAttempt.at<60000)return snapshot();if(!force&&data?.day===day&&now().getTime()-Date.parse(data.updatedAt)<ttl)return snapshot();
   const requestArea=area;lastAttempt={area,day,at:now().getTime()};busy=true;onChange();pending=(async()=>{try{
-   const fetchDay=async day=>{const response=await fetchImpl(electricityPriceUrl(day,requestArea),{signal:AbortSignal.timeout(12000),credentials:'omit'});if(!response.ok)throw Error('Elpriser kunne ikke hentes.');return normalizeElectricityPrices(await response.json());};
-   const [today,tomorrow]=await Promise.allSettled([fetchDay(day),fetchDay(addDays(day,1))]);if(today.status!=='fulfilled'||!today.value.length)throw Error('Dagens elpriser er ikke tilgængelige.');
+   const fetchDay=async day=>{const response=await fetchImpl(electricityPriceUrl(day,requestArea),{signal:AbortSignal.timeout(12000),credentials:'omit'});if(!response.ok)throw Error('Priskilden svarer med HTTP '+response.status+'.');return normalizeElectricityPrices(await response.json());};
+   const [today,tomorrow]=await Promise.allSettled([fetchDay(day),fetchDay(addDays(day,1))]);if(today.status!=='fulfilled'||!today.value.length)throw today.status==='rejected'?today.reason:Error('Dagens elpriser er ikke tilgængelige.');
    fromCache=false;data={day,area:requestArea,updatedAt:now().toISOString(),hours:[...today.value,...(tomorrow.status==='fulfilled'?tomorrow.value:[])]};error='';disk.setItem(key(),JSON.stringify(data));
-  }catch{error='Forbindelsen til elpriser mangler. Prøv igen.';}finally{busy=false;pending=null;onChange();}})();await pending;return snapshot();
+  }catch(reason){error=reason?.name==='TimeoutError'?'Priskilden tog for lang tid om at svare.':reason instanceof TypeError?'Forbindelsen til priskilden kunne ikke oprettes.':reason.message||'Forbindelsen til elpriser mangler. Prøv igen.';}finally{busy=false;pending=null;onChange();}})();await pending;return snapshot();
  }};
 }
