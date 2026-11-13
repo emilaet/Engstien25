@@ -1,6 +1,6 @@
 # Engstien 25
 
-Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. Husets enheder bruger fortsat **simulerede** data på GitHub Pages. Vejret hentes fra Open-Meteo, og Google Kalender kan forbindes med læseadgang under Indstillinger → Forbindelser. Se [live-data og Google-opsætning](docs/live-data.md). Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md).
+Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. Husets enheder bruger fortsat **simulerede** data på GitHub Pages. Vejret hentes fra Open-Meteo, og Google Kalender kan forbindes med læseadgang under Indstillinger → Forbindelser. Se [live-data og Google-opsætning](docs/live-data.md). Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. Gratis kontolagring af dashboardopstillingen kan tilsluttes med [Supabase Free](docs/supabase.md). En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md).
 
 ## Start
 
@@ -28,9 +28,9 @@ I **Rum → Indretning** vælges et møbel i listen eller direkte i modellen. He
 
 ## Betjening
 
-På **Hjem** låser **••• → Rediger dashboard** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte til en vilkårlig ledig plads i gridet. Kortet følger hånden, og en pladsholder viser landingsstedet. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. På GitHub Pages gemmes indstillingerne på denne enhed. Efter login på en online dashboardserver deles opstilling, widgetvalg og visningsindstillinger for huset, også i en ny privat browsersession. Se [fælles dashboardopsætning](docs/dashboard-sync.md).
+På **Hjem** låser **••• → Rediger dashboard** kortene op direkte på dashboardet. Træk i sider, bund eller hjørne for at ændre størrelse, og i håndtaget øverst for at flytte til en vilkårlig ledig plads i gridet. Kortet følger hånden, og en pladsholder viser landingsstedet. En lille linje har Gem, Annuller og Fortryd/Gentag; **Widgets** åbner valgfrit vis/skjul og præcise størrelsesvalg. Uden kontologin gemmes indstillingerne på denne enhed. Med Supabase-login følger opstillingen din appkonto. Efter login på en online dashboardserver deles opstilling, widgetvalg og visningsindstillinger for huset, også i en ny privat browsersession. Se [fælles dashboardopsætning](docs/dashboard-sync.md).
 
-Vejrikonet ved datoen åbner den fulde vejrudsigt med timer og dage fra alle sider. Påmindelser i dagsblikket åbner hele huskelisten.
+Vejrikonet ved datoen åbner den fulde vejrudsigt med timer og dage fra alle sider. Påmindelser i dagsblikket åbner hele huskelisten. Nye huskepunkter får dato og bemærkning før gemning via appens egen datovælger. Punkter til i dag/i morgen vises automatisk i dagsblikket; overskredne punkter har et rødt advarselssymbol. Tesla-bjælken ved vejret viser batteri, ladestatus, lademål og et tidsestimat med klokkeslæt, når data er tilgængelige.
 
 I **Rum** åbner et valg i husmodellen eller rumoversigten et fokuspanel, der bruger hele højresiden. **Lys**, **Varme** og **Gardiner** viser de muligheder, rummet har. **Alle rum** og pilene skifter rum. **Ude** styrer væglamper og spots i carporten separat. Overskrifterne beholder neutral tekstfarve ved både valg, betjening og skift mellem dag/aften.
 

@@ -65,7 +65,7 @@
  :root[data-page=home] .calendar-card .hw-agenda{display:block!important;overflow:auto;min-height:0;flex:1}
  :root[data-page=home] .calendar-card .hw-agenda>.hw-event:not(:first-child){display:none!important}
  :root[data-page=home] .calendar-card .hw-event{min-height:44px!important;padding:0!important}
- :root[data-page=home] .electricity-card .ep-chart,:root[data-page=home] .electricity-card .ep-average,:root[data-page=home] .electricity-card .ep-source{display:none!important}
+ :root[data-page=home] .electricity-card .ep-average,:root[data-page=home] .electricity-card .ep-source{display:none!important}
  :root[data-page=home] .electricity-card .hw-head{min-height:24px!important;margin-bottom:6px!important}
  :root[data-page=home] .music-player-card{gap:0}
  :root[data-page=home] .music-player-card .hw-head{min-height:24px!important;height:24px;margin:0!important}

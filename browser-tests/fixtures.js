@@ -5,6 +5,8 @@ import {weatherFixture} from '../tests/fixtures/weather.js';
 export {expect};
 export const test=base.extend({serviceFixtures:[async({context},use)=>{
  await context.addInitScript(()=>{
+  // Legacy widget tests may explicitly opt into the optional dashboard Tesla card.
+  if(localStorage.getItem('engstien-test-tesla-migration')!=='run')localStorage.setItem('engstien-tesla-header-layout-v1','1');
   // Emulate an existing read-only calendar cache. No Google token is stored.
   if(localStorage.getItem('engstien-test-calendar-seeded'))return;
   localStorage.setItem('engstien-test-calendar-seeded','true');

@@ -16,3 +16,11 @@ export function remainingCharge(data){
  const minutes=Math.ceil((data.target-data.battery)/100*data.capacity/(data.power*.9)*60);
  return `${Math.floor(minutes/60)} t ${minutes%60} min`;
 }
+export function chargeTiming(data,now=new Date()){
+ if(!['charging','away'].includes(data.status)||data.quality==='cached'||!Number.isFinite(data.battery)||!Number.isFinite(data.target))return null;
+ let minutes;if(data.battery>=data.target)minutes=0;else if(Number.isFinite(data.remainingMinutes)&&data.remainingMinutes>=0){minutes=data.remainingMinutes;const measured=Date.parse(data.updatedAt);if(data.quality==='live'&&Number.isFinite(measured))minutes-=Math.max(0,(now.getTime()-measured)/60000);}
+ else if(data.power>0&&data.capacity>0)minutes=Math.max(0,data.target-data.battery)/100*data.capacity/(data.power*.9)*60;
+ else return null;
+ minutes=Math.max(0,Math.ceil(minutes));const finish=new Date(now.getTime()+minutes*60000),day=date=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Copenhagen'}).format(date),clock=new Intl.DateTimeFormat('da-DK',{timeZone:'Europe/Copenhagen',hour:'2-digit',minute:'2-digit'}).format(finish);
+ return {minutes,duration:`${Math.floor(minutes/60)} t ${minutes%60} min`,finishAt:finish.toISOString(),clock,prefix:day(finish)===day(now)?'kl. ':new Date(day(finish)+'T12:00:00Z')-new Date(day(now)+'T12:00:00Z')===86400000?'i morgen kl. ':new Intl.DateTimeFormat('da-DK',{timeZone:'Europe/Copenhagen',day:'numeric',month:'short'}).format(finish)+' kl. '};
+}

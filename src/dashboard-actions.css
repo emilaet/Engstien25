@@ -1,0 +1,71 @@
+.due-warning{width:18px;height:18px;display:inline-block;vertical-align:middle;color:var(--red,#b33437);flex:none;overflow:visible}
+.due-overdue{color:var(--red,#b33437)!important;background:color-mix(in srgb,#c93939 12%,var(--surface))!important}
+.due-tag.due-overdue,.full-list-due{display:inline-flex!important;align-items:center;gap:6px;line-height:1.5}
+.family-briefing .briefing-overdue{border-left-color:#c93939}.family-briefing .briefing-overdue>.due-warning{width:21px;height:21px}
+.family-briefing>div{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));align-items:stretch}
+.family-briefing button{padding-right:4px}.family-briefing button b{display:none}
+.note-editor{width:min(480px,calc(100vw - 24px));max-height:90dvh;overflow:auto;border:1px solid var(--border);border-radius:24px;padding:24px;background:var(--surface);color:var(--text)}
+.note-editor::backdrop{background:#0007;backdrop-filter:blur(4px)}
+.note-editor .hw-dialog-head{padding:0;margin:0 0 20px}.note-editor h2{font-size:24px}.note-editor .hw-dialog-head button{min-width:44px;height:44px;border-radius:12px;background:var(--soft);font-size:24px}
+.note-editor label,.note-date-field{display:flex;flex-direction:column;gap:9px;font-size:13px;margin:18px 0;color:var(--muted)}
+.note-editor input:not([type=hidden]),.note-editor textarea{font:inherit;font-size:15px;line-height:1.5;min-height:46px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--soft);color:var(--text);width:100%;resize:vertical}
+.note-editor button{font:inherit;min-height:44px}.note-editor .edit-actions{margin-top:20px;justify-content:flex-end;gap:10px}.note-editor .edit-actions button{border-radius:12px;padding:10px 16px;background:var(--soft)}.note-editor .edit-actions .primary{background:var(--primary);color:var(--on-primary)}
+.note-quick-dates{display:flex;gap:6px}.note-quick-dates button{flex:1;font-size:12px;background:var(--soft);border:1px solid var(--border);border-radius:12px;padding:7px}
+.note-quick-dates [aria-pressed=true],.note-calendar-days [aria-pressed=true]{background:var(--amber-soft);border-color:var(--amber);color:var(--text)}
+.note-date-trigger{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--soft);border-radius:12px;text-align:left;padding:10px 12px;color:var(--text)}.note-date-trigger svg{width:20px;height:20px;flex:none}
+.note-calendar{padding:10px;border:1px solid var(--border);border-radius:16px;background:var(--surface)}.note-calendar[hidden]{display:none}
+.note-calendar-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.note-calendar-nav strong{font-weight:500;color:var(--text);text-transform:capitalize}.note-calendar-nav button{width:44px;border-radius:10px;font-size:23px;background:var(--soft)}
+.note-weekdays,.note-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.note-weekdays span{text-align:center;padding:8px 0;font-size:11px}
+.note-calendar-days button{border:1px solid transparent;border-radius:10px;padding:0;min-width:0;color:var(--text);font-size:13px}.note-calendar-days .outside-month{color:var(--muted);opacity:.55}.note-calendar-days [aria-current=date]{box-shadow:inset 0 0 0 1px var(--amber)}
+.note-save-error{font-size:13px;color:var(--red,#b33437);margin:0}.note-editor[aria-busy=true]{cursor:progress}
+/* A narrow strip beside the weather keeps vehicle status available on every page. */
+.header-live-widgets{display:flex;align-items:stretch;gap:10px;flex:none;min-width:0}
+.header-live-widgets .header-weather{height:64px;border-radius:18px;min-width:68px}
+.header-tesla{display:flex;align-items:center;gap:10px;min-height:64px;width:310px;max-width:100%;border:1px solid color-mix(in srgb,var(--green) 18%,transparent);border-radius:18px;padding:10px 14px;background:linear-gradient(130deg,var(--green-soft),color-mix(in srgb,var(--green) 12%,var(--surface)));color:var(--text);text-align:left}
+.header-tesla-icon{display:grid;place-items:center;flex:none;width:28px;height:28px;background:color-mix(in srgb,var(--green) 13%,transparent);border-radius:50%;color:var(--green)}.header-tesla-icon svg{width:18px;height:18px}
+.header-tesla-main{display:flex;flex-direction:column;gap:5px;min-width:0}.header-tesla-main>span{display:flex;align-items:baseline;gap:8px;font-size:12px}.header-tesla-main strong{font-size:21px;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}.header-tesla-main small{font-size:10px;line-height:1.4;color:var(--green)}
+.header-tesla-eta{display:flex;flex-direction:column;gap:3px;min-width:0;margin-left:auto;text-align:right;line-height:1.3}.header-tesla-eta strong{font-size:12px;font-weight:500;white-space:nowrap}.header-tesla-eta small{font-size:10px;white-space:nowrap}.header-tesla-eta .header-tesla-source{font-size:8px;color:var(--muted)}
+.header-tesla[data-quality=cached]{background:var(--soft);border-color:var(--border)}.header-tesla[data-quality=cached] .header-tesla-main small{color:var(--muted)}
+@media(max-width:1600px){
+ main>header{display:grid;grid-template-columns:minmax(0,1fr) auto;height:auto!important;min-height:0;align-items:start;margin-bottom:20px;row-gap:14px}
+ main>header .header-right{display:flex;grid-column:2;grid-row:1;align-items:center}
+ main>header .header-live-widgets{grid-column:1 / -1;grid-row:2;justify-self:end}
+ :root[data-page=rooms] main{grid-template-rows:auto 38px minmax(0,1fr) 14px}
+}
+@media(max-width:760px){
+ main>header{row-gap:14px;margin-bottom:18px;column-gap:8px}
+ main>header .header-live-widgets{justify-self:stretch;width:100%;gap:8px}
+ .header-live-widgets .header-weather{min-width:58px;width:58px;flex:none;height:auto}
+ .header-tesla{flex:1;width:auto;padding:10px;gap:7px;min-height:68px}.header-tesla-icon{display:none}.header-tesla-main strong{font-size:19px}.header-tesla-main small,.header-tesla-eta small{font-size:9px}.header-tesla-eta strong{font-size:11px}
+ .note-editor{padding:18px}.note-calendar{padding:6px}.note-calendar-days button{min-height:38px}
+ .family-briefing>div{grid-template-columns:1fr}
+}
+/* Charts keep a real height in narrow cards; text never disappears with the bars. */
+:root[data-page=home] .dashboard-grid .electricity-card{display:flex!important;flex-direction:column;gap:2px}
+:root[data-page=home] .electricity-card .ep-chart{display:block!important;flex:1 1 auto;min-height:58px}
+:root[data-page=home] .electricity-card .ep-scroll{min-height:58px;height:100%}
+@container widget (height < 180px){
+ :root[data-page=home] .electricity-card .ep-chart{min-height:46px}
+ :root[data-page=home] .electricity-card .ep-scroll{min-height:46px}
+ :root[data-page=home] .electricity-card .ep-track{min-height:8px}
+ :root[data-page=home] .electricity-card .hw-head{min-height:20px!important;margin:0!important}
+ :root[data-page=home] .electricity-card .ep-summary>strong{font-size:21px}
+ :root[data-page=home] .electricity-card .ep-summary small{display:none}
+ :root[data-page=home] .electricity-card .ep-source,:root[data-page=home] .electricity-card .ep-average{display:none}
+}
+@container widget (height < 120px){
+ :root[data-page=home] .electricity-card .ep-summary{gap:6px}
+ :root[data-page=home] .electricity-card .ep-summary>strong{font-size:17px}
+ :root[data-page=home] .electricity-card .ep-summary>span{font-size:9px}
+ :root[data-page=home] .electricity-card .ep-summary>button{min-height:20px;font-size:9px}
+ :root[data-page=home] .electricity-card .ep-chart,:root[data-page=home] .electricity-card .ep-scroll{min-height:44px}
+ :root[data-page=home] .electricity-card .ep-value{font-size:10px;line-height:12px}
+ :root[data-page=home] .electricity-card .ep-time{font-size:9px;line-height:10px}
+ :root[data-page=home] .electricity-card .ep-time small{font-size:7px;line-height:8px}
+ :root[data-page=home] .electricity-card .ep-hour{padding:2px;gap:1px}
+ :root[data-page=home] .electricity-card .ep-selection{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+}
+#settings-cloud-login{display:grid;gap:14px;max-width:420px;margin-top:18px}
+#settings-cloud-login label{display:flex;flex-direction:column;gap:7px;font-size:13px}
+#settings-cloud-login input{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--soft);color:var(--text);font:inherit;font-size:16px}
+#settings-cloud-login button{justify-self:start;min-height:44px;padding:10px 16px;border-radius:12px}

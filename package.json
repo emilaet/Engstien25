@@ -19,6 +19,7 @@
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "@playwright/test": "^1.56.0",
     "staticrypt": "3.5.4",
     "vite": "^7.1.0",

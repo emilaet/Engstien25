@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {dailyBriefing} from '../src/daily-briefing.js';import {parseNavigation,roomLocation} from '../src/navigation-state.js';import {defaultLayout,homeRectangles,validLayout,migrateLayout} from '../src/dashboard-layout.js';
-test('Daily briefing limits attention to three actionable items and omits unavailable waste',()=>{
+test('Daily briefing includes relevant tasks and omits unavailable waste',()=>{
  const input={today:'2026-11-01',calendar:[{day:'2026-11-02',title:'Legeaftale',start:'10.00'}],waste:[{date:'2026-11-02',label:'Restaffald'}],tasks:[{text:'Klaret',done:true,due:'2026-11-01'},{text:'Husk tasken',done:false,due:'2026-11-01'},{text:'Senere',done:false,due:'2026-11-06'}]};
  assert.deepEqual(dailyBriefing(input).map(i=>i.target),['calendar','waste','tasks']);assert.equal(dailyBriefing(input)[1].detail,'Sæt beholderen frem i aften');assert.deepEqual(dailyBriefing({...input,wasteStatus:'offline'}).map(i=>i.target),['calendar','tasks']);assert.deepEqual(dailyBriefing({today:input.today}),[]);
 });
@@ -8,7 +8,7 @@ test('Room links validate both destination and category and preserve legacy dest
  assert.deepEqual(parseNavigation('#rooms/stue/curtains',['stue']),{view:'rooms',room:'stue',category:'curtains'});assert.equal(parseNavigation('#heat').view,'rooms');assert.equal(parseNavigation('#rooms/unknown/curtains',['stue']).room,null);assert.equal(parseNavigation('#car/stue/unknown',['stue']).room,null);assert.equal(parseNavigation('#rooms/stue/unknown',['stue']).category,null);assert.equal(roomLocation('stue','curtains'),'#rooms/stue/curtains');
 });
 test('Stock mobile overview prioritizes family information and compact imagery without changing desktop rectangles',()=>{
- const layout=defaultLayout(),before=structuredClone(layout),desktop=homeRectangles(layout),mobile=homeRectangles(layout,{stack:true});assert.deepEqual(mobile.slice().sort((a,b)=>a.row-b.row).slice(0,4).map(r=>r.id),['calendar','waste','weather','car']);assert.equal(mobile.find(r=>r.id==='house').rows*16-12,132);assert.equal(desktop.find(r=>r.id==='house').rows*16-12,244);assert.deepEqual(layout,before);
+ const layout=defaultLayout(),before=structuredClone(layout),desktop=homeRectangles(layout),mobile=homeRectangles(layout,{stack:true});assert.deepEqual(mobile.slice().sort((a,b)=>a.row-b.row).slice(0,4).map(r=>r.id),['calendar','waste','weather','electricity']);assert.equal(mobile.find(r=>r.id==='house').rows*16-12,132);assert.equal(desktop.find(r=>r.id==='house').rows*16-12,244);assert.deepEqual(layout,before);
 });
 test('Custom mobile orders and independent heights survive storage without changing desktop sizes',()=>{
  const old=defaultLayout().map((w,i)=>({...w,column:0,row:i*20,heightPx:340,mobileOrder:defaultLayout().length-1-i,mobileHeightPx:180}));assert.ok(validLayout(old));assert.deepEqual(migrateLayout(old),old);assert.equal(homeRectangles(old).find(r=>r.id==='house').rows*16-12,340);assert.equal(homeRectangles(old,{stack:true}).find(r=>r.id==='house').rows*16-12,180);assert.equal(homeRectangles(old,{stack:true}).sort((a,b)=>a.row-b.row)[0].id,'electricity');

@@ -1,4 +1,5 @@
 import {test,expect} from './fixtures.js';
+import {defaultLayout} from '../src/dashboard-layout.js';
 import {electricityFixture} from '../tests/fixtures/electricity.js';
 test('Compact lists have a visible checkmark, hide their count pill and keep headings away from quiet menus',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('engstien-widget-options-v1:shopping',JSON.stringify({view:'compact'})));await page.goto('/');
@@ -6,7 +7,7 @@ test('Compact lists have a visible checkmark, hide their count pill and keep hea
  const title=await card.locator('.list-title-button').boundingBox(),menu=await card.locator('.widget-options').boundingBox(),box=await card.boundingBox();expect(title.x-box.x).toBeGreaterThanOrEqual(18);expect(title.x+title.width).toBeLessThanOrEqual(menu.x+1);expect(menu.width).toBeGreaterThanOrEqual(44);}
 });
 test('Tesla has a padded icon header and status with no menu collision at desktop and phone sizes',async({page})=>{
- await page.goto('/');for(const width of [1440,834,390]){await page.setViewportSize({width,height:1000});const card=page.locator('[data-widget-id=car]'),box=await card.boundingBox(),heading=await card.locator('.widget-heading').boundingBox(),status=await card.locator('.home-car-status').boundingBox(),menu=await card.locator('.widget-options').boundingBox();
+ await page.addInitScript(layout=>localStorage.setItem('engstien-home-layout-v3',JSON.stringify(layout)),defaultLayout().map(w=>w.id==='car'?{...w,visible:true}:w));await page.goto('/');for(const width of [1440,834,390]){await page.setViewportSize({width,height:1000});const card=page.locator('[data-widget-id=car]'),box=await card.boundingBox(),heading=await card.locator('.widget-heading').boundingBox(),status=await card.locator('.home-car-status').boundingBox(),menu=await card.locator('.widget-options').boundingBox();
  await expect(card.locator('.widget-symbol')).toBeVisible();expect(heading.x-box.x).toBeGreaterThanOrEqual(18);expect(heading.y-box.y).toBeGreaterThanOrEqual(18);expect(status.x+status.width).toBeLessThanOrEqual(menu.x+1);expect(heading.x+heading.width).toBeLessThanOrEqual(menu.x+1);expect(await card.evaluate(e=>e.scrollWidth<=e.clientWidth)).toBe(true);if(width===390){const stat=card.locator('#car-summary');expect(await stat.evaluate(e=>e.scrollHeight<=e.clientHeight+1)).toBe(true);const meta=await card.locator('.home-car-meta').boundingBox(),source=await card.locator('.card-source').boundingBox();expect(meta.y+meta.height).toBeLessThanOrEqual(source.y);}}
 });
 test('Total electricity prices include net and tax, explain the amount and save supplier markup',async({page})=>{

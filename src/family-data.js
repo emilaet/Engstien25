@@ -31,6 +31,7 @@ function seed(today){return {
  ],
 };}
 function validStored(value){return value?.version===1&&['tasks','shopping'].every(key=>Array.isArray(value[key])&&value[key].every(item=>typeof item.id==='string'&&typeof item.text==='string'&&typeof item.done==='boolean'&&(!item.detail||typeof item.detail==='string')&&(!item.due||/^\d{4}-\d{2}-\d{2}$/.test(item.due))));}
+export function noteFields(value={}){const due=value.due??'';if(due&&(typeof due!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(due)||!Number.isFinite(Date.parse(due+'T12:00:00Z'))||new Date(due+'T12:00:00Z').toISOString().slice(0,10)!==due))throw Error('Vælg en gyldig dato.');return {due,detail:String(value.detail??'').slice(0,120)};}
 export function createDemoFamilyProvider({storage,now=()=>new Date(),createId=()=>crypto.randomUUID()}={}){
  const journal=createJournal({key:FAMILY_STORAGE_KEY,initial:()=>seed(copenhagenDay(now())),valid:validStored,storage,now:()=>now().getTime(),reduce(state,op){
   if(!['tasks','shopping'].includes(op.list))return;
@@ -49,9 +50,9 @@ export function createDemoFamilyProvider({storage,now=()=>new Date(),createId=()
  return {
   async load(){return snapshot();},
   async importNotes(value){notes.import(value);undo=null;return snapshot();},
-  async addItem(list,value){check(list);journal.append({kind:'add',list,item:{id:createId(),text:text(value),done:false,detail:''}});return snapshot();},
+  async addItem(list,value,fields={}){check(list);const details=noteFields(fields);journal.append({kind:'add',list,item:{id:createId(),text:text(value),done:false,...details}});return snapshot();},
   async setDone(list,id,done){check(list);if(!journal.load()[list].some(i=>i.id===id))throw new Error('Punktet findes ikke længere.');journal.append({kind:'setDone',list,itemId:id,done:!!done});return snapshot();},
-  async editItem(list,id,patch){check(list);const item=journal.load()[list].find(i=>i.id===id);if(!item)throw new Error('Punktet findes ikke længere.');const next={text:text(patch.text??item.text),detail:String(patch.detail??item.detail??'').slice(0,120)};if(patch.due!==undefined){if(patch.due&&(!/^\d{4}-\d{2}-\d{2}$/.test(patch.due)||!Number.isFinite(Date.parse(patch.due+'T12:00:00Z'))||new Date(patch.due+'T12:00:00Z').toISOString().slice(0,10)!==patch.due))throw new Error('Vælg en gyldig dato.');next.due=patch.due;}journal.append({kind:'edit',list,itemId:id,patch:next});return snapshot();},
+  async editItem(list,id,patch){check(list);const item=journal.load()[list].find(i=>i.id===id);if(!item)throw new Error('Punktet findes ikke længere.');const next={text:text(patch.text??item.text),...noteFields({...item,...patch})};journal.append({kind:'edit',list,itemId:id,patch:next});return snapshot();},
   async clearCompleted(list){check(list);const items=journal.load()[list].filter(i=>i.done);if(items.length){undo={kind:'restore',list,items};journal.append({kind:'remove',list,items});}return snapshot();},
   async undo(){if(notes.read())throw Error('Ret punkterne i Apple Noter.');if(undo){journal.append(undo);undo=null;}return snapshot();},
   async setScenario(value){scenario=value;return snapshot();},

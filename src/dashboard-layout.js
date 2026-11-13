@@ -27,7 +27,7 @@ const sizes=w=>w&&typeof w.id==='string'&&(w.visible===undefined||typeof w.visib
 const legacyDefault=()=>[['house',8,5],['waste',4,5],['tasks',4,5],['shopping',4,5],['car',4,5],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
 const classicLayout=()=>[['house',4,5],['camera',4,5],['weather',4,5],['calendar',6,4],['waste',3,4],['car',3,4],['tasks',6,4],['shopping',6,4],['music',3,3],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
 const previousDefaultLayout=()=>[['house',4,5],['calendar',4,5],['weather',4,5],['camera',4,3],['car',4,3],['waste',4,3],['tasks',4,4],['shopping',4,4],['music',4,4],['lights',4,2],['climate',4,2],['curtains',4,2]].map(([id,width,height])=>({id,width,height,visible:!['lights','climate','curtains'].includes(id)}));
-export const defaultLayout=()=>[...previousDefaultLayout(),{id:'electricity',width:4,height:5,visible:true}];
+export const defaultLayout=()=>[...previousDefaultLayout().map(w=>w.id==='car'?{...w,visible:false}:w),{id:'electricity',width:4,height:5,visible:true}];
 const validPreviousWidgets=value=>Array.isArray(value)&&value.length===11&&new Set(value.map(w=>w?.id)).size===11&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id&&d.id!=='music'&&d.id!=='electricity'));
 export function validLayout(value){return Array.isArray(value)&&[12,widgetDefinitions.length].includes(value.length)&&new Set(value.map(w=>w?.id)).size===value.length&&value.every(w=>sizes(w)&&widgetDefinitions.some(d=>d.id===w.id))&&(value.length===13||!value.some(w=>w.id==='electricity'));}
 export function migrateLayout(value){
@@ -48,7 +48,7 @@ const defaultHeights={electricity:244,house:244,calendar:244,weather:244,camera:
 const heightSteps=[2,3,4,5,7,9];
 const snapHeight=value=>Math.max(132,Math.min(1092,Math.round((value+12)/16)*16-12));
 const matchesDefault=(layout,reference)=>layout.length===reference.length&&layout.every((w,i)=>{const d=reference[i];return w.id===d.id&&w.width===d.width&&w.height===d.height&&(w.visible!==false)===(d.visible!==false);});
-const sameDefault=layout=>matchesDefault(layout,defaultLayout())||matchesDefault(layout,previousDefaultLayout())?'current':matchesDefault(layout.filter(w=>w.id!=='electricity'),classicLayout())?'classic':false;
+const sameDefault=layout=>matchesDefault(layout,defaultLayout())||matchesDefault(layout,defaultLayout().map(w=>w.id==='car'?{...w,visible:true}:w))||matchesDefault(layout,previousDefaultLayout())?'current':matchesDefault(layout.filter(w=>w.id!=='electricity'),classicLayout())?'classic':false;
 const cardHeight=(widget,standard,mobile=false)=>mobile&&widget.mobileHeightPx!==undefined?widget.mobileHeightPx:widget.heightPx??(standard?(standard==='classic'?classicHeights:defaultHeights)[widget.id]:widget.height*74-14);
 const mobilePriority=['calendar','waste','weather','car','electricity','tasks','shopping','house','camera','music','lights','climate','curtains'];
 const mobileHeights={electricity:244,calendar:132,waste:180,weather:180,car:132,tasks:196,shopping:196,house:132,camera:132,music:132,lights:132,climate:132,curtains:132};
@@ -59,6 +59,7 @@ export function setupDashboardLayout({onFinish=()=>{},onSaved=()=>{},notify=()=>
  const disk=safeStorage(storage);
  let saved=defaultLayout();
  try{saved=migrateLayout(JSON.parse(disk.getItem(layoutKey)??disk.getItem(legacyLayoutKey)));}catch{}
+ if(!disk.getItem('engstien-tesla-header-layout-v1')){if((disk.getItem(layoutKey)||disk.getItem(legacyLayoutKey))&&saved.some(w=>w.id==='car'&&w.visible!==false)){saved=saved.map(w=>w.id==='car'?{...w,visible:false}:w);disk.setItem(layoutKey,JSON.stringify(saved));}disk.setItem('engstien-tesla-header-layout-v1','1');}
  let previous=null;
  try{const value=JSON.parse(disk.getItem(previousLayoutKey));if(Array.isArray(value)&&[7,8,11,12].includes(value.length))previous=migrateLayout(value);}catch{}
  let draft=structuredClone(saved),editing=false,home=false,gesture=null,selectedWidget='weather',undoStack=[],redoStack=[],autoScroll=0,resizeFrame=0,baselineDraft='';

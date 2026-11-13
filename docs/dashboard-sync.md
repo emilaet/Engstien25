@@ -1,8 +1,8 @@
 # Fælles dashboardopsætning
 
-GitHub Pages er en statisk, krypteret hjemmeside. Adgangskoden åbner appen; den opretter ingen bruger eller konto. GitHub Pages kan derfor ikke selv gemme ændringer centralt. En privat browser starter uden det lokale layout.
+GitHub Pages er en statisk, krypteret hjemmeside. Adgangskoden åbner appen; den opretter ingen bruger eller konto. GitHub Pages kan derfor ikke selv gemme ændringer centralt. Den gratis Supabase-forbindelse gemmer nu profiler efter kontologin; se [opsætning af Supabase](supabase.md). Uden kontologin starter en privat browser uden det lokale layout.
 
-Projektets Node-dashboardserver har nu en fælles profil for husstanden. Efter login under **Indstillinger → Forbindelser** hentes profilen automatisk. Home Assistant behøver ikke være tilsluttet for at dele dashboardet. Serveren skal være online på en fast adresse, og alle enheder skal bruge dens adresse. Denne ændring opretter eller udgiver ingen server og er derfor ikke aktiveret som cloudlagring på GitHub Pages.
+Projektets Node-dashboardserver har nu en fælles profil for husstanden. Efter login under **Indstillinger → Forbindelser** hentes profilen automatisk. Home Assistant behøver ikke være tilsluttet for at dele dashboardet. Serveren skal være online på en fast adresse, og alle enheder skal bruge dens adresse. Node-serveren er et alternativ til den gratis Supabase-lagring. På dens adresse bruges serverens eksisterende login og profil.
 
 Profilen omfatter:
 
@@ -11,7 +11,7 @@ Profilen omfatter:
 - Alle widgetters visningsindstillinger og planlagte Notes-koblinger.
 - Dag/aften/auto, læsetæthed og dagsblikkets synlighed.
 
-Der er én profil for huset, ikke individuelle brugerprofiler. Telefonen bruger profilens mobilopsætning, så den stadig passer til skærmen. Musik- og kalenderlogin, adgangskoder, tokens, møbelbilleder og usendte layoutudkast indgår ikke. Enhedskatalog og lister har deres eksisterende separate serverlagring.
+Node-serveren har én profil for huset. Supabase har en privat profil for hver appkonto. Telefonen bruger profilens mobilopsætning, så den stadig passer til skærmen. Musik- og kalenderlogin, adgangskoder, tokens, møbelbilleder og usendte layoutudkast indgår ikke. Enhedskatalog og lister har deres eksisterende separate serverlagring.
 
 ## Flyt den nuværende opstilling
 
