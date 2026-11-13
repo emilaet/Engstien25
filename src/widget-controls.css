@@ -1,7 +1,7 @@
 /* A quiet visual mark with a generous touch target. */
 .dashboard-widget{position:relative}
-.widget-options{position:absolute;z-index:6;right:7px;top:5px;width:36px;height:36px;min-height:36px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);opacity:.65;cursor:pointer}
-.widget-options svg{width:18px;height:18px;fill:currentColor;stroke:none}
+.widget-options{position:absolute;z-index:6;right:8px;top:8px;width:44px;height:44px;min-height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);opacity:.65;cursor:pointer}
+.widget-options svg{width:16px;height:16px;fill:currentColor;stroke:none}
 .widget-options:hover,.widget-options[aria-expanded=true]{opacity:1;background:var(--soft)}
 .widget-options:focus-visible{opacity:1;outline:2px solid var(--amber);outline-offset:1px}
 .dashboard-widget>.hw-head,.dashboard-widget>.hw-weather-layout>.hw-head,.dashboard-widget>.family-card-title{padding-right:32px}
@@ -41,7 +41,7 @@
 .widget-compact .list-title-long{display:inline!important}
 .widget-compact .family-card-title h2{width:100%;font-size:17px!important;line-height:1.4}
 .widget-compact .list-title-button{display:block;width:100%;min-height:44px}
-.widget-compact .widget-options{top:calc(50% - 18px)}
+.widget-compact .widget-options{top:calc(50% - 22px)}
 .is-editing .widget-compact .widget-resize-height,.is-editing .widget-compact .widget-resize-both{display:none!important}
 .full-list-add{display:flex;gap:10px;align-items:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 .full-list-add label{flex:1;min-width:0;font-size:12px;display:grid;gap:6px}
@@ -77,6 +77,52 @@
 .hw-electricity-dialog>.hw-detail-body{padding:0 20px 24px;display:grid;gap:15px}
 @container widget (height < 180px){.electricity-card .hw-head h2{font-size:13px}.electricity-card{padding:10px;gap:3px}.ep-summary>strong{font-size:22px}.ep-summary>span{font-size:9px}.ep-summary small{font-size:8px}.ep-average,.ep-source{display:none}.ep-summary>button{font-size:9px}.ep-scroll{min-height:42px}.ep-track{min-height:12px}.ep-value,.ep-time{font-size:9px}}
 @container widget (width < 220px){.ep-summary>button{font-size:0}.ep-summary>button:after{content:'↗';font-size:16px}.electricity-card .hw-head h2{font-size:14px}}
-@media(max-width:760px){.widget-options{width:44px;height:44px;right:2px;top:1px}.widget-options svg{width:17px;height:17px}.widget-compact .widget-options{top:calc(50% - 22px)}.widget-settings-dialog{padding:20px}.widget-settings-dialog h2{font-size:24px}.full-list-add{position:sticky;bottom:0;background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}}
+@media(max-width:760px){.widget-options{width:44px;height:44px;right:6px;top:6px}.widget-options svg{width:17px;height:17px}.widget-compact .widget-options{top:calc(50% - 22px)}.widget-settings-dialog{padding:20px}.widget-settings-dialog h2{font-size:24px}.full-list-add{position:sticky;bottom:0;background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}}
 
 .ep-selection{margin:0;font-size:10px;line-height:1.4;flex:none;color:var(--text)}.ep-hour[aria-pressed=true]{outline:1px solid var(--amber);outline-offset:-1px;background:var(--soft)}
+
+/* Shared widget geometry. Keep the menu's 44px target out of every heading. */
+:root{--widget-inset:20px;--widget-heading-gap:10px;--widget-heading-size:17px;--widget-menu-space:40px}
+:root[data-page=home] .dashboard-grid>.home-widget:not(.camera-card),
+:root[data-page=home] .dashboard-grid>.family-card,
+:root[data-page=home] .dashboard-grid>.summary-widget{padding:var(--widget-inset)}
+:root[data-page=home] .dashboard-grid .family-card-title,
+:root[data-page=home] .dashboard-widget>.hw-head,
+:root[data-page=home] .dashboard-widget>.hw-weather-layout>.hw-head{padding-right:var(--widget-menu-space)!important;min-height:30px!important;gap:var(--widget-heading-gap);margin:0 0 12px!important}
+:root[data-page=home] .dashboard-grid .family-card-title h2{font-size:var(--widget-heading-size)!important;font-weight:500;letter-spacing:-.4px;margin:0;flex:1}
+.widget-symbol{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;flex:none;background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green)}
+.widget-symbol svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+:root[data-page=home] .dashboard-grid .list-title-button{display:flex;align-items:center;gap:var(--widget-heading-gap);text-align:left;line-height:1.3;min-height:32px;padding:0;background:none;color:inherit}
+:root[data-page=home] .dashboard-grid>.widget-compact{padding:0 var(--widget-inset)!important}
+:root[data-page=home] .dashboard-grid>.widget-compact .family-card-title{height:100%;margin:0!important;flex:1}
+:root[data-page=home] .dashboard-grid>.widget-compact .list-show-all{display:none!important}
+:root[data-page=home] .dashboard-grid>.widget-compact h2{width:auto}
+:root[data-page=home] .dashboard-grid>.widget-compact .list-title-button{min-height:44px;width:100%}
+:root[data-page=home] .dashboard-grid #car-summary:after{content:none}
+:root[data-page=home] .dashboard-grid #car-summary .home-car-header{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-right:var(--widget-menu-space);margin:0 0 10px;flex:none;min-width:0;width:100%}
+.widget-heading{display:flex;align-items:center;gap:var(--widget-heading-gap);font-size:var(--widget-heading-size);font-weight:500;letter-spacing:-.4px;line-height:1.3;min-width:0}
+:root[data-page=home] .dashboard-grid #car-summary .home-car-status{font-size:10px;color:var(--green);line-height:1.35;display:flex;align-items:center;gap:5px;letter-spacing:0}
+.home-car-status:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+:root[data-page=home] .dashboard-grid #car-summary:not(.is-charging) .home-car-status{color:var(--muted)}
+:root[data-page=home] .dashboard-grid #car-summary #charge-summary{margin:0 0 12px!important}
+:root[data-page=home] .dashboard-grid #car-summary .home-car-details{order:2;flex:1 0 auto;min-height:0!important;margin-top:0!important}
+:root[data-page=home] .dashboard-grid #car-summary .card-source{position:static;order:3;align-self:flex-end;margin-top:8px;padding:0;font-size:10px}
+:root[data-page=home] .dashboard-grid .summary-widget>.stat>div>small{padding-right:var(--widget-menu-space)}
+@container widget (width > 290px){:root[data-page=home] .dashboard-grid #car-summary .home-car-header{flex-direction:row;align-items:center;justify-content:space-between}}
+@container widget (height < 180px){:root[data-page=home] .dashboard-grid #car-summary .home-car-header{margin-bottom:6px;gap:4px}:root[data-page=home] .dashboard-grid #car-summary .home-car-link{display:none}.widget-heading,.dashboard-grid .family-card-title h2{font-size:15px}.widget-symbol{width:24px;height:24px}}
+@media(max-width:760px){:root{--widget-inset:18px}.widget-options svg{width:16px;height:16px}}
+@container widget (width > 340px) and (height < 175px){
+ :root[data-page=home] .dashboard-widget>.hw-weather-layout>.hw-head{padding-right:0!important;margin:0!important}
+}
+@container widget (height < 110px){
+ :root[data-page=home] .dashboard-grid #car-summary .home-car-header{margin-bottom:3px}
+ :root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:24px!important;line-height:1.05!important;margin:0 0 6px!important}
+ :root[data-page=home] .dashboard-grid #car-summary .home-car-details{gap:3px!important}
+ :root[data-page=home] .dashboard-grid #car-summary .home-car-meta,:root[data-page=home] .dashboard-grid #car-summary .home-car-meta>span{font-size:11px!important;line-height:13px;margin:0!important}
+ :root[data-page=home] .dashboard-grid #car-summary .home-car-progress{height:6px!important;min-height:6px}
+ :root[data-page=home] .dashboard-grid #car-summary .card-source{font-size:8px;line-height:10px;margin-top:2px}
+}
+.ep-breakdown{font-size:12px;border-top:1px solid var(--border);margin-top:12px;padding-top:12px}
+.ep-breakdown summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none}
+.ep-breakdown summary:after{content:'＋';font-size:16px}.ep-breakdown[open] summary:after{content:'−'}
+.ep-breakdown dl{display:grid;gap:8px;margin:4px 0 12px}.ep-breakdown dl>div{display:flex;justify-content:space-between;gap:14px}.ep-breakdown dd{margin:0;white-space:nowrap;font-variant-numeric:tabular-nums}.ep-breakdown dt{color:var(--muted)}.ep-breakdown .ep-total{border-top:1px solid var(--border);padding-top:10px;font-weight:600}.ep-breakdown .ep-total dt{color:var(--text)}.ep-breakdown p{font-size:10px;line-height:1.5;color:var(--muted)}

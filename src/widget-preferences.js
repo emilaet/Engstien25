@@ -1,3 +1,4 @@
+import {gridCompanies} from './electricity-tariffs.js';
 import {safeStorage} from './storage.js';
 export const widgetPreferencePrefix='engstien-widget-options-v1:';
 const select=(key,label,options,value,extra={})=>({key,label,options,value,type:'select',...extra});
@@ -15,11 +16,11 @@ export const widgetOptions={
  tasks:{name:'Huskeliste',fields:listFields,connection:'Apple Noter'},shopping:{name:'Handleliste',fields:listFields,connection:'Apple Noter'},
  waste:{name:'Tømmekalender',fields:[select('view','Visning',[['simple','Enkel · næste tømning'],['detailed','Detaljeret · også efterfølgende tømning']],'detailed'),check('showIcons','Vis affaldssymboler')],connection:'Renosyd · via Home Assistant'},
  music:{name:'Musik',fields:[check('showArtwork','Vis albumcover'),check('showTimeline','Vis afspilningslinje')],connection:'Spotify / Apple Music'},
- electricity:{name:'Elpriser',fields:[select('hours','Synlige timer ad gangen',[['4','4 timer'],['5','5 timer'],['6','6 timer']],'5'),check('vat','Medtag 25 % moms'),check('showAverage','Vis dagens gennemsnit'),select('area','Prisområde',[['DK1','DK1 · Hørning / Vestdanmark'],['DK2','DK2 · Østdanmark']],'DK1',{advanced:true})],connection:'Elprisen lige nu · spotpris'}
+ electricity:{name:'Elpriser',fields:[select('hours','Synlige timer ad gangen',[['4','4 timer'],['5','5 timer'],['6','6 timer']],'5'),check('vat','Medtag 25 % moms'),check('showAverage','Vis dagens gennemsnit'),select('area','Prisområde',[['DK1','DK1 · Hørning / Vestdanmark'],['DK2','DK2 · Østdanmark']],'DK1',{advanced:true}),select('grid','Netselskab',Object.entries(gridCompanies).map(([id,c])=>[id,c.name]),'dinel',{advanced:true}),select('supplier','Elaftale',[['ok-high','OK El · Højt forbrug']],'ok-high',{advanced:true}),{key:'supplierMarkup',label:'Elaftaletillæg (øre/kWh inkl. moms)',type:'number',value:0,min:0,max:200,advanced:true}],connection:'Spotpris + DataHub · nettarif og afgifter'}
 };
 export function normalizeWidgetOptions(id,value={}){
  if(!widgetOptions[id])throw Error('Ukendt widget.');const result={};
- for(const f of widgetOptions[id].fields){const v=value?.[f.key];result[f.key]=f.type==='checkbox'?(typeof v==='boolean'?v:f.value):f.type==='text'?(typeof v==='string'?v.trim().slice(0,100):f.value):f.options.some(([key])=>key===v)?v:f.value;}
+ for(const f of widgetOptions[id].fields){const v=value?.[f.key];result[f.key]=f.type==='checkbox'?(typeof v==='boolean'?v:f.value):f.type==='number'?(v!==''&&v!==null&&Number.isFinite(Number(v))&&Number(v)>=f.min&&Number(v)<=f.max?Number(v):f.value):f.type==='text'?(typeof v==='string'?v.trim().slice(0,100):f.value):f.options.some(([key])=>key===v)?v:f.value;}
  return result;
 }
 export function createWidgetPreferences(storage){

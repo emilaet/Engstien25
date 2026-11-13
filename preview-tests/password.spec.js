@@ -1,3 +1,4 @@
+import {tariffFixture} from '../tests/fixtures/tariffs.js';
 import {electricityFixture} from '../tests/fixtures/electricity.js';
 import {weatherFixture} from '../tests/fixtures/weather.js';
 import { test, expect } from '@playwright/test';
@@ -35,6 +36,7 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', req => requests.push(req.url()));
   await page.route('https://api.open-meteo.com/v1/forecast?**',route=>route.fulfill({json:weatherFixture()}));
+  await page.route('https://api.energidataservice.dk/dataset/DatahubPricelist?**',route=>route.fulfill({json:tariffFixture(route.request().url())}));
   await page.route('https://www.elprisenligenu.dk/api/v1/prices/**',route=>{const m=route.request().url().match(/prices\/(\d{4})\/(\d{2}-\d{2})_(DK[12])/);return route.fulfill({json:electricityFixture(m[1]+'-'+m[2])});});
   await page.goto(url);
   await expect(page.locator('#app')).toHaveCount(0);
@@ -60,7 +62,7 @@ test('Wrong password stays locked; correct password opens working 3D without ext
   await expect(lamp).toHaveAttribute('aria-checked','true');
   await lamp.click();await expect(lamp).toHaveAttribute('aria-checked','false');
   expect(errors).toEqual([]);
-  expect(requests.filter(r => !r.startsWith(url) && !r.startsWith('data:') && !r.startsWith('https://api.open-meteo.com/v1/forecast?') && !r.startsWith('https://www.elprisenligenu.dk/api/v1/prices/'))).toEqual([]);
+  expect(requests.filter(r => !r.startsWith(url) && !r.startsWith('data:') && !r.startsWith('https://api.open-meteo.com/v1/forecast?') && !r.startsWith('https://www.elprisenligenu.dk/api/v1/prices/') && !r.startsWith('https://api.energidataservice.dk/dataset/DatahubPricelist?'))).toEqual([]);
   await page.reload();await expect(page.locator('input[type=password]')).toBeVisible();
 });
 

@@ -17,7 +17,7 @@ Under **Indstillinger → Widgets** findes visningsvalg og datakilde for hver wi
 | Huskeliste og handleliste | Liste eller kun titel, afkrydsede punkter, tilføjelse i modal, ønsket datakilde og Apple-notens navn |
 | Tømmekalender | Enkel/detaljeret og affaldssymboler |
 | Musik | Albumcover og afspilningslinje |
-| Elpriser | 4/5/6 synlige timer, moms, gennemsnit og DK1/DK2 |
+| Elpriser | 4/5/6 synlige timer, moms, gennemsnit, DK1/DK2, netselskab og elaftaletillæg |
 
 ## Kompakte lister
 
@@ -29,13 +29,13 @@ Importerede Notes-lister er stadig skrivebeskyttede. Valg af Apple Noter og note
 
 Priser hentes fra [Elprisen lige nus offentlige API](https://www.elprisenligenu.dk/elpris-api), uden konto eller nøgle. Hørning bruger DK1 som standard. Diagrammet viser dagens timer og morgendagens timer, hvis de er offentliggjort. Det starter ved den aktuelle time, og resten kan nås ved vandret rulning.
 
-Prisen er en **spotpris**, med eller uden 25 % moms efter valget. Nettarif, afgifter og elaftaletillæg indgår ikke. Kvartérpriser vægtes sammen til komplette timegennemsnit. Negative priser bevares, og tidsberegningen håndterer døgn på 23/25 timer i København.
+Prisen er en **totalpris pr. kWh**, med nettarif, Energinets system-/transmissionstariffer, elafgift og elaftaletillæg. 25 % moms er slået til som standard. Netselskab og tillæg ændres under Indstillinger → Widgets → Elpriser. Faste abonnementer indgår ikke; se [beregningen og designreglerne](widget-design.md). Kvartérpriser vægtes sammen til komplette timegennemsnit. Negative priser bevares, og tidsberegningen håndterer døgn på 23/25 timer i København.
 
 Grøn, gul og rød sammenligner lave, mellem og høje priser i forhold til resten af dagen. Beløbet står også ved hver søjle. Farverne er ikke en grænse for, om den samlede elregning er billig eller dyr.
 
 Data gemmes pr. prisområde og dato. Normalt hentes højst én ny prisoversigt pr. 30 minutter på hver enhed. En manglende morgendagsoversigt er ikke en fejl i dagens priser. Ved fejl begrænses automatiske genforsøg til højst én gang i minuttet; en blokeret elpristjeneste holder ikke vejr og de øvrige widgets tilbage. Ved netværksfejl markeres dagens cache som sidst kendte data; gamle døgn bliver aldrig vist som dagens aktuelle pris. Uden gyldige data vises manglende forbindelse og Prøv igen.
 
-Det administrerede udviklingsmiljø blokerer API-domænet. Beregninger og UI er kontrolleret med faste, offentligt formaterede testsvar; et rigtigt livekald er ikke verificeret her.
+Det administrerede udviklingsmiljø blokerer pris- og tarif-API-domænerne. Beregninger og UI er kontrolleret med faste, offentligt formaterede testsvar; et rigtigt livekald er ikke verificeret her.
 
 ## Kompatibilitet og kontrol
 

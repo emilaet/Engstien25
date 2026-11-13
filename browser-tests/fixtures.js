@@ -1,3 +1,4 @@
+import {tariffFixture} from '../tests/fixtures/tariffs.js';
 import {test as base,expect} from '@playwright/test';
 import {electricityFixture} from '../tests/fixtures/electricity.js';
 import {weatherFixture} from '../tests/fixtures/weather.js';
@@ -13,5 +14,6 @@ export const test=base.extend({serviceFixtures:[async({context},use)=>{
  });
  await context.route('https://api.open-meteo.com/v1/forecast?**',async route=>{let at;try{at=await route.request().frame().evaluate(()=>Date.now());}catch{at=Date.now();}return route.fulfill({json:weatherFixture(new Date(at))});});
  await context.route('https://www.elprisenligenu.dk/api/v1/prices/**',route=>{const m=route.request().url().match(/prices\/(\d{4})\/(\d{2}-\d{2})_(DK[12])/);return route.fulfill({json:electricityFixture(m[1]+'-'+m[2],{area:m[3]})});});
+ await context.route('https://api.energidataservice.dk/dataset/DatahubPricelist?**',route=>route.fulfill({json:tariffFixture(route.request().url())}));
  await use();
 },{auto:true}]});

@@ -51,9 +51,6 @@
 .dashboard-grid .summary-widget .stat .unit{font-size:22px}
 .dashboard-grid .summary-widget .stat div>span{display:block;font-size:11px;line-height:1.4}
 :root[data-page=home] .dashboard-grid #car-summary{gap:0;overflow:auto}
-:root[data-page=home] .dashboard-grid #car-summary>div>small{font-size:0!important;min-height:25px;margin:0!important;letter-spacing:0}
-:root[data-page=home] .dashboard-grid #car-summary>div>small:after{content:'Tesla';font-size:20px!important;color:var(--text);letter-spacing:-.5px}
-:root[data-page=home] .dashboard-grid #car-summary:after{position:static;order:-1;align-self:flex-end;max-width:100%;font-size:10px;line-height:1.3;white-space:normal;margin-bottom:-18px;pointer-events:none}
 :root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:clamp(32px,12cqi,56px)!important;line-height:1.15!important;letter-spacing:-1.5px;margin:12px 0 10px!important;white-space:normal}
 :root[data-page=home] .dashboard-grid #charge-summary .unit{font-size:22px}
 :root[data-page=home] .dashboard-grid #charge-summary .home-target{font-size:21px;letter-spacing:-.6px;display:inline-block;white-space:nowrap}
@@ -117,7 +114,6 @@
 @container widget (height < 175px){
  .hw-head{min-height:24px!important}.hw-head h2{font-size:15px!important}.hw-calendar-range{font-size:9px!important}.hw-calendar-foot>span{display:none}.hw-calendar-foot{min-height:44px!important}
  .family-card-title{min-height:26px!important}.family-card-title h2{font-size:16px!important}.family-item-copy{font-size:11px!important}.family-item .edit-item{min-width:28px!important}
- #car-summary>div>small:after{font-size:16px!important}#car-summary>div>small{min-height:20px!important}#car-summary #charge-summary{font-size:28px!important;margin:3px 0!important}.home-car-details{min-height:48px!important;gap:3px!important}.home-car-link{min-height:18px!important;font-size:10px!important}
  .house-overview-copy .home-light-status{display:none}.house-overview-copy .home-climate-status{bottom:14px!important;font-size:9px!important}
 }
 @container widget (height > 380px){
@@ -173,12 +169,10 @@
 @media(max-width:760px){:root[data-page=home] .family-grid.reference-layout.is-editing{grid-auto-rows:minmax(250px,auto)}}
 /* Legacy stat wrapping otherwise starts a second column at very low heights. */
 :root[data-page=home] .dashboard-grid .summary-widget>.stat{flex-wrap:nowrap!important}
-:root[data-page=home] .dashboard-grid>.summary-widget:has(#car-summary){padding:12px}
+:root[data-page=home] .dashboard-grid>.summary-widget:has(#car-summary){padding:var(--widget-inset,20px)}
 @container widget (width < 190px){.hw-forecast{grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:154px!important;row-gap:7px!important}.hw-day{gap:4px}}
 @container widget (height < 175px){
  :root[data-page=home] .dashboard-grid #car-summary #charge-summary{font-size:28px!important;margin:3px 0!important}
- :root[data-page=home] .dashboard-grid #car-summary>div>small{min-height:20px!important}
- :root[data-page=home] .dashboard-grid #car-summary>div>small:after{font-size:16px!important}
 }
 .dashboard-grid .family-item .edit-item{min-width:44px}
 .dashboard-grid .next-collection{flex:1 0 auto;min-height:min-content}
