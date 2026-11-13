@@ -47,3 +47,9 @@ test('An encrypted-build snapshot serves verified tariffs through browser outage
  for(const updatedAt of ['2026-11-01T00:00:00Z','2026-11-14T00:00:00Z']){const expired=createTariffProvider({storage:memory(),now:()=>at,fetchImpl,bundledSnapshot:{...bundledSnapshot,updatedAt}});assert.equal((await expired.load()).records.length,0);}
  const differentGrid=createTariffProvider({storage:memory(),now:()=>at,fetchImpl,bundledSnapshot});assert.equal((await differentGrid.load({gridCompany:'n1'})).records.length,0);
 });
+test('Browser tariff requests honour the server cooldown across manual retries and reloads',async()=>{
+ const disk=memory();let calls=0,at=new Date(period.at);const fetchImpl=async()=>{calls++;return{ok:false,status:429,headers:{get:()=> '3600'}};};
+ const provider=createTariffProvider({storage:disk,now:()=>at,fetchImpl});let snapshot=await provider.load();assert.ok(snapshot.error.includes('429'));assert.ok(snapshot.error.includes('60 min'));const count=calls;
+ await provider.load({force:true});assert.equal(calls,count);const reloaded=createTariffProvider({storage:disk,now:()=>at,fetchImpl});await reloaded.load({force:true});assert.equal(calls,count);
+ at=new Date(at.getTime()+3601000);await reloaded.load();assert.ok(calls>count);
+});

@@ -1,3 +1,4 @@
+import {retryAfterMillis} from './retry-after.js';
 import {safeStorage} from './storage.js';
 import {copenhagenDay} from './family-data.js';
 // DataHub D03 consumption tariffs, C / low voltage. Prices are DKK/kWh excl. VAT.
@@ -53,9 +54,9 @@ export function totalElectricityPrice(period,tariffs,options={}){
  return {...breakdown,subtotal,vat,total:subtotal+vat};
 }
 export function createTariffProvider({storage,fetchImpl=fetch,now=()=>new Date(),onChange=()=>{},bundledSnapshot=import.meta.env?.VITE_TARIFF_SNAPSHOT}={}){
- const disk=safeStorage(storage);let grid='dinel',data=null,error='',busy=false,pending=null,cached=false,bundled=false,lastAttempt=0;
+ const disk=safeStorage(storage);let grid='dinel',data=null,error='',busy=false,pending=null,cached=false,bundled=false,lastAttempt=0;let retryAt=Number(disk.getItem('engstien-tariff-retry-at-v1'))||0;if(!Number.isFinite(retryAt))retryAt=0;if(retryAt>now().getTime())error='Tarifkilden begrænser forespørgsler (HTTP 429). Prøv igen om '+Math.ceil((retryAt-now().getTime())/60000)+' min.';
  const key=()=>`engstien-tariffs-v1:${grid}`;
- const snapshot=()=>({grid,records:bundled&&now().getTime()-Date.parse(data.updatedAt)>7*86400000?[]:data?.records||[],updatedAt:data?.updatedAt||null,status:data?(cached||error?'cached':'live'):busy?'loading':'unavailable',error});
+ const snapshot=()=>({grid,records:bundled&&now().getTime()-Date.parse(data.updatedAt)>7*86400000?[]:data?.records||[],updatedAt:data?.updatedAt||null,status:data?(cached||error?'cached':'live'):busy?'loading':'unavailable',error,retryAt});
  function restoreBundled(){try{
   const c=typeof bundledSnapshot==='string'?JSON.parse(bundledSnapshot):bundledSnapshot,age=now().getTime()-Date.parse(c?.updatedAt);
   if(c?.version!==1||c.grid!==grid||!Number.isFinite(age)||age<0||age>7*86400000)return;
@@ -71,11 +72,12 @@ export function createTariffProvider({storage,fetchImpl=fetch,now=()=>new Date()
  return {snapshot,async load({gridCompany=grid,force=false}={}){
   if(pending){await pending;return gridCompany!==grid?this.load({gridCompany,force}):snapshot();}
   if(gridCompany!==grid){grid=gridCompanies[gridCompany]?gridCompany:'dinel';data=null;error='';bundled=false;lastAttempt=0;restore();}else if(!data)restore();if(!data)restoreBundled();
-  if(!force&&(error&&now().getTime()-lastAttempt<60000||data&&!bundled&&now().getTime()-Date.parse(data.updatedAt)<12*3600000))return snapshot();
+  if(now().getTime()<retryAt)return snapshot();
+  if(!force&&(error&&now().getTime()-lastAttempt<60000||data&&now().getTime()-Date.parse(data.updatedAt)<12*3600000))return snapshot();
   lastAttempt=now().getTime();busy=true;onChange();pending=(async()=>{try{
-   const sets=await Promise.all(tariffUrls(grid).map(async url=>{const response=await fetchImpl(url,{signal:AbortSignal.timeout(12000),credentials:'omit'});if(!response.ok)throw Error('Tarifkilden svarer med HTTP '+response.status+'.');const body=await response.json();return normalizeTariffs(applicableTariffRecords(body.records,copenhagenDay(now())));}));
+   const sets=await Promise.all(tariffUrls(grid).map(async url=>{const response=await fetchImpl(url,{signal:AbortSignal.timeout(12000),credentials:'omit'});if(response.status===429){retryAt=now().getTime()+Math.max(60000,retryAfterMillis(response.headers?.get?.('retry-after'),now().getTime()));disk.setItem('engstien-tariff-retry-at-v1',String(retryAt));throw Error('Tarifkilden begrænser forespørgsler (HTTP 429). Prøv igen om '+Math.ceil((retryAt-now().getTime())/60000)+' min.');}if(!response.ok)throw Error('Tarifkilden svarer med HTTP '+response.status+'.');const body=await response.json();return normalizeTariffs(applicableTariffRecords(body.records,copenhagenDay(now())));}));
    const records=sets.flat();if(!totalElectricityPrice({at:now().toISOString(),price:0},{records},{grid})){const day=copenhagenDay(now()),hour=Number(localHour.format(now())),company=gridCompanies[grid],missing=[...company.codes.filter(code=>rate(records,day,hour,r=>r.gln===company.gln&&r.code===code)===null).map(code=>company.name+' '+code),...systemNotes.filter(note=>rate(records,day,hour,r=>r.note===note)===null)];throw Error('Manglende eller modstridende tariffer: '+missing.join(', ')+'.');}
-   data={grid,records,updatedAt:now().toISOString()};error='';cached=false;bundled=false;disk.setItem(key(),JSON.stringify(data));
+   data={grid,records,updatedAt:now().toISOString()};error='';cached=false;bundled=false;retryAt=0;disk.setItem('engstien-tariff-retry-at-v1','0');disk.setItem(key(),JSON.stringify(data));
   }catch(reason){error=reason?.name==='TimeoutError'?'Tarifkilden tog for lang tid om at svare.':reason instanceof TypeError?'Forbindelsen til tarifkilden kunne ikke oprettes.':reason.message||'Nettarif og afgifter kunne ikke hentes.';}finally{busy=false;pending=null;onChange();}})();await pending;return snapshot();
  }};
 }
