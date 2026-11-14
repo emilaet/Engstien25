@@ -1,0 +1,116 @@
+/* Mobile surface system: one page title, readable status, quiet secondary UI. */
+.mobile-vehicle,.ru-mobile-overview,.ru-mobile-source,.mobile-menu-action,.mobile-appearance-slot{display:none}
+.mobile-lights-sheet{width:min(440px,calc(100vw - 32px));border:1px solid var(--border);border-radius:28px;padding:24px;background:var(--surface);color:var(--text)}
+.mobile-lights-sheet::backdrop{background:#0007;backdrop-filter:blur(6px)}
+.mobile-sheet-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.mobile-sheet-heading p{font-size:11px;letter-spacing:1.6px;color:var(--muted);margin:0 0 8px}.mobile-sheet-heading h2{font-size:25px;line-height:32px;letter-spacing:-.8px}
+.mobile-sheet-heading>button{height:44px;min-width:44px;display:grid;place-items:center;border-radius:50%;font-size:26px;background:var(--soft)}
+.mobile-lights-sheet .mobile-sheet-description{font-size:15px;line-height:24px;color:var(--muted);margin:20px 0}
+.mobile-sheet-actions{display:grid;gap:10px}.mobile-sheet-actions button{min-height:52px;padding:12px 16px;border:1px solid var(--border);border-radius:16px;background:var(--soft);font-size:16px;text-align:left}.mobile-sheet-actions [data-mobile-all=off]{color:var(--amber);background:var(--amber-soft);border-color:transparent}.mobile-sheet-actions button:disabled{opacity:.4}
+.mobile-lights-sheet .mobile-sheet-source{font-size:12px;line-height:18px;color:var(--muted);margin:20px 0 0}
+@media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
+ :root{--mobile-page-inset:20px;--mobile-section-gap:24px;--mobile-copy-size:16px;--mobile-caption-size:12px}
+ html{overflow-x:clip;overflow-y:auto;scrollbar-width:none!important}
+ body{overscroll-behavior-y:auto}
+ :root main{padding:calc(16px + env(safe-area-inset-top)) max(var(--mobile-page-inset),env(safe-area-inset-right)) calc(100px + env(safe-area-inset-bottom)) max(var(--mobile-page-inset),env(safe-area-inset-left))!important;overflow:visible;max-height:none;height:auto!important;min-height:100dvh}
+ :root main>header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;min-height:56px;margin:0 0 24px;height:auto!important}
+ :root main>header>.header-right{display:flex;grid-column:2;grid-row:1;gap:8px!important;align-items:center;min-width:0}
+ header .eyebrow{font-size:11px;line-height:16px;letter-spacing:1.8px;margin:0 0 6px;color:var(--muted)}
+ header h1{font-size:32px;line-height:38px;letter-spacing:-1.2px;font-weight:600;overflow-wrap:anywhere}
+ .header-right>.date,.header-right>.clock{display:none!important}
+ .header-right>.header-weather{display:flex;align-items:center;justify-content:center;gap:6px;min-width:66px;width:auto;height:44px;min-height:44px;padding:6px 4px;border:0;border-radius:12px;background:none;box-shadow:none;color:var(--text)}
+ .header-weather .hw-weather-art{width:24px;height:24px;min-width:24px}.header-weather strong{font-size:16px;line-height:24px;font-weight:500}
+ .home-layout-menu #home-options{min-width:44px;width:44px;height:44px;min-height:44px;border-radius:15px;border:1px solid var(--border);background:var(--surface);box-shadow:none}
+ .home-layout-menu #home-options .menu-dots{width:17px;height:17px}
+ :root main>.header-live-widgets{display:none}
+ :root[data-page=home] main>.header-live-widgets{display:block;margin:0 0 24px;width:100%;height:auto;background:none;border:0}
+ .header-live-widgets .header-tesla{display:block;width:100%;height:auto;min-height:0;padding:16px;border:1px solid color-mix(in srgb,var(--green) 14%,var(--border));border-radius:22px;background:var(--green-soft);box-shadow:none;text-align:left}
+ .header-live-widgets .header-tesla>:not(.mobile-vehicle){display:none!important}
+ .header-tesla .mobile-vehicle{display:grid;gap:10px}
+ .mobile-vehicle-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:16px;line-height:22px;font-weight:500}
+ .mobile-vehicle-heading small{font-size:12px;line-height:18px;font-weight:400;color:var(--muted)}
+ .mobile-vehicle-body{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px}
+ .mobile-vehicle-body>strong{font-size:34px;line-height:42px;letter-spacing:-1px;font-weight:500;font-variant-numeric:tabular-nums}
+ .mobile-vehicle-body>span{display:grid;justify-content:end;gap:2px;text-align:right;min-width:0}
+ .mobile-vehicle-body b{font-size:15px;line-height:22px;font-weight:500;color:var(--green)}.mobile-vehicle-body>span>span{font-size:14px;line-height:20px;color:var(--muted)}
+ .mobile-vehicle-time{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding-top:12px;margin-top:2px;border-top:1px solid color-mix(in srgb,var(--green) 16%,transparent);font-size:13px;line-height:20px;color:var(--muted);font-variant-numeric:tabular-nums}
+ .header-live-widgets .header-tesla:not([data-state=charging]),.header-live-widgets .header-tesla[data-quality=cached]{background:var(--surface);border-color:var(--border)}
+ .header-tesla[data-quality=cached] .mobile-vehicle-body b{color:var(--muted)}
+ .home-layout-menu #home-options-menu{top:calc(100% + 10px);width:min(300px,calc(100vw - 40px));border-radius:20px;border:1px solid var(--border);padding:8px;box-shadow:0 14px 48px #0003;z-index:300}
+ #home-options-menu>button,#home-options-menu .model-menu-controls>button{min-height:48px;font-size:15px;line-height:22px;padding:12px;border-radius:12px;text-align:left}
+ .mobile-appearance-slot{display:block;margin:6px 0 0;padding:6px 0 0;border-top:1px solid var(--border)}
+ .mobile-appearance-slot .appearance-control{width:100%;border:0!important;background:none!important;box-shadow:none!important;border-radius:12px;padding:0!important}
+ .mobile-appearance-slot .appearance-trigger{width:100%;min-height:48px;padding:12px;gap:10px;border-radius:12px;font-size:15px;background:none}
+ .mobile-appearance-slot .appearance-label{display:block;flex:1;font-size:15px;text-align:left}
+ .mobile-appearance-slot .appearance-trigger>svg{display:block;flex:none}.mobile-appearance-slot .appearance-symbol{display:flex}
+ .mobile-appearance-slot .appearance-menu{width:100%;min-width:0;max-width:none;top:calc(100% + 8px);border-radius:16px}
+ .mobile-menu-action:not([hidden]){display:block;width:100%}
+ :root:not([data-rooms-expanded=true]) .model-menu-controls :is(#furniture-toggle,#wall-view){display:none}
+ /* Rooms are the page, rather than a card nested inside another dashboard. */
+ :root[data-page=rooms] .summary{display:none!important}
+ :root[data-page=rooms] #rooms-workspace{display:flex;flex-direction:column;gap:24px;margin:0;min-height:0}
+ :root[data-page=rooms] #panel.room-ux{--ru-ink:var(--text);--ru-muted:var(--muted);--ru-line:var(--border);--ru-surface:var(--surface);--ru-soft:var(--surface);--ru-accent:var(--amber);--ru-active:var(--amber);--ru-warm:color-mix(in srgb,var(--amber) 7%,var(--surface));--ru-track:var(--soft);--ru-knob:var(--surface);order:0;display:flex;gap:0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;overflow:visible;height:auto;min-height:0;max-height:none;scroll-margin-top:20px}
+ :root[data-page=rooms] #panel[data-category=overview]>:is(.ru-room-nav,.ru-title,.ru-overview-footer){display:none}
+ #panel.room-ux .ru-mobile-overview{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 8px;min-height:48px}
+ .ru-mobile-overview>div{min-width:0}.ru-mobile-overview p{font-size:15px;line-height:22px;margin:0 0 3px;color:var(--text)}
+ .ru-mobile-overview [data-mobile-light-count]{font-size:13px;line-height:20px;color:var(--muted)}
+ #panel.room-ux .ru-mobile-overview button{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--surface);font-size:14px;white-space:nowrap}
+ #panel.room-ux .ru-mobile-overview button svg{width:18px;height:18px;flex:none}
+ #panel.room-ux .ru-mobile-source{display:block;font-size:12px;line-height:18px;color:var(--muted);margin:0 0 20px}
+ #panel.room-ux .ru-room-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto;gap:12px;flex:none;min-height:0;overflow:visible;padding:0;margin:0}
+ #panel.room-ux .ru-room-tile{display:block;min-height:108px;height:auto;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:none;text-align:left}
+ #panel.room-ux .ru-room-tile>svg{display:none}
+ #panel.room-ux .ru-room-tile>span{display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:74px;height:100%;min-width:0}
+ #panel.room-ux .ru-room-tile b{font-size:16px;line-height:22px;letter-spacing:-.2px;font-weight:500;white-space:normal;overflow-wrap:anywhere}
+ #panel.room-ux .ru-room-tile small{font-size:13px;line-height:20px;margin:0;color:var(--muted)}
+ #panel.room-ux .ru-room-tile small:before{content:'';display:inline-block;height:6px;width:6px;margin-right:6px;border-radius:50%;vertical-align:2px;background:var(--muted);opacity:.5}
+ #panel.room-ux .ru-room-tile.ru-on{background:var(--ru-warm);border-color:color-mix(in srgb,var(--amber) 24%,var(--border))}
+ #panel.room-ux .ru-room-tile.ru-on small{color:var(--amber)}#panel.room-ux .ru-room-tile.ru-on small:before{background:var(--amber);opacity:1}
+ #panel.room-ux [data-room=outside]{grid-column:1/-1;min-height:76px}
+ #panel.room-ux [data-room=outside]>span{min-height:0;flex-direction:row;align-items:center;gap:12px}
+ :root[data-page=rooms] .rooms-visual-toggle{order:1;min-height:48px;width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:16px;background:var(--surface);font-size:15px;color:var(--muted)}
+ :root[data-page=rooms]:not([data-rooms-expanded=true]) .model-card{display:none!important}
+ :root[data-page=rooms] .model-card{order:2;height:380px;min-height:380px}
+ /* Device controls use the same surfaces and type scale as the overview. */
+ #panel.room-ux .ru-room-nav{min-height:44px;margin:0 0 16px;gap:12px}
+ #panel.room-ux .ru-room-nav button{min-height:44px;min-width:44px;font-size:15px}
+ :root[data-mobile-room-selected=true] #panel .ru-title h2{display:none}
+ #panel.room-ux .ru-title{margin:0 0 20px;gap:0;min-height:0}
+ #panel.room-ux .ru-title .ru-marker{display:none}
+ #panel.room-ux .ru-title p{font-size:14px;line-height:22px;margin:0;color:var(--muted)}
+ #panel.room-ux .ru-tabs{min-height:48px;margin-bottom:20px;padding:4px;border-radius:16px;background:var(--soft);border:1px solid var(--border)}
+ #panel.room-ux .ru-tabs button{min-height:44px;font-size:15px;padding:8px 12px;border-radius:12px;gap:6px}
+ #panel.room-ux .ru-tabs small{font-size:12px}
+ #panel.room-ux .ru-content{height:auto;max-height:none;overflow:visible;gap:14px;flex:none;padding:0}
+ #panel.room-ux .ru-caption{font-size:13px;line-height:20px;margin:0 0 2px}
+ #panel.room-ux .ru-device{padding:16px;border-radius:20px;background:var(--surface);border-color:var(--border)}
+ #panel.room-ux .ru-device.ru-on{background:var(--ru-warm)}
+ #panel.room-ux .ru-device-head{gap:12px;min-height:44px}
+ #panel.room-ux .ru-device-icon{width:30px;height:30px;min-width:30px;background:none}
+ #panel.room-ux .ru-copy h3,#panel.room-ux .ru-copy b{font-size:16px;line-height:22px;font-weight:500;white-space:normal;overflow-wrap:anywhere}
+ #panel.room-ux .ru-copy p,#panel.room-ux .ru-copy small{font-size:13px;line-height:20px;margin-top:4px}
+ #panel.room-ux .ru-range{font-size:13px;line-height:20px;margin:16px 0 0;gap:8px}
+ #panel.room-ux .ru-range output{font-size:14px;line-height:20px}
+ #panel.room-ux .ru-range input{height:44px;min-height:44px}
+ #panel.room-ux .ru-range input::-webkit-slider-thumb{height:22px;width:22px;margin-top:-8.5px}
+ #panel.room-ux .ru-footer{padding-top:20px;margin-top:20px;gap:10px}
+ #panel.room-ux .ru-footer button,#panel.room-ux .ru-presets button,#panel.room-ux .ru-curtain-actions button,#panel.room-ux .ru-heat-presets button{font-size:14px;line-height:20px;min-height:44px;height:auto;white-space:normal;padding:10px 12px}
+ #panel.room-ux .ru-tip,#panel.room-ux .ru-footer>span,#panel.room-ux .ru-heat-state,#panel.room-ux .ru-heat-info{font-size:13px;line-height:21px}
+ #panel.room-ux .ru-curtain-heading .ru-percent{font-size:24px;line-height:30px}#panel.room-ux .ru-percent small{font-size:14px}
+ #panel.room-ux .ru-temperature{padding:24px 16px;border-radius:22px}
+ #panel.room-ux .ru-temperature :is(.ru-eyebrow,p),#panel.room-ux .ru-heat-info{font-size:14px;line-height:22px}
+ #panel.room-ux .ru-stepper strong{font-size:48px;line-height:58px}
+ /* A quiet, stable navigation bar; text stays readable during theme changes. */
+ .rail{position:fixed;inset:auto 0 0;z-index:50;width:100%;height:calc(68px + env(safe-area-inset-bottom))!important;padding:6px 16px calc(6px + env(safe-area-inset-bottom))!important;border-right:0;border-top:1px solid var(--border);background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(16px)}
+ .rail .brand,.rail .rail-bottom{display:none}.rail nav{display:flex;justify-content:space-around;width:100%;margin:0;gap:16px}
+ .rail .nav{height:54px;width:88px;gap:4px;border-radius:16px;color:var(--muted)}.rail .nav svg{width:22px;height:22px}.rail .nav small{font-size:12px;line-height:16px;font-weight:500}
+ .rail nav.has-nav-motion .nav.active{color:var(--green)!important}.rail nav .nav-selection{background:var(--soft);border:1px solid var(--border)}
+ .rail nav.has-nav-motion .nav,.rail nav[data-motion-ready=true] .nav-selection{transition:none}
+ :root main>.page-footer{font-size:12px;line-height:20px;padding-top:24px;gap:8px}.page-footer>span{font-size:inherit!important}.page-footer>span:first-child{display:none!important}
+ :root[data-page=car] .charge-eta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:14px;line-height:21px}
+ :root[data-page=car] .charge-eta small{font-size:12px;line-height:18px}
+ :root[data-page=car] :is(.charge-status,.charge-freshness,.charge-stat>span,.charge-slider-ticks,.charge-target-slider>p,.price-note,.charge-advanced){font-size:12px;line-height:19px}
+ :root[data-page=car] .charge-advanced>summary{min-height:44px;display:flex;align-items:center}
+ .layout-editor .layout-bar{display:grid;grid-template-columns:40px 40px 40px minmax(0,1fr) minmax(0,1.3fr);gap:4px}
+ .layout-editor .layout-bar>button{padding:4px;min-width:0;min-height:44px;font-size:12px;white-space:normal}.layout-editor .layout-widgets-text{display:none}
+}
+@media(max-width:359px){:root{--mobile-page-inset:16px}header h1{font-size:29px;line-height:35px}:root[data-mobile-room-selected=true] .header-right>.header-weather{min-width:44px;width:44px}:root[data-mobile-room-selected=true] .header-weather strong{display:none}}

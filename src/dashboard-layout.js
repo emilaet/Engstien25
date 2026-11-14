@@ -52,7 +52,7 @@ const matchesDefault=(layout,reference)=>layout.length===reference.length&&layou
 const sameDefault=layout=>matchesDefault(layout,defaultLayout())||matchesDefault(layout,defaultLayout().map(w=>w.id==='car'?{...w,visible:true}:w))||matchesDefault(layout,previousDefaultLayout())?'current':matchesDefault(layout.filter(w=>w.id!=='electricity'),classicLayout())?'classic':false;
 const cardHeight=(widget,standard,mobile=false)=>mobile&&widget.mobileHeightPx!==undefined?widget.mobileHeightPx:widget.heightPx??(standard?(standard==='classic'?classicHeights:defaultHeights)[widget.id]:widget.height*74-14);
 const mobilePriority=['calendar','music','electricity','tasks','shopping','camera','waste','weather','car','house','lights','climate','curtains'];
-const mobileHeights={electricity:196,calendar:132,waste:164,weather:164,car:164,tasks:164,shopping:164,house:164,camera:180,music:132,lights:132,climate:132,curtains:132};
+const mobileHeights={electricity:244,calendar:164,waste:164,weather:164,car:164,tasks:164,shopping:164,house:164,camera:244,music:164,lights:132,climate:132,curtains:132};
 const mobileWidths={electricity:12,calendar:6,music:6,tasks:6,shopping:6,camera:12,waste:6,weather:6,car:6,house:12,lights:6,climate:6,curtains:6};
 export const mobileWidth=widget=>widget.mobileWidth??mobileWidths[widget.id]??12;
 const mobileDefaultVisible=id=>['calendar','electricity','tasks','shopping','camera','music'].includes(id);

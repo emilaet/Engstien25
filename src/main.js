@@ -22,6 +22,8 @@ import './widget-refinement.css';
 import './dashboard-actions.css';
 import './app-polish.css';
 import './mobile-dashboard.css';
+import './mobile-interface.css';
+import {createMobileInterface} from './mobile-interface.js';
 import {setupMobileApp,isPhoneUI} from './mobile-app.js';
 setupMobileApp();
 import {safeStorage} from './storage.js';
@@ -63,9 +65,9 @@ document.querySelector('#app').innerHTML=`
 const headerDate=document.querySelector('.date'),today=new Date(),fullDate=new Intl.DateTimeFormat('da-DK',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Copenhagen'}).format(today),shortDate=new Intl.DateTimeFormat('da-DK',{day:'numeric',month:'short',timeZone:'Europe/Copenhagen'}).format(today);
 headerDate.innerHTML=`<span class="date-full">${fullDate}</span><span class="date-short" aria-hidden="true">${shortDate}</span>`;headerDate.setAttribute('aria-label',fullDate);headerDate.title=fullDate;
 const panel=document.querySelector('#panel');let model,modelPromise;
-const roomPanel=createRoomPanel(panel,{getState:()=>state,onSelect:openRoom,onClear:clearRoom,onViewChange:category=>{history.replaceState(history.state,'',roomLocation(selected,category));rememberCurrent();},getDeviceName:(id,fallback)=>settingsClient?.value().catalog.devices.find(d=>d.id===id)?.name||fallback,getDevice:id=>settingsClient?deviceControl(settingsClient.value().catalog,settingsClient.value().ha,id,deviceCommands.has(id)):null,onCommand:sendDeviceCommand,onChange:update,onInput:()=>{refreshSummary();model?.update(state,selected);},onPersist:save});
+const roomPanel=createRoomPanel(panel,{getState:()=>state,onSelect:openRoom,onClear:clearRoom,onRender:()=>mobileInterface?.refresh(),onViewChange:category=>{history.replaceState(history.state,'',roomLocation(selected,category));rememberCurrent();},getDeviceName:(id,fallback)=>settingsClient?.value().catalog.devices.find(d=>d.id===id)?.name||fallback,getDevice:id=>settingsClient?deviceControl(settingsClient.value().catalog,settingsClient.value().ha,id,deviceCommands.has(id)):null,onCommand:sendDeviceCommand,onChange:update,onInput:()=>{refreshSummary();model?.update(state,selected);},onPersist:save});
 roomPanel.restore(selected,initialRoute.category);
-let homeLayout,settingsClient,widgetControls,profileSync;const deviceCommands=new Set();
+let homeLayout,settingsClient,widgetControls,profileSync,mobileInterface;const deviceCommands=new Set();
 let familyShared=false;
 const widgetServices=createWidgetServices();
 const familyDashboard=createFamilyDashboard(document.querySelector('#family-dashboard'),{widgetProvider:widgetServices,onNavigate:navigate,onHideWaste:()=>homeLayout?.visibility('waste',false),onRender:snapshot=>{familyShared=snapshot.mode==='server';homeLayout?.refresh();widgetControls?.refresh();refreshWelcome();refreshDataStatus();}});
@@ -96,6 +98,7 @@ widgetControls=createWidgetControls({family:familyDashboard,layout:homeLayout,on
 widgetPreferences.subscribe(id=>{profileSync?.changed();homeLayout.refresh();widgetControls.refresh();refreshSummary();if(id==='electricity')widgetServices.electricity.load({priceArea:widgetPreferences.get('electricity').area}).then(()=>familyDashboard.refresh());});
 const navigationMotion=createNavigationMotion(document.querySelector('.rail nav'));
 const settingsButton=document.createElement('button');settingsButton.id='open-settings';settingsButton.textContent='Indstillinger';settingsButton.onclick=()=>openSettings();document.querySelector('#home-options-menu').append(settingsButton);
+mobileInterface=createMobileInterface({getView:()=>tab,getRoom:()=>selected,getSummary:()=>houseLightStatus(state),onAllLights:on=>document.querySelector(on?'#all-lights-on':'#all-lights-off').click()});
 for(const id of ['roof-view','graphics-quality','help'])document.getElementById(id).remove();
 window.addEventListener('engstien-open-settings',e=>openSettings(e.detail||'connections'));
 settingsClient.discover().then(()=>{if(!settingsClient.value().server)void cloudAccount.restore();});
@@ -115,11 +118,11 @@ async function withModel(action){const origin=tab,ready=await ensureModel();if(r
 
 function rememberCurrent(){history.replaceState({...history.state,engstien:{view:tab,room:selected,category:panel.dataset.category,windowY:scrollY,panelY:panel.scrollTop,contentY:panel.querySelector('.ru-content')?.scrollTop||0}},'');}
 function navigate(next){if(next===tab&&!selected)return;rememberCurrent();selected=null;tab=next;panel.scrollTop=0;history.pushState(null,'','#'+next);update();window.scrollTo({top:0,behavior:'instant'});rememberCurrent();}
-function clearRoom(){const previous=selected;navigate('rooms');panel.querySelector(previous?'[data-room="'+previous+'"]':'[data-room]')?.focus({preventScroll:true});}
+function clearRoom(){const previous=selected;navigate('rooms');const tile=panel.querySelector(previous?'[data-room="'+previous+'"]':'[data-room]');tile?.focus({preventScroll:true});if(isPhoneUI())tile?.scrollIntoView({block:'center',behavior:'instant'});}
 
 function openRoom(id){
  if(!controlRooms.some(room=>room.id===id))return;rememberCurrent();selected=id;tab='rooms';history.pushState(null,'',roomLocation(id,roomPanel.category(id)));update();if(id==='outside'&&(!matchMedia('(max-width:760px)').matches||document.documentElement.dataset.roomsExpanded==='true'))withModel(m=>m.full('garden'));
- if(matchMedia('(max-width:760px)').matches)panel.scrollIntoView({block:'start',behavior:'instant'});
+ if(isPhoneUI())window.scrollTo({top:0,behavior:'instant'});
 }
 history.scrollRestoration='manual';
 window.addEventListener('popstate',()=>{const locationState=readRoute(),stored=history.state?.engstien;tab=locationState.view;selected=locationState.room||(tab==='rooms'&&stored?.view==='rooms'&&controlRooms.some(r=>r.id===stored.room)?stored.room:null);roomPanel.restore(selected,locationState.category||stored?.category);update();requestAnimationFrame(()=>{panel.scrollTop=Number.isFinite(stored?.panelY)?stored.panelY:0;const content=panel.querySelector('.ru-content');if(content)content.scrollTop=Number.isFinite(stored?.contentY)?stored.contentY:0;scrollTo(0,Number.isFinite(stored?.windowY)?stored.windowY:0);});});
@@ -168,6 +171,7 @@ function refreshDataStatus(){
  const snapshot=settingsClient?.value(),connection=snapshot?.ha,live=connection?.online,devices=snapshot?.catalog.devices||[];
  const provenance=type=>{const bound=devices.filter(d=>d.type===type&&d.bindings.primary&&!d.retired);return bound.length?(live?'Delvist live':'Delvist koblet'):'Eksempel';};
  const labels=[['car-summary',car.readonly?(car.quality==='cached'?'Sidst kendte':'Live'):'Eksempel'],['lights-summary',provenance('light')],['climate-summary',provenance('climate')],['curtain-summary',provenance('cover')]];
+ mobileInterface?.refresh(provenance('light'));
  for(const [id,text]of labels){const card=document.getElementById(id);let source=card?.querySelector('.card-source');if(card&&!source){source=document.createElement('span');source.className='card-source';card.append(source);}if(source)source.textContent=text+(id==='car-summary'&&car.readonly&&car.updatedAt?' · '+new Intl.DateTimeFormat('da-DK',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Copenhagen'}).format(new Date(car.updatedAt)):'');}
  const serviceData=familyDashboard.widgetSnapshot,connectedServices=[serviceData.weather.status,serviceData.calendar.status].includes('live');
  const overview=document.querySelector('.house-overview-copy .home-climate-status');if(overview)overview.dataset.source=provenance('climate');
