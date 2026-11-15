@@ -54,7 +54,7 @@ Når dashboardserveren er tilsluttet HA:
 3. Under **Kobling til Home Assistant** vælges den enhed, der netop blev tilføjet. Navn, rum og teknisk ID hjælper med at genkende den.
 4. Gem og afprøv den ene enhed. Gentag for næste enhed, når det passer.
 
-Valg og gemning betjener ikke enheden i sig selv. En almindelig kontakt får ikke en opdigtet dæmper; mulighederne afhænger af, hvad HA rapporterer. Eksisterende modelobjekter har faste placeringer. En ny katalogpost opretter ikke automatisk en ekstra lampe eller et nyt gardin i 3D-modellen.
+Valg og gemning betjener ikke enheden i sig selv. En almindelig kontakt får ikke en opdigtet dæmper; mulighederne afhænger af, hvad HA rapporterer. Eksisterende modelobjekter har faste placeringer. En ny katalogpost kan allerede aflæses og afprøves under Indstillinger, men vises endnu ikke automatisk som en ekstra kontrol i Rum eller et nyt objekt i 3D-modellen. Automatisk visning af ekstra enheder i deres rum er derfor en konkret næste forberedelse; 3D-placeringen kan fortsat vælges særskilt.
 
 ## Det, der allerede er klar i projektet
 
@@ -68,6 +68,8 @@ Valg og gemning betjener ikke enheden i sig selv. En almindelig kontakt får ikk
 **Der findes endnu ikke en installerbar Engstien-app til Home Assistant OS.** Den eksisterende Node-server kræver i dag en separat Node-maskine. Apple TV kan ikke køre denne server. For at undgå en ekstra maskine, der skal være tændt, er den anbefalede næste udviklingsopgave at pakke serveren som en HA-app til Green (tidligere kaldet add-on).
 
 Green-pakken skal have installation/opdatering, vedvarende lagring, backup, HA-adgang på serversiden og en gennemprøvet login-/mobiladgang. Den skal testes på Green. Det er ikke nok blot at lægge den nuværende GitHub-side i en HA-webvisning.
+
+Tilføjelsesforløbet bør samtidig kunne vise nye HA-enheder, vælge rum og funktion og tilføje deres kontroller i Rum uden at kræve et eksisterende modelobjekt. HA står fortsat for selve Matter-parringen. Det er et planlagt forbedringspunkt, ikke en allerede færdig automatisk import.
 
 På GitHub Pages kan appen ikke søge efter eller parre Thread-enheder. Den nuværende Pages-version forbinder heller ikke til en vilkårlig HA-server. Et HA-token skal ikke indtastes eller indlejres på GitHub-siden. Se den nuværende [lokale serveropsætning](integrations.md) og [HA-koblingen](settings.md).
 
