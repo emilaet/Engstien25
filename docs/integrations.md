@@ -1,3 +1,5 @@
+> Home Assistant Green og Apple TV 4K: se den [praktiske Matter/Thread-opsætning og status for Green-pakken](home-assistant-green.md).
+
 > Ny enhedsopsætning og styring: se [Indstillinger og enhedsplan](settings.md). Afsnittene nedenfor beskriver også den bevarede legacy-læseadapter til Tesla.
 
 # Datakilder, Tesla og drift
