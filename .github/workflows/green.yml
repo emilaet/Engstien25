@@ -1,0 +1,72 @@
+name: Green app release
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - engstien/config.yaml
+permissions:
+  contents: read
+concurrency:
+  group: green-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check:green
+      - run: npm test
+      - run: npm run build
+        env:
+          APP_BUILD: ${{ github.sha }}
+          VITE_GOOGLE_CALENDAR_CLIENT_ID: ${{ vars.GOOGLE_CALENDAR_CLIENT_ID }}
+          VITE_SPOTIFY_CLIENT_ID: ${{ vars.SPOTIFY_CLIENT_ID }}
+      - name: Prepare test browser
+        run: |
+          browser="$(command -v google-chrome || command -v chromium || true)"
+          if [ -n "$browser" ]; then
+            echo "CHROMIUM_PATH=$browser" >> "$GITHUB_ENV"
+          else
+            npx playwright install --with-deps chromium
+          fi
+      - name: Ingress, device import and update controls
+        run: npx playwright test browser-tests/green-app.spec.js --reporter=github,line
+      - name: Build release bundle
+        run: node scripts/bundle-green.mjs
+        env:
+          APP_BUILD: ${{ github.sha }}
+      - name: Publish immutable Green version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = JSON.parse(fs.readFileSync('package.json')).version;
+            const tag = 'green-v' + version;
+            const repo = context.repo;
+            try {
+              await github.rest.repos.getReleaseByTag({...repo, tag});
+              core.setFailed('Version ' + version + ' er allerede udgivet. Vælg et nyt versionsnummer.');
+              return;
+            } catch (error) { if (error.status !== 404) throw error; }
+            const release = await github.rest.repos.createRelease({...repo, tag_name: tag, target_commitish: context.sha, name: 'Engstien ' + version + ' til Green', draft: true, body: fs.readFileSync('engstien/CHANGELOG.md', 'utf8')});
+            for (const ext of ['tar.gz', 'sha256']) {
+              const name = 'engstien-' + version + '.' + ext;
+              await github.rest.repos.uploadReleaseAsset({...repo, release_id: release.data.id, name, data: fs.readFileSync('.green-release/' + name), headers: {'content-type': 'application/octet-stream'}});
+            }
+            await github.rest.repos.updateRelease({...repo, release_id: release.data.id, draft: false});
+            core.summary.addHeading('Green-installation klar').addLink('Installationsvejledning', 'https://github.com/' + repo.owner + '/' + repo.repo + '/blob/main/engstien/DOCS.md').write();
+      - name: Verify public installation files
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          curl -fL --retry 4 --retry-delay 5 -o /tmp/engstien.sha256 "https://github.com/${{ github.repository }}/releases/download/green-v${version}/engstien-${version}.sha256"
+          curl -fL --retry 4 --retry-delay 5 -o /tmp/engstien.tar.gz "https://github.com/${{ github.repository }}/releases/download/green-v${version}/engstien-${version}.tar.gz"
+          node -e "const f=require('fs'),c=require('crypto');if(c.createHash('sha256').update(f.readFileSync('/tmp/engstien.tar.gz')).digest('hex')!==f.readFileSync('/tmp/engstien.sha256','utf8').split(/\s/)[0])process.exit(1)"

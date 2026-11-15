@@ -1,3 +1,6 @@
+import {runtimeBuild} from './build-info.mjs';
+import {appVersion} from '../src/app-version.js';
+import {ingressContext,sameIngressOrigin} from './ingress.mjs';
 import {createDashboardProfileStore} from '../src/dashboard-profile.js';
 import {createServer} from 'node:http';
 import {readFileSync,mkdirSync,existsSync} from 'node:fs';
@@ -7,12 +10,12 @@ import {randomBytes,timingSafeEqual,scryptSync,createHash} from 'node:crypto';
 import {createHaBridge} from './home-assistant.mjs';
 import {createNotesStore} from '../src/apple-notes.js';
 import {createDemoFamilyProvider} from '../src/family-data.js';
-export function createDashboardServer({password,storage,haUrl='',haToken='',entities={},fetchImpl=fetch,staticRoot=resolve('dist'),secureCookies=false,credentialStore,registryImpl,notesSyncToken=''}={}){
- if(!password)throw new Error('DASHBOARD_PASSWORD skal konfigureres på serveren.');
- const salt=randomBytes(16),hash=scryptSync(password,salt,32),sessions=new Map(),attempts=new Map();
+export function createDashboardServer({password,storage,haUrl='',haToken='',entities={},fetchImpl=fetch,staticRoot=resolve('dist'),secureCookies=false,credentialStore,registryImpl,notesSyncToken='',ingress=null,managedHa=false,version=appVersion,build=process.env.APP_BUILD||runtimeBuild()}={}){
+ if(!password&&!ingress)throw new Error('DASHBOARD_PASSWORD skal konfigureres på serveren.');
+ const salt=randomBytes(16),hash=password?scryptSync(password,salt,32):null,sessions=new Map(),attempts=new Map();
  if(notesSyncToken&&notesSyncToken.length<32)throw Error('NOTES_SYNC_TOKEN skal være mindst 32 tegn.');const notes=createNotesStore(storage);
- const profile=createDashboardProfileStore(storage);
- const ha=createHaBridge({haUrl,haToken,storage,credentialStore,fetchImpl,registryImpl});
+ const profile=createDashboardProfileStore(storage),ingressFamilies=new Map();
+ const ha=createHaBridge({haUrl,haToken,storage,credentialStore,fetchImpl,registryImpl,managed:managedHa});
  let vehicleCache=null;const assetCache=new Map();
  const durable=async value=>{await storage?.flush?.();await credentialStore?.flush?.();return value;};
  const json=(res,status,value)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify(value));};
@@ -37,8 +40,14 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
  return createServer(async(req,res)=>{
   try{
    const path=new URL(req.url,'http://localhost').pathname;
-   if(path==='/api/info')return json(res,200,{service:'engstien-dashboard',authentication:'session',vehicleReadOnly:true});
+   const address=String(req.socket.remoteAddress||'').replace(/^::ffff:/,'');
+   if(path==='/health'&&req.method==='GET'&&['127.0.0.1','::1',ingress?.trustedAddress||'172.30.32.2'].includes(address))return json(res,200,{status:'ok'});
+   const context=ingress?ingressContext(req,ingress):null;
+   if(ingress&&!context)return json(res,403,{error:'Åbn appen gennem Home Assistant.'});
+   if(ingress&&!['GET','HEAD'].includes(req.method)&&!sameIngressOrigin(req))return json(res,403,{error:'Ugyldig origin.'});
+   if(path==='/api/info')return json(res,200,{service:'engstien-dashboard',authentication:ingress?'ingress':'session',vehicleReadOnly:true,version,build});
    if(path==='/api/session'&&req.method==='POST'){
+    if(ingress)return json(res,405,{error:'Login håndteres af Home Assistant.'});
     const ip=req.socket.remoteAddress,attempt=attempts.get(ip);if(attempt&&attempt.until>Date.now()&&attempt.count>=5)return json(res,429,{error:'For mange forsøg. Prøv igen senere.'});
     const b=await body(req),candidate=scryptSync(String(b.password||''),salt,32);if(!timingSafeEqual(candidate,hash)){attempts.set(ip,{count:(attempt?.until>Date.now()?attempt.count:0)+1,until:Date.now()+900000});return json(res,401,{error:'Forkert adgangskode.'});}
     attempts.delete(ip);const token=randomBytes(32).toString('hex');sessions.set(token,{expires:Date.now()+43200000,family:createDemoFamilyProvider({storage})});res.setHeader('set-cookie',`dashboard_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${secureCookies?'; Secure':''}`);return json(res,200,{authenticated:true});
@@ -51,8 +60,12 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
     try{const snapshot=notes.import(await body(req));await storage?.flush?.();return json(res,200,{ok:true,updatedAt:snapshot.updatedAt});}catch(e){return json(res,400,{error:e.message});}
    }
    if(path.startsWith('/api/')){
-    const active=session(req);if(!active)return json(res,401,{error:'Log ind på dashboardserveren.'});
-    if(req.method!=='GET'&&req.headers.origin&&req.headers.origin!==`${secureCookies?'https':'http'}://${req.headers.host}`)return json(res,403,{error:'Ugyldig origin.'});
+    let active;
+    if(context){
+     active=ingressFamilies.get(context.user);
+     if(!active){if(ingressFamilies.size>=100)ingressFamilies.delete(ingressFamilies.keys().next().value);active={family:createDemoFamilyProvider({storage})};ingressFamilies.set(context.user,active);}
+    }else active=session(req);if(!active)return json(res,401,{error:'Log ind på dashboardserveren.'});
+    if(!ingress&&req.method!=='GET'&&req.headers.origin&&req.headers.origin!==`${secureCookies?'https':'http'}://${req.headers.host}`)return json(res,403,{error:'Ugyldig origin.'});
     if(path==='/api/settings/profile'&&req.method==='GET'){try{return json(res,200,profile.load());}catch{return json(res,503,{error:'Den fælles dashboardopsætning kunne ikke læses. Den lokale opstilling er bevaret.'});}}
     if(path==='/api/settings/profile'&&req.method==='PUT'){try{const data=await body(req);return json(res,200,await durable(profile.save(data.profile,data.expectedRevision)));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/settings/catalog'&&req.method==='GET')return json(res,200,ha.catalog());
@@ -71,6 +84,11 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
    if(!['GET','HEAD'].includes(req.method))return json(res,405,{error:'Ikke understøttet.'});
    const file=resolve(staticRoot,'.'+decodeURIComponent(path==='/'?'/index.html':path));if(!file.startsWith(resolve(staticRoot)+sep))return json(res,403,{error:'Ugyldig sti.'});
    let info;try{info=await stat(file);if(!info.isFile())throw Error();}catch{return json(res,404,{error:'Siden findes ikke.'});}
+   if(context&&extname(file)==='.html'){
+    const source=await readFile(file,'utf8'),base=context?.base||'/';
+    const html=Buffer.from(source.replace('<head>','<head><meta name="engstien-base" content="'+base+'"><base href="'+base+'">'));
+    res.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','content-length':html.length});return res.end(req.method==='HEAD'?undefined:html);
+   }
    const tag='"'+info.size.toString(16)+'-'+info.mtimeMs.toString(16)+'"',immutable=/[-.][a-zA-Z0-9_-]{8,}\.(?:js|css|woff2|webp|png|svg)$/.test(file)&&!file.endsWith('.html');
    const headers={'etag':tag,'last-modified':info.mtime.toUTCString(),'x-content-type-options':'nosniff','cache-control':immutable?'public, max-age=31536000, immutable':'no-cache'};
    if(req.headers['if-none-match']===tag||!req.headers['if-none-match']&&req.headers['if-modified-since']&&Math.floor(info.mtimeMs/1000)<=Date.parse(req.headers['if-modified-since'])/1000){res.writeHead(304,headers);return res.end();}

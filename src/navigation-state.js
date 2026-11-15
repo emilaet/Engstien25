@@ -1,4 +1,4 @@
-const categories=['lights','heat','curtains'];
+const categories=['lights','heat','curtains','devices'];
 export function parseNavigation(hash,roomIds=[]){
  const [raw,room,category]=String(hash||'').replace(/^#/,'').split('/');
  const view=['lights','heat'].includes(raw)?'rooms':['home','rooms','car','furnish','settings'].includes(raw)?raw:'home';

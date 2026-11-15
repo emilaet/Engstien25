@@ -1,0 +1,17 @@
+.git
+.agents
+design-review
+node_modules
+dist
+.preview
+.local-dashboard
+.env
+.env.*
+.staticrypt.json
+test-results
+playwright-report
+downloads
+browser-tests
+preview-tests
+tests
+docs

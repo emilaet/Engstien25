@@ -1,6 +1,6 @@
 {
   "name": "engstien25",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,9 @@
     "test:preview": "playwright test --config playwright.preview.config.js",
     "server": "node --env-file-if-exists=.env server/start.mjs",
     "test:browser": "npm run build && playwright test",
-    "test:smoke": "npm run build && playwright test --grep @smoke"
+    "test:smoke": "npm run build && playwright test --grep @smoke",
+    "release:green": "node scripts/release-green.mjs",
+    "check:green": "node scripts/check-green.mjs"
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",

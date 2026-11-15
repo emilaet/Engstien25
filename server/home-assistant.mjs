@@ -6,8 +6,8 @@ export function normalizeHaEntity(raw,registry={}){
  const a=raw.attributes||{},r=registry[raw.entity_id]||{};
  return {id:raw.entity_id,name:String(a.friendly_name||raw.entity_id).slice(0,160),state:String(raw.state??'unknown').slice(0,100),area:r.area||'',device:r.device||'',deviceClass:String(a.device_class||''),unit:String(a.unit_of_measurement||''),features:Number(a.supported_features)||0,colorModes:Array.isArray(a.supported_color_modes)?a.supported_color_modes.filter(x=>typeof x==='string'):[],brightness:Number.isFinite(a.brightness)?a.brightness:null,position:Number.isFinite(a.current_position)?a.current_position:null,current:Number.isFinite(a.current_temperature)?a.current_temperature:null,target:Number.isFinite(a.temperature)?a.temperature:null,min:Number.isFinite(a.min_temp)?a.min_temp:16,max:Number.isFinite(a.max_temp)?a.max_temp:28,step:Number.isFinite(a.target_temp_step)?a.target_temp_step:.5,updatedAt:raw.last_reported||raw.last_updated||null};
 }
-export async function readHaRegistry(url,token){
- const wsUrl=new URL('api/websocket',url);wsUrl.protocol=wsUrl.protocol==='https:'?'wss:':'ws:';
+export async function readHaRegistry(url,token,{supervisor=false}={}){
+ const wsUrl=new URL(supervisor?'websocket':'api/websocket',url);wsUrl.protocol=wsUrl.protocol==='https:'?'wss:':'ws:';
  return new Promise(resolve=>{
   let socket;const results={},timer=setTimeout(()=>finish({}),2500);let done=false;
   function finish(value){if(done)return;done=true;clearTimeout(timer);try{socket?.close();}catch{}resolve(value);}
@@ -20,22 +20,22 @@ export async function readHaRegistry(url,token){
   });}catch{finish({});}
  });
 }
-export function createHaBridge({haUrl='',haToken='',storage,credentialStore,fetchImpl=fetch,registryImpl=readHaRegistry}={}){
+export function createHaBridge({haUrl='',haToken='',storage,credentialStore,fetchImpl=fetch,registryImpl=readHaRegistry,managed=false}={}){
  let cached=null,registry={},registryAt=0,inflight=null,configurationVersion=0;
- try{const saved=JSON.parse(credentialStore?.getItem('connection')||'null');if(saved?.disabled){haUrl='';haToken='';}else if(saved?.url&&saved?.token){haUrl=saved.url;haToken=saved.token;}}catch{}
+ try{const saved=managed?null:JSON.parse(credentialStore?.getItem('connection')||'null');if(saved?.disabled){haUrl='';haToken='';}else if(saved?.url&&saved?.token){haUrl=saved.url;haToken=saved.token;}}catch{}
  const base=()=>{const url=new URL(haUrl);if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash)throw Error('Brug Home Assistants http- eller https-adresse uden loginoplysninger.');url.pathname=url.pathname.replace(/\/?$/,'/');return url;};
  const catalog=()=>{try{return normalizeDeviceCatalog(JSON.parse(storage?.getItem(deviceCatalogKey)||'null'));}catch{return defaultDevices();}};
  async function request(path,options={}){const response=await fetchImpl(new URL(path,base()),{...options,headers:{authorization:'Bearer '+haToken,'Content-Type':'application/json'},signal:AbortSignal.timeout(8000)});if(!response.ok)throw Error(response.status===401?'Home Assistant afviste adgangsnøglen.':'Home Assistant kunne ikke kontaktes.');return response;}
  async function snapshot(force=false){
-  if(!haUrl||!haToken)return {configured:false,online:false,entities:[],url:haUrl||'',controlEnabled:true};
+  if(!haUrl||!haToken)return {managed,configured:false,online:false,entities:[],url:haUrl||'',controlEnabled:true};
   if(inflight)return inflight;if(!force&&cached&&Date.now()-cached.fetchedAt<5000)return {...cached,url:haUrl};
   const version=configurationVersion;
   inflight=(async()=>{try{
    const response=await request('api/states'),states=await response.json();if(!Array.isArray(states))throw Error('Home Assistant returnerede et ugyldigt svar.');
-   if(Date.now()-registryAt>60000){registry=await registryImpl(base(),haToken);registryAt=Date.now();}
+   if(Date.now()-registryAt>60000){registry=await registryImpl(base(),haToken,{supervisor:managed});registryAt=Date.now();}
    if(version!==configurationVersion)throw Error('Forbindelsen er ændret. Hent enheder igen.');
-   cached={configured:true,online:true,entities:states.map(e=>normalizeHaEntity(e,registry)).filter(Boolean),fetchedAt:Date.now(),controlEnabled:true};return {...cached,url:haUrl};
-  }catch(error){return {configured:true,online:false,entities:cached?.entities||[],fetchedAt:cached?.fetchedAt||null,url:haUrl,controlEnabled:true,error:error.message==='Home Assistant afviste adgangsnøglen.'?error.message:'Forbindelsen til Home Assistant mangler. Sidst hentede værdier kan være forældede.'};}finally{inflight=null;}})();return inflight;
+   cached={managed,configured:true,online:true,entities:states.map(e=>normalizeHaEntity(e,registry)).filter(Boolean),fetchedAt:Date.now(),controlEnabled:true};return {...cached,url:haUrl};
+  }catch(error){return {managed,configured:true,online:false,entities:cached?.entities||[],fetchedAt:cached?.fetchedAt||null,url:haUrl,controlEnabled:true,error:error.message==='Home Assistant afviste adgangsnøglen.'?error.message:'Forbindelsen til Home Assistant mangler. Sidst hentede værdier kan være forældede.'};}finally{inflight=null;}})();return inflight;
  }
  function commandFor(device,entity,action,value){
   const domain=entity.id.split('.')[0],data={entity_id:entity.id};let service;
@@ -53,8 +53,8 @@ export function createHaBridge({haUrl='',haToken='',storage,credentialStore,fetc
  }
  return {
   snapshot,catalog,get configured(){return !!haUrl&&!!haToken;},async entity(id){if(!haUrl||!haToken)throw Error('Home Assistant er ikke tilsluttet.');return (await request('api/states/'+encodeURIComponent(id))).json();},
-  async configure({url,token}){if(inflight)await inflight;if(typeof url!=='string'||!url.trim()||typeof token!=='string'||!token.trim()||url.length>500||token.length>4096)throw Error('Angiv Home Assistant-adresse og adgangsnøgle.');const oldUrl=haUrl;haUrl=url.trim();try{base();}catch(e){haUrl=oldUrl;throw e;}haToken=token.trim();configurationVersion++;cached=null;registry={};registryAt=0;credentialStore?.setItem('connection',JSON.stringify({url:haUrl,token:haToken}));return snapshot(true);},
-  disconnect(){haUrl='';haToken='';configurationVersion++;cached=null;registry={};credentialStore?.setItem('connection',JSON.stringify({disabled:true}));return {configured:false,online:false,entities:[],url:'',controlEnabled:true};},
+  async configure({url,token}){if(managed)throw Error('Forbindelsen administreres af Home Assistant.');if(inflight)await inflight;if(typeof url!=='string'||!url.trim()||typeof token!=='string'||!token.trim()||url.length>500||token.length>4096)throw Error('Angiv Home Assistant-adresse og adgangsnøgle.');const oldUrl=haUrl;haUrl=url.trim();try{base();}catch(e){haUrl=oldUrl;throw e;}haToken=token.trim();configurationVersion++;cached=null;registry={};registryAt=0;credentialStore?.setItem('connection',JSON.stringify({url:haUrl,token:haToken}));return snapshot(true);},
+  disconnect(){if(managed)throw Error('Forbindelsen administreres af Home Assistant.');haUrl='';haToken='';configurationVersion++;cached=null;registry={};credentialStore?.setItem('connection',JSON.stringify({disabled:true}));return {managed,configured:false,online:false,entities:[],url:'',controlEnabled:true};},
   saveCatalog(value){const next=normalizeDeviceCatalog(value),previous=catalog();if(next.revision!==previous.revision){const e=Error('Opsætningen er ændret på en anden skærm. Hent den nyeste opsætning, før du gemmer.');e.status=409;throw e;}next.revision++;storage?.setItem(deviceCatalogKey,JSON.stringify(next));return next;},
   async command({deviceId,action,value,revision}){const initial=catalog(),version=configurationVersion;if(revision!==undefined&&revision!==initial.revision){const error=Error('Opsætningen er ændret. Hent den seneste opsætning, før du betjener enheden.');error.status=409;throw error;}const d=initial.devices.find(d=>d.id===deviceId&&!d.retired);if(!d?.bindings.primary)throw Error('Enheden er ikke koblet til Home Assistant.');const current=await snapshot(true);if(!current.online)throw Error('Forbindelsen til Home Assistant mangler. Handlingen blev ikke udført.');if(version!==configurationVersion||catalog().revision!==initial.revision)throw Error('Forbindelsen eller koblingen er ændret. Hent opsætningen igen.');const e=current.entities.find(e=>e.id===d.bindings.primary);if(!e||!compatibleEntity(d,'primary',e))throw Error('Den koblede enhed mangler eller har forkert type.');const command=commandFor(d,e,action,value);await request('api/services/'+command.domain+'/'+command.service,{method:'POST',body:JSON.stringify(command.data)});cached=null;return {accepted:true,message:'Kommando sendt. Kontrollér den rapporterede tilstand.',snapshot:await snapshot(true)};},
  };

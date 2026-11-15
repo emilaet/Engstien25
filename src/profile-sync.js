@@ -1,3 +1,4 @@
+import {apiPath} from './api-path.js';
 import {normalizeDashboardProfile,normalizeProfileEnvelope} from './dashboard-profile.js';
 import {safeStorage} from './storage.js';
 const originalPendingKey='engstien-profile-pending-v1',equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -7,7 +8,7 @@ export function createProfileSync({getProfile,applyProfile,isEditing=()=>false,f
  const snapshot=()=>({status,message,authenticated,persistent:disk.persistent,revision,hasPending:!!pending,conflict:!!conflict});
  const emit=(next,text)=>{status=next;message=text;for(const fn of listeners)fn(snapshot());};
  function persist(){if(pending)disk.setItem(pendingKey,JSON.stringify(pending));else disk.removeItem(pendingKey);}
- async function request(options={}){const response=await fetchImpl('/api/settings/profile',{...options,credentials:'same-origin',headers:{'content-type':'application/json'},signal:AbortSignal.timeout(12000)});let data;try{data=await response.json();}catch{throw Error('Serveren understøtter ikke fælles dashboardopstilling endnu.');}if(!response.ok){const error=Error(data.error||'Den fælles opsætning kunne ikke hentes.');error.status=response.status;throw error;}return normalizeProfileEnvelope(data);}
+ async function request(options={}){const response=await fetchImpl(apiPath('/api/settings/profile'),{...options,credentials:'same-origin',headers:{'content-type':'application/json'},signal:AbortSignal.timeout(12000)});let data;try{data=await response.json();}catch{throw Error('Serveren understøtter ikke fælles dashboardopstilling endnu.');}if(!response.ok){const error=Error(data.error||'Den fælles opsætning kunne ikke hentes.');error.status=response.status;throw error;}return normalizeProfileEnvelope(data);}
  function apply(envelope){applying=true;try{if(envelope.profile)applyProfile(structuredClone(envelope.profile));base=structuredClone(envelope.profile);revision=envelope.revision;}finally{applying=false;}}
  async function flush(){
   clearTimeout(timer);if(!authenticated||!pending||conflict)return;if(running){await running;return pending&&!conflict?flush():undefined;}const token=epoch,sent=structuredClone(pending);emit('saving','Gemmer fælles opstilling …');

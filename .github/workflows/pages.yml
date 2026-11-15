@@ -23,6 +23,7 @@ on:
       - 'public/**'
       - 'package*.json'
       - 'vite.preview.config.js'
+      - 'vite.config.js'
       - '.github/workflows/pages.yml'
 
 permissions:

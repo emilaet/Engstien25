@@ -47,14 +47,14 @@ Gem den oprindelige Matter-kode med en genkendelig beskrivelse af enheden. Den e
 
 ## 5. Kobl enheden til Engstien
 
-Når dashboardserveren er tilsluttet HA:
+Green-appen tilsluttes automatisk den lokale HA. Når enheden er parret i HA:
 
 1. Åbn **Engstien → ⋯ → Indstillinger → Rum og enheder** på en computer.
-2. Vælg det eksisterende modelobjekt, fx **Stue → Loftslys**. Hvis der ikke er en passende post, vælges **Tilføj enhed**, rum og type.
+2. Vælg **Tilføj fra Home Assistant**. Vælg enheden og rummet. Under Visning i rummet vælges enten **Brug Loftslys** eller **Ny enhed i rummet**.
 3. Under **Kobling til Home Assistant** vælges den enhed, der netop blev tilføjet. Navn, rum og teknisk ID hjælper med at genkende den.
 4. Gem og afprøv den ene enhed. Gentag for næste enhed, når det passer.
 
-Valg og gemning betjener ikke enheden i sig selv. En almindelig kontakt får ikke en opdigtet dæmper; mulighederne afhænger af, hvad HA rapporterer. Eksisterende modelobjekter har faste placeringer. En ny katalogpost kan allerede aflæses og afprøves under Indstillinger, men vises endnu ikke automatisk som en ekstra kontrol i Rum eller et nyt objekt i 3D-modellen. Automatisk visning af ekstra enheder i deres rum er derfor en konkret næste forberedelse; 3D-placeringen kan fortsat vælges særskilt.
+Valg og gemning betjener ikke enheden i sig selv. En almindelig kontakt får ikke en opdigtet dæmper; mulighederne afhænger af, hvad HA rapporterer. Eksisterende modelobjekter har faste placeringer. En ny, koblet katalogpost vises automatisk i det valgte rum. Den opretter ikke automatisk et nyt objekt i 3D-modellen. Eksisterende modellerede funktioner kan vælges i tilføjelsesforløbet, så de ikke dubleres.
 
 ## Det, der allerede er klar i projektet
 
@@ -63,15 +63,21 @@ Valg og gemning betjener ikke enheden i sig selv. En almindelig kontakt får ikk
 - Backup/indlæsning af opsætning og separat mobilopstilling. Eksportér en backup fra GitHub-udgaven før flytning til en ny serveradresse; opsætninger fra forskellige adresser flettes ikke automatisk.
 - En modtager til Apple Noter-eksport fra en iPhone-genvej. Det er ikke automatisk eller tovejs Notes-synkronisering endnu.
 
-## Det, der skal færdiggøres før Green kan drive hele appen
+## Installér Engstien på Green
 
-**Der findes endnu ikke en installerbar Engstien-app til Home Assistant OS.** Den eksisterende Node-server kræver i dag en separat Node-maskine. Apple TV kan ikke køre denne server. For at undgå en ekstra maskine, der skal være tændt, er den anbefalede næste udviklingsopgave at pakke serveren som en HA-app til Green (tidligere kaldet add-on).
+Green-pakken findes nu i mappen [engstien](../engstien/DOCS.md). Tilføj `https://github.com/emilaet/Engstien25` under HA's appbutik → Repositories. Når GitHub-versionen er udgivet, vælges Engstien 25 → Installér → Start → Åbn webgrænseflade.
 
-Green-pakken skal have installation/opdatering, vedvarende lagring, backup, HA-adgang på serversiden og en gennemprøvet login-/mobiladgang. Den skal testes på Green. Det er ikke nok blot at lægge den nuværende GitHub-side i en HA-webvisning.
+GitHub bygger og tester programmet og udgiver en versionsbestemt pakke med kontrolsum. Green downloader den og samler sin runtime automatisk. Der køres ingen npm-installation eller frontendbygning på Green. Det kræver ingen privat container-registry eller ekstra konto.
 
-Tilføjelsesforløbet bør samtidig kunne vise nye HA-enheder, vælge rum og funktion og tilføje deres kontroller i Rum uden at kræve et eksisterende modelobjekt. HA står fortsat for selve Matter-parringen. Det er et planlagt forbedringspunkt, ikke en allerede færdig automatisk import.
+Appen åbnes via Home Assistants ingress. Første version kræver en HA-administrator; der er ingen ekstra åben port, manuel HA-token eller separat dashboard-adgangskode. Et midlertidigt ingress-link er ikke en varig selvstændig PWA-adresse. Åbn gennem HA's normale adresse eller Companion.
 
-På GitHub Pages kan appen ikke søge efter eller parre Thread-enheder. Den nuværende Pages-version forbinder heller ikke til en vilkårlig HA-server. Et HA-token skal ikke indtastes eller indlejres på GitHub-siden. Se den nuværende [lokale serveropsætning](integrations.md) og [HA-koblingen](settings.md).
+Under **Rum og enheder → Tilføj fra Home Assistant** kan du vælge en ny HA-enhed og dens rum. Brug enten en eksisterende modelfunktion eller tilføj en ekstra kontrol. Ekstra lys, varme, gardiner og kontakter kan betjenes i rummet; andre typer viser rapporteret status. Gemning sender ingen kommandoer. Ved manglende forbindelse låses kontrollen.
+
+Opdateringer bevarer `/data`, hvor opsætning, koblinger og lister ligger. HA-backup medtager mappen; pakken stoppes før backup og skriver ventende ændringer færdigt. Efter installation af en ny version viser åbne skærme **Ny version klar**. Genindlæsning er låst under aktive dialoger, dashboardredigering, ventende gemning og enhedskommandoer.
+
+GitHub Pages er fortsat den separate forhåndsvisning. Den søger ikke efter Thread-enheder og får ingen Supervisor-nøgle. Flyt en ønsket opstilling med **Hent backup / Indlæs backup**; data fra forskellige adresser flettes ikke automatisk.
+
+Den fysiske installation og enhedernes respons skal stadig afprøves på din Green. Softwaren kan testes med en simuleret HA og den rigtige server/container før det.
 
 ## Apple Hjem, Notes og øvrige widgets
 

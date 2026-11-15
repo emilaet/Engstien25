@@ -1,6 +1,12 @@
 # Engstien 25
 
-Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. Husets enheder bruger fortsat **simulerede** data på GitHub Pages. Vejret hentes fra Open-Meteo, og Google Kalender kan forbindes med læseadgang under Indstillinger → Forbindelser. Se [live-data og Google-opsætning](docs/live-data.md). Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. Gratis kontolagring af dashboardopstillingen kan tilsluttes med [Supabase Free](docs/supabase.md). En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md). Den planlagte Green/Apple TV-installation med Matter over Thread er beskrevet [trin for trin her](docs/home-assistant-green.md).
+Browserbaseret 3D-prototype til husoversigt på vandret vægtablet og computer. Husets enheder bruger fortsat **simulerede** data på GitHub Pages. Vejret hentes fra Open-Meteo, og Google Kalender kan forbindes med læseadgang under Indstillinger → Forbindelser. Se [live-data og Google-opsætning](docs/live-data.md). Indstillinger indeholder enhedsplan og guidede Home Assistant-koblinger. Gratis kontolagring af dashboardopstillingen kan tilsluttes med [Supabase Free](docs/supabase.md). En valgfri lokal dashboardserver deler opsætning/lister og forbinder udvalgte enheder; den fysiske installation er endnu ikke afprøvet. Se [Indstillinger og enhedsplan](docs/settings.md). Se [opsætning og datakilder](docs/integrations.md). Green/Apple TV-installationen med Matter over Thread er beskrevet [trin for trin her](docs/home-assistant-green.md).
+
+## Installer på Green
+
+Tilføj `https://github.com/emilaet/Engstien25` i Home Assistants appbutik under Repositories, og vælg **Engstien 25**. Pakken bruger HA-login og den lokale HA-forbindelse. Se [installation, opdatering og backup](engstien/DOCS.md).
+
+GitHub Pages er fortsat forhåndsvisningen. Nye Green-versioner udgives ved versionsændringer med `npm run release:green -- 0.2.1`, en changelog-opdatering og push til main. GitHub tester, bygger og publicerer pakken automatisk. Ingen manuel filpakning på Green. Se [releaseforløbet](docs/green-releases.md).
 
 ## Start
 

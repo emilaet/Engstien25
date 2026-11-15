@@ -10,3 +10,6 @@ playwright-report/
 .local-dashboard/
 
 .electricity-tariffs.json
+
+.green-release/
+build-info.json

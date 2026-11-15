@@ -1,5 +1,5 @@
 import {phoneMedia} from './mobile-app.js';
-import {controlRooms} from './house.js';
+import {deviceRooms as controlRooms} from './device-catalog.js';
 
 // Mobile navigation shows the current task. Household-wide controls live in a
 // sheet; the vehicle's detailed summary belongs on Home, with readable type.

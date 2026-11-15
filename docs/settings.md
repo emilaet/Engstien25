@@ -1,3 +1,5 @@
+> Green-appen bruger automatisk HA-forbindelse og HA-login. Se [installation](../engstien/DOCS.md). Beskrivelsen af manuel serverlogin nedenfor gælder fortsat den valgfrie separate Node-server.
+
 # Indstillinger og enhedsplan
 
 Åbn **••• → Indstillinger**. Siden har Overblik, Rum og enheder, Forbindelser og Skærm og dashboard. Direkte links som `#settings/devices` og `#settings/connections` kan genindlæses. Den særskilte Rediger-knap, Tag, grafikprofiler og de gamle Datakilder-/hjælp-menuindgange er fjernet. **Rediger dashboard**, **Indretning**, **Møbler** og **Vægge** findes fortsat i menuen.
@@ -33,3 +35,7 @@ Lys bruger én primær funktion, varme en `climate`-funktion og gardiner en `cov
 Eksisterende modellerede lamper, varmezoner og gardiner bruger de gemte koblinger i Rum-visningen. En tænd/sluk-lampe får ingen dæmper. Manglende forbindelser/enheder låser den koblede betjening. Ukendte temperatur- og positionsdata bliver ikke erstattet med opdigtede liveværdier. Ukoblede enheder forbliver demo. Nye katalogobjekter kan aflæses og afprøves i Indstillinger; nye 3D-placeringer kræver en separat modelændring. Bilvisningens eksisterende HA-læseadapter bevares, og nye bil-/ladeboksmålinger kan komme fra katalogets koblinger.
 
 En fysisk installation, HA-rettigheder, rigtige målinger og enheders respons skal stadig afprøves i huset. De automatiske tests bruger en simuleret HA og den rigtige dashboardserver.
+
+## Tilføj en enhed fra Home Assistant
+
+Efter Matter-parring i HA Companion vælges **Tilføj fra Home Assistant** under Rum og enheder. Vælg enhed, rum, funktion og enten eksisterende modelkontrol eller Ny enhed i rummet. Der sendes ingen kommando ved gemning. En primær HA-entitet kan ikke importeres to gange. Ekstra enheder vises i rummets relevante fane; sensorer og øvrige typer har fanen Enheder.
