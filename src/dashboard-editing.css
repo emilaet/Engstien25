@@ -12,10 +12,6 @@
 .layout-bar #undo-home-layout,.layout-bar #redo-home-layout{width:44px;padding:0;font-size:22px}.layout-bar button:disabled{opacity:.35}.layout-bar #save-home-layout{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
 .layout-details{position:absolute;right:0;bottom:calc(100% + 10px);width:360px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 125px);overflow:auto;overscroll-behavior:contain;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 10px 45px #0004;scrollbar-width:thin}
 .layout-details-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.layout-details-head h3{font-size:18px;font-weight:500;color:var(--text)}.layout-details-head button{width:44px;height:44px;min-height:44px;border:0;background:none;font-size:24px;padding:0}
-.layout-details .layout-selected{display:block;padding:12px;margin:0;border:1px solid var(--border);border-radius:14px;background:var(--soft)}.layout-details .layout-selected>b{font-size:14px;font-weight:500}.layout-details .layout-selected>p{font-size:10px;line-height:1.4;margin:5px 0 8px}
-.layout-details .layout-presets{display:flex;gap:5px;margin:0 0 8px}.layout-details .layout-presets button{min-height:44px;flex:1;border:1px solid var(--border);border-radius:9px;padding:0 6px;font-size:11px;background:var(--surface)}
-.layout-details .widget-dimensions{display:flex;gap:8px}.layout-details .widget-dimensions label{flex:1;min-width:0;font-size:10px}.layout-details .widget-dimensions select{min-height:44px;width:100%;font-size:12px;padding:6px}
-.layout-details .layout-move{display:flex;gap:6px;margin:8px 0 0}.layout-details .layout-move button{min-height:44px;flex:1;font-size:11px}
 .layout-details .layout-list-heading{display:flex;justify-content:space-between;height:auto;margin:16px 0 6px}.layout-details .layout-widget-list{max-height:none;overflow:visible;display:block}.layout-details .layout-widget-option{display:flex;min-height:44px}.layout-details .layout-widget-option>button{font-size:12px;min-height:44px}.layout-details .layout-reset-actions{display:flex;flex-wrap:wrap;padding-top:10px;margin-top:8px;border-top:1px solid var(--border)}.layout-details .layout-reset-actions button{min-height:44px;font-size:11px}
 /* Controls float over the real cards; they never consume card height. */
 .dashboard-grid.is-editing .widget-editor{position:absolute!important;width:44px;min-height:44px!important;z-index:6}
@@ -33,7 +29,7 @@
  :root.home-layout-editing #family-dashboard{padding-bottom:160px!important}
  .layout-editor{left:auto;right:8px;bottom:78px;max-width:calc(100vw - 16px);border-radius:15px;padding:6px}
  .layout-bar{gap:3px}.layout-bar>button{padding:0 8px;font-size:11px;min-width:44px}.layout-widgets-text{display:none}.layout-bar #toggle-layout-details{font-size:22px;width:44px;padding:0}.layout-bar #save-home-layout{padding:0 10px}.layout-bar #cancel-home-layout{padding:0 7px}
- .layout-details{right:0;width:350px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 175px);padding:12px}.layout-details .layout-selected{padding:10px}
+ .layout-details{right:0;width:350px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 175px);padding:12px}
  /* Phone cards keep full width; the vertical and corner handles resize height. */
  .dashboard-grid.is-editing .widget-resize-width{display:none}.dashboard-grid.is-editing .widget-resize-both{cursor:ns-resize}
 }
@@ -50,7 +46,6 @@
 .widget-drop-preview{min-width:0;min-height:0;border:2px dashed var(--amber);border-radius:22px;background:var(--amber-soft);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:13px;font-weight:500;pointer-events:none}
 .widget-drop-preview.drop-invalid{opacity:.3}.dashboard-moving,.dashboard-moving *{cursor:grabbing!important;user-select:none!important}
 .dashboard-grid.is-editing .widget-drag{cursor:grab}.dashboard-grid.is-editing .widget-drag:focus-visible{outline:2px solid var(--amber)}
-.layout-details .layout-position{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.layout-position button{min-height:44px;border:1px solid var(--border);border-radius:9px;background:var(--surface);font-size:18px}
 /* Both upcoming pickups are readable without expanding the calendar. */
 :root[data-page=home] .dashboard-grid .waste-card .next-collection{flex:0 0 auto;margin-top:7px;min-height:min-content}
 :root[data-page=home] .dashboard-grid .waste-card .next-collection>p{font-size:12px!important;line-height:1.35!important;letter-spacing:0;margin:0 0 6px!important;font-weight:500}

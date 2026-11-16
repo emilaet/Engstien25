@@ -1,5 +1,5 @@
 import {test,expect} from './fixtures.js';
-import {readyScene} from './ui.js';
+import {readyScene,setAppearance} from './ui.js';
 
 test('Viewer text and controls stay outside the canvas across widths, views and wrapped subtitles',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#rooms');await readyScene(page);
@@ -30,6 +30,9 @@ test('Approved garden and graded driveway are available in Full without changing
  await page.getByRole('button',{name:'Vis hele huset udefra',exact:true}).click();
  await expect(scene).toHaveAttribute('data-outdoor-visible','true');await expect(scene).toHaveAttribute('data-exterior-side','garden');
  const layout=JSON.parse(await scene.getAttribute('data-outdoor-layout'));expect(layout.driveway).toMatchObject({rise:1,run:5,slope:.2});
+ expect(layout.west).toEqual([[-4.6,-.4],[-.4,-.4],[-.4,8.65],[-4.6,8.65]]);
+ expect(layout.beds.map(b=>b.id)).not.toContain('shed-edge');expect(layout.parasol.canopy.width).toBe(3.3);
+ const planter=layout.beds.find(b=>b.id==='main-l');expect(Math.max(...planter.polygon.map(p=>p[0]))).toBeCloseTo(6.6-.02);
  await page.getByRole('button',{name:'Indkørsel',exact:true}).click();
  await expect(scene).toHaveAttribute('data-exterior-side','driveway');await expect(page.getByRole('button',{name:'Indkørsel',exact:true})).toHaveAttribute('aria-pressed','true');
  await page.getByRole('button',{name:'Nulstil visning',exact:true}).click();await expect(scene).toHaveAttribute('data-exterior-side','driveway');
@@ -53,6 +56,7 @@ test('Exterior angles remain framed and reachable on tall tablets and phones, in
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
  }
- await page.getByLabel('Dag- og aftenvisning').selectOption('night');await expect(page.locator('#scene')).toHaveAttribute('data-appearance','dark');
+ await setAppearance(page,'night');await expect(page.locator('#scene')).toHaveAttribute('data-appearance','dark');
+ await page.getByRole('button',{name:'Have',exact:true}).scrollIntoViewIfNeeded();
  await expect(page.getByRole('button',{name:'Have',exact:true})).toBeInViewport();
 });

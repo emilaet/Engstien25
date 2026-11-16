@@ -10,6 +10,7 @@ import {facadeLights} from '../src/site-lighting.js';
 import {buildOutdoorWallLights} from '../src/outdoor-wall-lights.js';
 import {buildParkedCar,parkedCarPlacement} from '../src/parked-car.js';
 import {carportArea,outdoorY} from '../src/outdoor-layout.js';
+import {buildOutdoorFurnishings} from '../src/outdoor-furniture.js';
 
 test('Exactly three exterior sconces sit outside solid facade sections, with no garden bollards',()=>{
  const sources=facadeLights(),wall=walls.find(w=>w.id==='garden');assert.equal(sources.length,3);
@@ -55,4 +56,26 @@ test('The compressed real Model Y retains exterior detail and hides every car an
  assert.equal(car.presentation.children.includes(car.root),true);assert.equal(car.presentation.children.includes(car.cable),true);assert.ok(car.presentation.getObjectByName('model-y-charging-plug'));
  car.setVisible(false);assert.equal(car.presentation.visible,false);assert.equal(scene.children.length,1,'Nothing from the car may remain outside the hidden group');
  car.setVisible(true);assert.equal(car.presentation.visible,true);
+});
+
+test('The large cantilever parasol shades the dining table while its base and canopy clear the house',()=>{
+ const decor=buildOutdoorFurnishings(new THREE.Scene());decor.root.updateMatrixWorld(true);
+ const parasol=decor.root.getObjectByName('outdoor-cantilever-parasol'),bounds=new THREE.Box3().setFromObject(parasol);assert.ok(parasol);
+ const cloth=parasol.children.find(mesh=>mesh.material.name==='ivory-parasol-cloth'),canopy=new THREE.Box3().setFromObject(cloth);
+ assert.ok(Math.abs(canopy.max.x-canopy.min.x-3.3)<1e-5);
+ assert.ok(Math.abs(canopy.max.z-canopy.min.z-3.3)<1e-5);
+ assert.ok(canopy.min.x>-4.6&&canopy.max.x<-.4,'The canopy must remain over the west terrace and clear the brick facade');
+ assert.ok(canopy.min.z>-.4&&canopy.max.z<8.65);
+ assert.ok(Math.abs(bounds.min.y-outdoorY)<1e-6,'The weighted base must rest on the paving');
+ assert.ok(parasol.userData.mast.x<canopy.min.x,'The mast must stand beside the canopy rather than through the table');
+ assert.ok(canopy.min.y>outdoorY+2.5,'Seated and standing guests must clear the hem');
+ let meshes=0;decor.root.traverse(object=>{if(object.isMesh)meshes++;assert.equal(!!object.isLight,false);});assert.ok(meshes<70,'The additional styling must stay batched for tablet rendering');
+});
+
+test('Both decorative lanterns glow only in evening light without adding animated lights',()=>{
+ const decor=buildOutdoorFurnishings(new THREE.Scene()),flames=[];decor.root.traverse(object=>{if(object.material?.name==='lantern-flame')flames.push(object);});
+ assert.equal(flames.length,2);assert.ok(decor.root.getObjectByName('outdoor-lantern-0'));assert.ok(decor.root.getObjectByName('outdoor-lantern-1'));
+ decor.setDaylight(1);assert.ok(flames.every(mesh=>!mesh.visible&&mesh.material.emissiveIntensity===0));
+ decor.setDaylight(0);assert.ok(flames.every(mesh=>mesh.visible&&mesh.material.emissiveIntensity>0));
+ decor.setDaylight(1);assert.ok(flames.every(mesh=>!mesh.visible));
 });

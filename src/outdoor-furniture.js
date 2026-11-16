@@ -17,6 +17,14 @@ export function buildOutdoorFurnishings(scene){
  const ceramic=material('sand-pot','#b8aa90',{roughness:.91});
  const soil=material('pot-soil','#514a39',{roughness:1});
  const green=material('pot-leaves','#65734b',{roughness:.96});
+ const olive=material('olive-linen','#a2a083',{...fabric,bumpScale:.003});
+ const throwFabric=material('woven-throw','#c4b69c',{...fabric,bumpScale:.004});
+ const fruit=material('table-fruit','#c5a15e');
+ const canopyCloth=material('ivory-parasol-cloth','#eee5d4',{...fabric,bumpScale:.002,side:THREE.DoubleSide});
+ const lanternGlass=material('lantern-glass','#e9dfbd',{transparent:true,opacity:.18,depthWrite:false,roughness:.14});
+ const candle=material('lantern-candle','#eee0ba',{emissive:'#ffb35a',emissiveIntensity:0});
+ const flame=material('lantern-flame','#ffe5a1',{emissive:'#ffc16d',emissiveIntensity:0});
+ const flames=[];
  const geometries=new Map(),unitBox=new THREE.BoxGeometry(1,1,1),unitCylinder=new THREE.CylinderGeometry(1,1,1,20),leafGeometry=new THREE.SphereGeometry(1,7,5);
  const transform=new THREE.Object3D();
  const rounded=(w,h,d,r=.035)=>{r=Math.min(r,w/2.2,h/2.2,d/2.2);const key=[w,h,d,r].join(':');if(!geometries.has(key))geometries.set(key,new RoundedBoxGeometry(w,h,d,2,r));return geometries.get(key);};
@@ -44,7 +52,35 @@ export function buildOutdoorFurnishings(scene){
  for(let n=0;n<10;n++)dining.box(.86,.045,.196,0,.75,(n-4.5)*.207,wood);
  for(const x of [-.88,.88])for(const z of [-.60,.60])diningChair(dining,x,z,x<0?Math.PI/2:-Math.PI/2);
  diningChair(dining,0,-1.44,0);diningChair(dining,0,1.44,Math.PI);
- dining.cylinder(.08,.16,.08,0,.85,0,ceramic);dining.finish();
+ dining.cylinder(.08,.16,.08,0,.85,0,ceramic);
+ dining.cylinder(.16,.025,.16,0,.789,.45,ceramic);
+ for(const [x,z]of [[-.07,.42],[.055,.40],[.01,.52]])dining.part(leafGeometry,fruit,x,.84,z,.055,.06,.055);
+ for(const z of [-.70,.70])dining.cylinder(.035,.09,.035,.27,.82,z,ceramic);
+ dining.finish();
+
+ const spec=outdoorPlacement.parasol,canopy=spec.canopy;
+ const parasol=assembly('outdoor-cantilever-parasol',spec.x,spec.z);
+ parasol.soft(.84,.09,.84,0,.045,0,dark,.015);
+ parasol.box(.10,2.94,.08,0,1.55,0,dark);
+ const cx=canopy.x-spec.x,cz=canopy.z-spec.z;
+ function strut(from,to,width){const a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),direction=b.clone().sub(a),matrix=new THREE.Matrix4().compose(a.clone().add(b).multiplyScalar(.5),new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),direction.clone().normalize()),new THREE.Vector3(1,1,1));parasol.part(unitBox,dark,0,0,0,width,direction.length(),width,0,matrix);}
+ strut([0,3.01,0],[cx,3.17,cz],.055);
+ strut([0,2.05,0],[cx*.58,3.10,cz*.58],.035);
+ strut([cx,3.17,cz],[cx,canopy.peak,cz],.035);
+ // A curved square canopy with eight fabric panels, a stitched hem and
+ // batched ribs. No imported asset or additional shadow-casting lights.
+ const perimeter=[[-.5,-.5],[0,-.5],[.5,-.5],[.5,0],[.5,.5],[0,.5],[-.5,.5],[-.5,0]],clothPositions=[],hemPositions=[];
+ const edgeY=i=>canopy.edge+(i%2===0?.055:0);
+ const panelPoint=(i,t)=>[cx+perimeter[i][0]*canopy.width*t,canopy.peak-(canopy.peak-edgeY(i))*Math.pow(t,1.35),cz+perimeter[i][1]*canopy.depth*t];
+ for(let i=0;i<8;i++){
+  const next=(i+1)%8;
+  for(let segment=0;segment<5;segment++){const t=segment/5,u=(segment+1)/5,a=panelPoint(i,t),b=panelPoint(next,t),c=panelPoint(i,u),d=panelPoint(next,u);clothPositions.push(...a,...c,...d,...a,...d,...b);}
+  const a=panelPoint(i,1),b=panelPoint(next,1),c=[a[0],a[1]-.065,a[2]],d=[b[0],b[1]-.065,b[2]];hemPositions.push(...a,...c,...d,...a,...d,...b);
+ }
+ function clothGeometry(positions){const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(Array.from({length:positions.length/3},(_,i)=>[(positions[i*3]-cx)/canopy.width+.5,(positions[i*3+2]-cz)/canopy.depth+.5]).flat(),2));geometry.computeVertexNormals();return geometry;}
+ parasol.part(clothGeometry([...clothPositions,...hemPositions]),canopyCloth,0,0,0);
+ for(const diagonal of [false,true]){const end=diagonal?Math.hypot(canopy.width,canopy.depth)/2:canopy.width/2,edge=canopy.edge+(diagonal?.055:0);const curve=new THREE.CatmullRomCurve3(Array.from({length:6},(_,i)=>new THREE.Vector3(i/5,canopy.peak-(canopy.peak-edge)*Math.pow(i/5,1.35)-.016,0)));const rib=new THREE.TubeGeometry(curve,12,.008,5,false);for(let i=0;i<4;i++)parasol.part(rib,dark,cx,0,cz,end,1,1,-i*Math.PI/2-(diagonal?Math.PI/4:0));}
+ const parasolRoot=parasol.finish();parasolRoot.userData={kind:'cantilever-parasol',canopy:{...canopy},mast:{x:spec.x,z:spec.z}};
 
  const lounge=assembly('outdoor-lounge',outdoorPlacement.lounge.x,outdoorPlacement.lounge.z);
  lounge.soft(3.8,.012,3.4,0,.008,-.05,rug,.005);
@@ -57,9 +93,25 @@ export function buildOutdoorFurnishings(scene){
   for(let n=0;n<seats;n++){const cx=(n-(seats-1)/2)*w;lounge.soft(w-.025,.13,.71,cx,.40,.015,cream,.045,0,f);lounge.soft(w-.035,.40,.16,cx,.63,-.28,cream,.05,0,f);}
  }
  loungeSeat(0,-1.0,0,2.25,true);loungeSeat(-1.25,1.10,Math.PI-.25,.78);loungeSeat(1.25,1.10,Math.PI+.25,.78);
+ for(const [x,m,angle]of [[-.66,olive,-.15],[.67,cream,.17]]){const pillowFrame=new THREE.Matrix4().compose(new THREE.Vector3(x,.66,-1.08),new THREE.Quaternion().setFromEuler(new THREE.Euler(-.18,angle,0)),new THREE.Vector3(1,1,1));lounge.soft(.39,.36,.13,0,0,0,m,.045,0,pillowFrame);}
+ lounge.soft(.52,.028,.65,-.52,.482,-.86,throwFabric,.01);
+ lounge.soft(.52,.065,.12,-.52,.515,-.60,throwFabric,.02);
  lounge.cylinder(.63,.045,.37,0,.365,.16,wood);
  for(const x of [-.40,.40])for(const z of [-.17,.17])lounge.box(.045,.34,.045,x,.17,.16+z,wood);
  lounge.cylinder(.11,.04,.085,.10,.41,.16,ceramic);lounge.cylinder(.04,.09,.04,-.20,.43,.18,ceramic);lounge.finish();
+
+ for(const [index,p]of outdoorPlacement.lanterns.entries()){
+  const lantern=assembly('outdoor-lantern-'+index,p.x,p.z),w=.18,h=p.height;
+  for(const y of [.02,h])lantern.soft(w+.025,.025,w+.025,0,y,0,dark,.006);
+  for(const x of [-w/2,w/2])for(const z of [-w/2,w/2])lantern.box(.012,h,.012,x,h/2,z,dark);
+  for(const x of [-w/2,w/2])lantern.box(.004,h-.04,w, x,h/2,0,lanternGlass);
+  for(const z of [-w/2,w/2])lantern.box(w,h-.04,.004,0,h/2,z,lanternGlass);
+  lantern.cylinder(.045,h*.47,.045,0,h*.265,0,candle);
+  lantern.part(leafGeometry,flame,0,h*.54,0,.012,.026,.012);
+  lantern.box(.065,.012,.012,0,h+.055,0,dark);
+  for(const x of [-.032,.032])lantern.box(.009,.05,.009,x,h+.027,0,dark);
+  const group=lantern.finish();group.traverse(mesh=>{if(mesh.material===flame)flames.push(mesh);});
+ }
 
  const grill=assembly('outdoor-grill',outdoorPlacement.grill.x,outdoorPlacement.grill.z);
  grill.box(.78,.65,.51,0,.43,0,dark);grill.soft(.82,.30,.53,0,.93,0,metal,.09);
@@ -83,5 +135,5 @@ export function buildOutdoorFurnishings(scene){
   }pot.finish();
  }
  root.userData={kind:'outdoor-presentation',editable:false};
- return {root};
+ return {root,setDaylight(value){const glow=1-THREE.MathUtils.clamp(value,0,1);candle.emissiveIntensity=glow*.55;flame.emissiveIntensity=glow*2.5;for(const mesh of flames)mesh.visible=glow>.3;}};
 }

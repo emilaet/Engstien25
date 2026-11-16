@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {interior} from './architecture.js';
-import {plotOutline,driveway} from './outdoor-layout.js';
+import {plotOutline,driveway,terracePolygons,outdoorPlacement,outdoorY} from './outdoor-layout.js';
 const offset=new THREE.Vector3(12,24,24);
 function houseBounds(height){
  const bounds=[];
@@ -42,11 +42,12 @@ export function frameExterior(camera,{side='garden',context=false}={}){
  if(front){for(const x of [15,28.2])for(const y of [-1.0,4.1])for(const z of [-.6,14.6])points.push(new THREE.Vector3(x,y,z));}
  else{
   for(const x of [-.4,19.8])for(const y of [0,3.3])for(const z of [-.4,7.25])points.push(new THREE.Vector3(x,y,z));
-  if(context){
-   for(const x of [15.2,22.4])for(const y of [0,2.6])for(const z of [7.2,14.3])points.push(new THREE.Vector3(x,y,z));
-   for(const p of [[-4.6,.085,2.8],[-4.6,.085,7.3],[-3.2,.085,8.65]])points.push(new THREE.Vector3(...p));
-  }
+  for(const x of [15.2,22.4])for(const y of [0,2.6])for(const z of [7.2,14.3])points.push(new THREE.Vector3(x,y,z));
   for(const p of [[6.6,.085,12.7],[15.3,.085,12.7]])points.push(new THREE.Vector3(...p));
+  // Keep the approved paving and suspended canopy inside the garden preset.
+  for(const polygon of terracePolygons)for(const [x,z]of polygon)points.push(new THREE.Vector3(x,outdoorY,z));
+  const canopy=outdoorPlacement.parasol.canopy;
+  for(const x of [canopy.x-canopy.width/2,canopy.x+canopy.width/2])for(const z of [canopy.z-canopy.depth/2,canopy.z+canopy.depth/2])points.push(new THREE.Vector3(x,outdoorY+canopy.peak,z));
  }
  if(context&&!front)points.push(new THREE.Vector3(-6.4,4.2,2.7));
  let low=.15,high=8;

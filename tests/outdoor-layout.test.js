@@ -4,7 +4,7 @@ import {carportRoof} from '../src/carport.js';
 import {interior} from '../src/architecture.js';
 import {
  outdoorY,carportArea,driveway,westTerrace,mainTerrace,terracePolygons,
- approachHeight,lawnHeight,insidePolygon,outdoorPlacement,
+ approachHeight,lawnHeight,insidePolygon,outdoorPlacement,plantingBeds,
 } from '../src/outdoor-layout.js';
 
 const near=(actual,expected,message)=>assert.ok(Math.abs(actual-expected)<1e-7,message??`${actual} != ${expected}`);
@@ -30,16 +30,25 @@ test('The front lawn follows the driveway grade without moving the level garden 
  assert.ok(driveway.minZ>=interior.depth,'The driveway aligns with the attached carport');
 });
 
-test('The west terrace has a real right-angle cut-out separate from the main patio recess',()=>{
- assert.equal(insidePolygon(-4,8,westTerrace),false,'The far-left garden-facing corner must remain unpaved');
+test('The approved extensions pave the entire west terrace and fill the old lounge recess',()=>{
+ assert.equal(insidePolygon(-4,8,westTerrace),true,'The former west notch is now paved');
+ assert.equal(insidePolygon(-4,0,westTerrace),true,'Paving reaches the far gable corner');
  assert.equal(insidePolygon(-4,7,westTerrace),true,'The rest of the west dining terrace remains');
  assert.equal(insidePolygon(-2.8,8,westTerrace),true,'A narrower connection remains next to the gable');
- assert.equal(insidePolygon(7,11.5,mainTerrace),false,'The separate main patio planter recess remains');
+ assert.equal(insidePolygon(7,11.5,mainTerrace),true,'The former main recess is now paved');
  assert.equal(insidePolygon(8.4,11.5,mainTerrace),true,'The deep lounge paving remains beside that recess');
  for(const polygon of [westTerrace,mainTerrace])for(let i=0;i<polygon.length;i++){
   const a=polygon[i],b=polygon[(i+1)%polygon.length];
   assert.ok(a[0]===b[0]||a[1]===b[1],'A notch must have square edges, not a diagonal chamfer');
  }
+});
+
+test('The relocated L planter hugs both paving edges and all beds stand entirely on the lawn',()=>{
+ const bed=plantingBeds.find(b=>b.id==='main-l');assert.ok(bed);
+ near(Math.max(...bed.polygon.map(p=>p[0])),6.6-.02);
+ near(Math.min(...bed.polygon.map(p=>p[1])),8.65+.02);
+ assert.equal(plantingBeds.some(b=>b.id==='shed-edge'),false);
+ for(const {id,polygon}of plantingBeds){const xs=polygon.map(p=>p[0]),zs=polygon.map(p=>p[1]);for(let x=Math.min(...xs)+.025;x<Math.max(...xs);x+=.05)for(let z=Math.min(...zs)+.025;z<Math.max(...zs);z+=.05)if(insidePolygon(x,z,polygon))assert.equal(paved(x,z),false,`${id} overlaps the paving at ${x},${z}`);}
 });
 
 test('Connected garden paving leaves a clear route along the facade and stays out of the house and driveway',()=>{
@@ -61,8 +70,10 @@ test('Rendered terrace and ramp surfaces preserve the approved openings and actu
  for(const point of [outdoorPlacement.dining,outdoorPlacement.lounge,{x:2,z:8.25}]){
   const hit=down(landscape.terraces,point.x,point.z);assert.ok(hit,'The connected level paving must really be rendered');surfaceNear(hit.point.y,outdoorY);
  }
- assert.equal(down(landscape.terraces,-4,8),undefined,'There must be a real mesh cut-out, not a planter over continuous paving');
- assert.equal(down(landscape.terraces,7,11.5),undefined,'The main L recess must also remain unpaved');
+ assert.ok(down(landscape.terraces,-4,8),'The west extension must be an actual paved mesh');
+ assert.ok(down(landscape.terraces,-4,0),'The extension reaches the gable corner');
+ assert.ok(down(landscape.terraces,7,11.5),'The filled lounge recess must be an actual paved mesh');
+ assert.equal(down(landscape.terraces,6.3,10),undefined,'The relocated L planter must stand on lawn');
  for(const fraction of [.02,.5,.98])for(const z of [driveway.minZ+.5,driveway.maxZ-.5]){
   const x=driveway.startX+fraction*5,hit=down([landscape.driveway],x,z);
   assert.ok(hit,'The approach must have an upward-facing driveable surface');surfaceNear(hit.point.y,outdoorY-fraction);
@@ -103,7 +114,7 @@ test('Exterior camera presets fit the garden and graded approach on narrow and w
  const THREE=await import('three');
  const {frameExterior}=await import('../src/camera-framing.js');
  const features={
-  garden:[[-4.6,outdoorY,2.8],[-4.6,outdoorY,7.3],[-3.2,outdoorY,8.65],[15.3,outdoorY,12.7],[22.3,2.6,14.2],[-.4,3.3,-.4],[19.8,3.3,-.4],[-6.4,4,2.7]],
+  garden:[[-4.6,outdoorY,-.4],[-4.6,outdoorY,8.65],[-.7,outdoorY+3.05,3.65],[15.3,outdoorY,12.7],[22.3,2.6,14.2],[-.4,3.3,-.4],[19.8,3.3,-.4],[-6.4,4,2.7]],
   driveway:[[driveway.startX,outdoorY,driveway.minZ],[driveway.endX,outdoorY-1,driveway.maxZ],[15.3,2.5,14.2],[19.8,3.3,0],[27.3,-1,2.2]],
  };
  for(const side of ['garden','driveway'])for(const aspect of [.6,.75,1,1.5,2.4]){

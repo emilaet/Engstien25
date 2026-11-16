@@ -13,7 +13,7 @@ import {frameOverview,framePlan,frameExterior} from './camera-framing.js';
 import {floorMaterial} from './visual-materials.js';
 
 
-import {outdoorY,driveway,terracePolygons,westTerrace} from './outdoor-layout.js';
+import {outdoorY,driveway,terracePolygons,westTerrace,plantingBeds,outdoorPlacement} from './outdoor-layout.js';
 const nextPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
 export async function createHouse(host,onTap,onHold,options={}){
  let dirty=true,lastDraw=0,frame=0,contextLost=false,sceneReady=false,recoveryTimer=null;
@@ -69,7 +69,7 @@ const scene=new THREE.Scene();scene.background=null;
  const carport=buildCarportRoof(scene);
  function updateRoof(){carport.setView({plan:isPlan,charger:activeView==='charger',enabled:roofEnabled,full:isFull});landscape?.setCutaway(!isFull&&cutaway);parkedCar?.setVisible(activeView!=='charger');host.dataset.parkedCarVisible=String(parkedCar?.presentation.visible??false);host.dataset.carportRoof=String(carport.root.visible);}
  function setExterior(value){isFull=value;ground.position.y=-1.08;perspective.far=500;perspective.updateProjectionMatrix();controls.maxDistance=300;if(outdoorDecor)outdoorDecor.root.visible=true;if(landscape)landscape.root.visible=true;host.dataset.outdoorVisible=String(!!(landscape&&outdoorDecor));host.dataset.exteriorSide=value?exteriorSide:'';structure.setExteriorMode(value);structure.setCutaway(value?false:cutaway);exterior.setView({full:value,cutaway:value?false:cutaway});localLights.syncClipping();host.dataset.exterior=String(value);updateRoof();renderer.shadowMap.needsUpdate=true;invalidate();}
- function setAppearance(value){const t=value.daylight;daylight=t;charger.setDaylight(t);updateChargerFill(chargerFill,t,activeView==='charger');seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor='transparent';ambient.intensity=.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);invalidate();renderer.shadowMap.needsUpdate=true;}
+ function setAppearance(value){const t=value.daylight;daylight=t;charger.setDaylight(t);outdoorDecor?.setDaylight(t);updateChargerFill(chargerFill,t,activeView==='charger');seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor='transparent';ambient.intensity=.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);invalidate();renderer.shadowMap.needsUpdate=true;}
  function applyLimits(){
   const close=activeView==='charger';controls.minDistance=close?.6:furnitureEditing?.7:6;controls.maxDistance=close?5:300;
   controls.minAzimuthAngle=close?Math.PI*.25:-Infinity;controls.maxAzimuthAngle=close?Math.PI*.75:Infinity;
@@ -107,7 +107,7 @@ const scene=new THREE.Scene();scene.background=null;
   if(outdoorPromise)return outdoorPromise;
   host.dataset.outdoorLoading='true';
   outdoorPromise=(async()=>{await nextPaint();const [{buildLandscape},{buildOutdoorFurnishings},{buildParkedCar},{default:carAsset}]=await Promise.all([import('./landscape.js'),import('./outdoor-furniture.js'),import('./parked-car.js'),import('./assets/tesla-model-y.glb?url&inline')]);
- landscape=buildLandscape(scene);landscape.setCutaway(!isFull&&cutaway);await nextPaint();outdoorDecor=buildOutdoorFurnishings(scene);parkedCar=await buildParkedCar(outdoorDecor.root,carAsset);parkedCar.setVisible(activeView!=='charger');localLights.bindOutdoor(parkedCar.root);
+ landscape=buildLandscape(scene);landscape.setCutaway(!isFull&&cutaway);await nextPaint();outdoorDecor=buildOutdoorFurnishings(scene);outdoorDecor.setDaylight(daylight);parkedCar=await buildParkedCar(outdoorDecor.root,carAsset);parkedCar.setVisible(activeView!=='charger');localLights.bindOutdoor(parkedCar.root);
  landscape.root.visible=true;outdoorDecor.root.visible=true;host.dataset.outdoorVisible='true';
  const parkingGeometry=new THREE.PlaneGeometry(b[0]-a[0],b[1]-a[1]);
  const parkingUV=parkingGeometry.attributes.uv,parkingVertices=parkingGeometry.attributes.position;
@@ -118,9 +118,9 @@ const scene=new THREE.Scene();scene.background=null;
  // Bind paving/fixtures, not every decorative leaf and chair, to keep the local
  // lighting pass bounded on tablets. Daylight/shadows still shade all meshes.
  localLights.bindOutdoor(landscape.driveway);
- host.dataset.outdoorLayout=JSON.stringify({terraces:terracePolygons,west:westTerrace,driveway:{rise:driveway.rise,run:driveway.run,slope:driveway.rise/driveway.run,coveredHeight:outdoorY}});
+ host.dataset.outdoorLayout=JSON.stringify({terraces:terracePolygons,west:westTerrace,beds:plantingBeds,parasol:outdoorPlacement.parasol,driveway:{rise:driveway.rise,run:driveway.run,slope:driveway.rise/driveway.run,coveredHeight:outdoorY}});
 
-  if(latestState)landscape.update(latestState);await prepare();invalidate();
+  if(latestState)landscape.update(latestState);renderer.shadowMap.needsUpdate=true;await prepare();invalidate();
   })().catch(error=>{outdoorPromise=null;throw error;}).finally(()=>{host.dataset.outdoorLoading='false';});return outdoorPromise;
  }
  async function prepare(){if(renderer.compileAsync&&!contextLost)try{await renderer.compileAsync(scene,camera);}catch{/* The next render can compile synchronously on older drivers. */}}
