@@ -1,7 +1,7 @@
 // The house presents the fixed docking locations; telemetry comes only from HA.
 export const robotProfiles={
- vacuum:{id:'stue:vacuum',room:'stue',type:'vacuum',title:'Robotstøvsuger',short:'Roborock',model:'Roborock Qrevo 5AE',location:'Stue · ved alrummet',accent:'sand'},
- mower:{id:'outside:mower',room:'outside',type:'mower',title:'Robotplæneklipper',short:'Plæne',model:'Mammotion Yuka Mini 2',variant:'RTK Vision · 800 m²',location:'Ved skuret · på græsset',accent:'green'},
+ vacuum:{id:'stue:vacuum',room:'stue',type:'vacuum',title:'Robotstøvsuger',short:'Robotstøvsuger',model:'Roborock Qrevo 5AE',location:'Stue · ved alrummet',accent:'sand'},
+ mower:{id:'outside:mower',room:'outside',type:'mower',title:'Robotplæneklipper',short:'Robotplæneklipper',model:'Mammotion Yuka Mini 2',variant:'RTK Vision · 800 m²',location:'Ved skuret · på græsset',accent:'green'},
 };
 export const robotFields={
  vacuum:{primary:['Robotstøvsuger',['vacuum']],battery:['Batteri',['sensor']],map:['Rengøringskort',['image','camera']],cleaningMode:['Rengøringstype',['select']],cleaningCycles:['Antal gennemgange',['select']],mopMode:['Mopperute',['select']],mopIntensity:['Vand / moppeintensitet',['select']],activeMap:['Valgt etage / kort',['select']],collectionMode:['Tømning · styrke',['select']],volume:['Lydstyrke',['number']],childLock:['Børnesikring',['switch']],dnd:['Forstyr ikke',['switch']],indicator:['Statuslys',['switch']],offPeak:['Opladning uden for spidsbelastning',['switch']],empty:['Tøm støvbeholder',['switch']],wash:['Vask mopper',['switch']],dry:['Tør mopper',['switch']],area:['Rengjort areal',['sensor']],duration:['Rengøringstid',['sensor']],error:['Robotfejl',['sensor']],dockError:['Stationsfejl',['sensor']],mainBrush:['Hovedbørste · resterende tid',['sensor']],sideBrush:['Sidebørste · resterende tid',['sensor']],filter:['Filter · resterende tid',['sensor']],cleanWater:['Rent vand',['binary_sensor']],dirtyWater:['Spildevand',['binary_sensor']]},

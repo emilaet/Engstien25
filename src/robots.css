@@ -1,6 +1,5 @@
 /* Device pages share the house's typography and surfaces, with room for a
    proper close-up. Every control remains reachable while 3D is loading. */
-.robot-title-phone{display:none}
 :root:is([data-page=vacuum],[data-page=mower]) .summary{display:none!important}
 :root:is([data-page=vacuum],[data-page=mower]) .workspace{grid-template-columns:minmax(0,1.3fr) minmax(340px,.85fr);gap:22px;align-items:start}
 :root:is([data-page=vacuum],[data-page=mower]) .model-card{height:calc(100dvh - 164px);min-height:500px;max-height:1000px;background:var(--soft);border-radius:28px;overflow:hidden;position:sticky;top:20px}
@@ -49,11 +48,15 @@
 .rp-maintenance>div{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--border);padding:14px 0;font-size:13px;line-height:20px;color:var(--muted)}.rp-maintenance>div:first-of-type{margin-top:14px}.rp-maintenance strong{font-weight:500;text-align:right;color:var(--text)}
 .rp-problem{display:flex;gap:9px;align-items:center;padding:16px 18px;background:var(--amber-soft);border-radius:16px;color:var(--alert);font-size:13px;line-height:21px}
 .rp-model-note{font-size:11px;line-height:19px;color:var(--muted);padding:4px 8px}
-.robot-nav-short{display:none}.rail .nav small{white-space:normal}
+.rail .nav small{white-space:normal}.robot-nav-name>span{display:block}.rail .robot-nav-name{font-size:11px;line-height:14px}
 @media(max-width:1050px) and (min-width:761px){:root:is([data-page=vacuum],[data-page=mower]) .workspace{grid-template-columns:minmax(0,1fr) 310px;gap:14px}.robot-panel :is(section,details){padding:20px}.rp-primary-actions{grid-template-columns:1fr}.rp-primary-actions button{min-height:46px}:root:is([data-page=vacuum],[data-page=mower]) .model-heading{padding:20px 20px 6px!important}.rp-battery>strong{font-size:42px}}
 @media(max-width:760px),(max-width:1000px) and (max-height:500px) and (any-pointer:coarse){
- .rail nav{gap:2px;justify-content:space-between}.rail .nav{flex:1;min-width:0;max-width:76px;width:auto;padding:4px 2px;height:54px}.rail .nav small{font-size:11px;line-height:16px}.robot-nav-long{display:none}.robot-nav-short{display:inline}
- .robot-title-wide{display:none}.robot-title-phone{display:inline}
+ .rail{height:calc(76px + env(safe-area-inset-bottom))!important}
+ .rail nav{gap:2px;justify-content:space-between;align-items:center}.rail .nav{flex:1;min-width:44px;max-width:none;width:auto;padding:4px 2px;height:62px;gap:3px}.rail .nav:is([data-tab=vacuum],[data-tab=mower]){flex:1.65;min-width:68px}.rail .nav small{font-size:11px;line-height:14px}
+ :root:is([data-page=vacuum],[data-page=mower]) main>header{row-gap:6px}
+ :root:is([data-page=vacuum],[data-page=mower]) main>header>div:first-child{display:contents}
+ :root:is([data-page=vacuum],[data-page=mower]) header .eyebrow{grid-column:1;grid-row:1;margin:0}
+ :root:is([data-page=vacuum],[data-page=mower]) header h1{grid-column:1/-1;grid-row:2;font-size:clamp(25px,7vw,32px);line-height:1.25;letter-spacing:-1px}
  :root:is([data-page=vacuum],[data-page=mower]) .workspace{display:flex!important;flex-direction:column;gap:20px}
  :root:is([data-page=vacuum],[data-page=mower]) .model-card{position:relative;top:auto;order:0;width:100%;height:470px;min-height:470px;max-height:470px;grid-template-rows:auto minmax(0,1fr) auto!important;border-radius:24px}
  :root:is([data-page=vacuum],[data-page=mower]) .model-heading{padding:18px 20px 2px!important}
