@@ -1,3 +1,12 @@
+# 0.3.1
+
+- Navigationen reserverer plads til brand, menu og bundtekst, også på lave skærme. Fulde robotnavne og aktiv markering holder sig inden for menuen.
+- Fotorealistiske nærbilleder af sort Qrevo 5AE og grå Yuka Mini 2, baseret på brugerens produktreferencer. Hele produktet vises uden beskæring.
+- Separate valg af Nærbillede, 3D og Kort; kameraovergange bevares, og 3D bruges som fallback ved billedfejl.
+- Roligere sider før tilslutning, uden tomme statistik- og zonesektioner eller en falsk nulprocent-bjælke.
+- Tydelig lokal besked ved mislykkede kommandoer, korrekt håndtering af ukendte valg og utilgængelige zoner samt bevaret fokus efter betjening.
+- Indstillingers åbne tilstand huskes separat for hver robot; grønne handlingsknapper har læsbar tekstkontrast i begge temaer.
+
 # 0.3.0
 
 - Egne sider til sort Roborock Qrevo 5AE og Mammotion Yuka Mini 2 med flydende kameraovergange til stationerne i huset.

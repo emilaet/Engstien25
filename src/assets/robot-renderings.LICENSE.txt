@@ -1,0 +1,8 @@
+Robot close-up illustrations, created for Engstien 25 on 20 November 2026.
+
+robot-vacuum-closeup.webp and robot-mower-closeup.webp were generated from the
+product references supplied by the user. They illustrate the planned docking
+locations and do not represent a live camera feed or an official CAD model.
+
+Product names and marks belong to their respective owners. No original
+manufacturer photograph is distributed in these application assets.

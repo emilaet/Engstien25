@@ -15,13 +15,15 @@ export function createNavigationMotion(nav){
   const rect=active.getBoundingClientRect(),parent=nav.getBoundingClientRect();
   marker.style.width=rect.width+'px';marker.style.height=rect.height+'px';
   marker.style.borderRadius=getComputedStyle(active).borderRadius;
-  marker.style.transform=`translate(${rect.left-parent.left}px,${rect.top-parent.top}px)`;
+  marker.style.transform=`translate(${rect.left-parent.left+nav.scrollLeft}px,${rect.top-parent.top+nav.scrollTop}px)`;
  }
  const observer=new ResizeObserver(position);observer.observe(nav);
  for(const button of nav.querySelectorAll('.nav'))observer.observe(button);
  document.fonts.ready.then(position);
  reduced.addEventListener('change',()=>{if(reduced.matches){animation?.cancel();animation=null;}});
  return {sync(view){
+  const active=nav.querySelector('.nav.active');
+  if(active&&nav.scrollHeight>nav.clientHeight){const a=active.getBoundingClientRect(),b=nav.getBoundingClientRect();if(a.top<b.top)nav.scrollTop-=b.top-a.top;else if(a.bottom>b.bottom)nav.scrollTop+=a.bottom-b.bottom;}
   position();
   if(!nav.dataset.motionReady)requestAnimationFrame(()=>{nav.dataset.motionReady='true';});
   if(view===previous)return;

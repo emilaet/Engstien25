@@ -6,7 +6,7 @@ import {planDeviceImport} from '../src/device-import.js';
 import {parseNavigation} from '../src/navigation-state.js';
 import {createHaBridge,normalizeHaEntity,readHaRegistry} from '../server/home-assistant.mjs';
 import {robotCommand} from '../server/robot-commands.mjs';
-import {robotSnapshot,robotMetric} from '../src/robot-data.js';
+import {robotSnapshot,robotMetric,robotOptionLabel} from '../src/robot-data.js';
 import {buildRobotModels} from '../src/robot-models.js';
 import {frameRobotCamera,robotPlacement} from '../src/robot-layout.js';
 import {finishedFloor} from '../src/architecture.js';
@@ -57,6 +57,10 @@ test('Mammotion zones and task buttons belong to the bound HA device and integra
 
 test('Robot state never invents telemetry, preserves a zero battery and locks offline controls',()=>{
  let p=robotSnapshot('vacuum',defaultDevices(),{online:false,entities:[]});assert.equal(p.battery,null);assert.equal(p.supports('start'),false);assert.equal(p.status,'Ikke tilsluttet');const s=snapshot();s.entities[0].battery=0;p=robotSnapshot('vacuum',boundRobotCatalog(),s);assert.equal(p.battery,0);assert.deepEqual(p.areas.map(a=>a.id),['stue','alrum']);assert.equal(p.metric('area'),'47,5 m²');assert.equal(p.metric('duration'),'1 t 5 min');assert.equal(robotMetric({state:'off',deviceClass:'problem'}),'Normal');assert.equal(robotSnapshot('vacuum',boundRobotCatalog(),{...s,online:false}).supports('start'),false);assert.equal(robotSnapshot('vacuum',boundRobotCatalog(),s,true).supports('home'),false);assert.equal(robotSnapshot('mower',boundRobotCatalog(),s).zones.length,2);
+});
+
+test('Retired robots cannot act or show an invented empty battery, and unknown labels remain literal text',()=>{
+ const catalog=boundRobotCatalog();catalog.devices.find(d=>d.id==='stue:vacuum').retired=true;const retired=robotSnapshot('vacuum',catalog,snapshot());assert.equal(retired.status,'Udgået');assert.equal(retired.battery,null);assert.equal(retired.linked,false);assert.equal(retired.supports('start'),false);assert.equal(robotMetric({state:' ',unit:'%'}),'—');assert.equal(robotOptionLabel('constructor'),'constructor');assert.equal(robotOptionLabel('__proto__'),'__proto__');const s=snapshot();s.entities[0].state='constructor';assert.equal(robotSnapshot('vacuum',boundRobotCatalog(),s).status,'constructor');
 });
 
 test('Bridge refuses offline and stale commands and proxies only a saved robot image with a bounded raster MIME',async()=>{

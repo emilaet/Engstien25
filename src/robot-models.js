@@ -62,11 +62,11 @@ export function buildRobotModels(scene){
   for(let i=0;i<=cols;i++){const u=i/cols,x=(u-.5)*2*width,y=edge+(height-edge)*Math.pow(Math.sin(u*Math.PI),.48);positions.push(x,y,robotZ+z);uv.push(u,t);if(i<cols&&j<rows){const a=j*(cols+1)+i;indices.push(a,a+cols+1,a+1,a+1,a+cols+1,a+cols+2);}}
  }
  const hood=new THREE.BufferGeometry();hood.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));hood.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));hood.setIndex(indices);hood.computeVertexNormals();
- const hoodMaterial=ivory.clone();hoodMaterial.side=THREE.DoubleSide;m.part(hood,hoodMaterial,0,0,0);
+ const hoodMaterial=material('mower-graphite-hood','#55585c',.48,.14);hoodMaterial.side=THREE.DoubleSide;m.part(hood,hoodMaterial,0,0,0);
  m.box(.135,.034,.252,0,.303,robotZ-.087,black,.012,-.09);
- m.box(.112,.035,.068,0,.313,robotZ+.034,graphite,.006);
- m.box(.093,.024,.004,0,.312,robotZ+.071,lens,.004);
- for(const x of [-.030,.030])m.cylinder(.009,.002,x,.311,robotZ+.074,lens,Math.PI/2);
+ m.box(.154,.060,.080,0,.326,robotZ+.034,graphite,.012);
+ m.box(.137,.040,.004,0,.328,robotZ+.076,lens,.009);
+ for(const x of [-.046,0,.046]){m.cylinder(.013,.003,x,.328,robotZ+.079,satin,Math.PI/2);m.cylinder(.009,.004,x,.328,robotZ+.081,lens,Math.PI/2);}
  m.box(.071,.012,.025,0,.330,robotZ-.080,material('mower-stop','#a72424',.54),.006);
  m.cylinder(.024,.037,0,.332,robotZ-.19,black);m.cylinder(.028,.016,0,.358,robotZ-.19,graphite);
  for(let n=0;n<20;n++){const a=n*Math.PI/10;m.box(.003,.012,.003,Math.sin(a)*.028,.358,robotZ-.19+Math.cos(a)*.028,black,.001,0,a);}
@@ -76,6 +76,7 @@ export function buildRobotModels(scene){
   for(let n=0;n<28;n++){const a=n*Math.PI/14;m.box(.073,.020,.026,x,.14+Math.cos(a)*.13,wheelZ+Math.sin(a)*.13,rubber,.003,a);}
   for(let n=0;n<6;n++){const a=n*Math.PI/3;m.cylinder(.005,.003,x+side*.039,.14+Math.cos(a)*.070,wheelZ+Math.sin(a)*.070,black,0,0,Math.PI/2);}
   m.box(.009,.018,.115,side*.209,.178,robotZ+.08,yellow,.007,-.15);
+  m.box(.004,.024,.085,side*.195,.237,robotZ+.09,material('mower-green-inset','#587946',.5),.010,-.3);
   for(let n=0;n<7;n++)m.box(.003,.025,.013,side*.21,.239-n*.0018,robotZ-.10+n*.019,black,.001);
  }
  for(const x of [-.10,.10])m.cylinder(.031,.023,x,.031,robotZ+.21,rubber,0,0,Math.PI/2);

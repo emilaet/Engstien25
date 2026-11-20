@@ -3,14 +3,15 @@ import {setAppearance,readyScene} from './ui.js';
 import {createDashboardServer} from '../server/app.mjs';
 import {resolve} from 'node:path';
 import {robotRawStates,robotRegistry,robotStorage,mapPng} from '../tests/fixtures/robots.js';
-let server,url,posts,states,offline,mapReads;
+let server,url,posts,states,offline,mapReads,serviceFailure;
 test.use({actionTimeout:10000});
 test.beforeEach(async()=>{
- posts=[];states=robotRawStates();offline=false;mapReads=0;
+ posts=[];states=robotRawStates();offline=false;mapReads=0;serviceFailure=false;
  server=createDashboardServer({password:'robots-test-only',storage:robotStorage(),staticRoot:resolve('dist'),haUrl:'http://ha.test',haToken:'private-robot-token',registryImpl:async()=>robotRegistry(),fetchImpl:async(url,options)=>{
   if(offline)throw Error('offline');
   if(url.pathname.includes('image_proxy')){mapReads++;return new Response(mapPng,{headers:{'content-type':'image/png'}});}
   if(options.method==='POST'){
+   if(serviceFailure)return new Response('Unavailable',{status:503});
    const body=JSON.parse(options.body);posts.push({path:url.pathname,body});const e=states.find(e=>e.entity_id===body.entity_id),service=url.pathname.split('/').at(-1);
    if(e){if(service==='start'||service==='clean_area')e.state='cleaning';if(service==='start_mowing'||service==='start_mow')e.state='mowing';if(service==='pause')e.state='paused';if(service==='return_to_base'||service==='dock')e.state='returning';if(service==='select_option')e.state=body.option;if(service==='set_value')e.state=String(body.value);if(service==='turn_on'||service==='turn_off')e.state=service==='turn_on'?'on':'off';}
    return Response.json([]);
@@ -43,7 +44,7 @@ test('Mammotion zones, existing tasks and real number limits work without showin
 });
 
 test('Maps load only when opened, through the authenticated server; offline robots disable commands',async({page})=>{
- await open(page);expect(mapReads).toBe(0);await page.getByRole('button',{name:'Kort',exact:true}).click();await expect(page.locator('.robot-map-panel img')).toBeVisible();expect(mapReads).toBe(1);expect(await page.locator('.robot-map-panel img').getAttribute('src')).toMatch(/^\/api\/settings\/robot-map\?/);await page.getByRole('button',{name:'Opdater kort',exact:true}).click();await expect.poll(()=>mapReads).toBe(2);states.find(e=>e.entity_id==='image.qrevo_map').last_updated=new Date().toISOString();await page.request.get(url+'/api/settings/ha?refresh=1');await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await expect.poll(()=>mapReads).toBe(3);await page.getByRole('button',{name:'3D',exact:true}).click();await expect(page.locator('#scene')).toBeVisible();
+ await open(page);expect(mapReads).toBe(0);await page.getByRole('button',{name:'Kort',exact:true}).click();await expect(page.locator('.robot-map-panel img')).toBeVisible();expect(mapReads).toBe(1);expect(await page.locator('.robot-map-panel img').getAttribute('src')).toMatch(/^\/api\/settings\/robot-map\?/);await page.getByRole('button',{name:'Opdater kort',exact:true}).click();await expect.poll(()=>mapReads).toBe(2);states.find(e=>e.entity_id==='image.qrevo_map').last_updated=new Date().toISOString();await page.request.get(url+'/api/settings/ha?refresh=1');await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await expect.poll(()=>mapReads).toBe(3);await page.getByRole('button',{name:'3D',exact:true}).click();await expect(page.locator('#scene')).toBeVisible();await expect(page.locator('.robot-portrait')).toBeHidden();
  offline=true;await page.goto(url+'/#settings/connections');await page.getByRole('button',{name:'Hent enheder igen',exact:true}).click();await page.getByRole('button',{name:'Robotstøvsuger',exact:true}).click();await expect(page.locator('.rp-status')).toHaveText('Forbindelsen mangler');await expect(page.getByRole('button',{name:'Start rengøring',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Til station',exact:true})).toBeDisabled();expect(posts).toEqual([]);
 });
 
@@ -63,4 +64,36 @@ test('Robot selection during an unfinished camera morph cannot leave an old stat
 
 test('An unconnected installation shows no invented battery or job and keeps both robot pages usable',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#vacuum');await expect(page.locator('.rp-status')).toHaveText('Ikke tilsluttet');await expect(page.locator('.rp-battery strong')).toHaveText('—');await expect(page.getByRole('button',{name:'Start rengøring',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Kort',exact:true}).click();await expect(page.locator('.robot-map-panel')).toContainText('når Home Assistant er klar');await expect(page.locator('.robot-map-panel img')).toBeHidden();await page.getByRole('button',{name:'Robotplæneklipper',exact:true}).click();await expect(page.locator('.rp-status')).toHaveText('Ikke tilsluttet');await expect(page.locator('.rp-battery strong')).toHaveText('—');await expect(page.getByRole('button',{name:'Start klipning',exact:true})).toBeDisabled();
+});
+
+test('The complete product close-up is the default, with a working 3D/map alternative and image failure recovery',async({page})=>{
+ await open(page);const image=page.locator('.robot-portrait img');await expect(image).toBeVisible();await expect.poll(()=>image.evaluate(i=>i.naturalWidth)).toBeGreaterThan(1000);await expect(image).toHaveCSS('object-fit','contain');await expect(page.getByRole('button',{name:'Nærbillede',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.locator('#scene')).toBeHidden();await expect(page.getByRole('button',{name:'Zoom ind',exact:true})).toBeHidden();await readyScene(page);
+ await page.getByRole('button',{name:'3D',exact:true}).click();await expect(page.locator('#scene')).toBeVisible();await expect(page.getByRole('button',{name:'Zoom ind',exact:true})).toBeVisible();await page.getByRole('button',{name:'Nærbillede',exact:true}).click();await expect(image).toBeVisible();await image.evaluate(i=>{i.src='/missing-robot-image.png';});await expect(page.locator('.robot-visual-error')).toBeVisible();await expect(page.locator('#scene')).toBeVisible();
+ await page.getByRole('button',{name:'Robotplæneklipper',exact:true}).click();await expect(image).toBeVisible();await expect.poll(()=>image.evaluate(i=>i.naturalWidth)).toBeGreaterThan(1000);await expect(image).toHaveAttribute('alt',/grå Mammotion/);await expect(page.locator('.robot-visual-error')).toBeHidden();
+});
+
+test('Navigation labels never overlap the footer, and every robot stays reachable on short screens and iPads',async({page})=>{
+ await open(page,'mower');
+ for(const [width,height] of [[1440,1000],[1366,768],[1280,720],[1024,768],[820,1180],[1024,430],[820,360]]){
+  await page.setViewportSize({width,height});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  for(const kind of ['vacuum','mower']){const button=page.locator('.rail .nav[data-tab='+kind+']');await button.click();await expect(button).toBeInViewport();if(kind==='mower'){const rows=await page.locator('.model-heading h2').evaluate(el=>{const n=el.firstChild,t=n.textContent,r=document.createRange();r.setStart(n,t.indexOf('Mini'));r.setEnd(n,t.indexOf('Mini')+4);const first=r.getBoundingClientRect().top;r.setStart(n,t.lastIndexOf('2'));r.setEnd(n,t.lastIndexOf('2')+1);return [first,r.getBoundingClientRect().top];});expect(Math.abs(rows[0]-rows[1])).toBeLessThan(1);}const geometry=await button.evaluate(el=>{const a=el.getBoundingClientRect(),f=document.querySelector('.rail-bottom'),b=f.getBoundingClientRect(),text=el.querySelector('small'),range=document.createRange();range.selectNodeContents(text);const t=range.getBoundingClientRect();return {button:a.toJSON(),text:t.toJSON(),footer:b.toJSON(),footerVisible:getComputedStyle(f).display!=='none'};});expect(geometry.text.left).toBeGreaterThanOrEqual(geometry.button.left);expect(geometry.text.right).toBeLessThanOrEqual(geometry.button.right+.5);if(geometry.footerVisible)expect(geometry.button.bottom+12).toBeLessThanOrEqual(geometry.footer.top);const marker=page.locator('.nav-selection');await expect.poll(async()=>Math.abs((await marker.boundingBox()).y-(await button.boundingBox()).y)).toBeLessThan(1);}
+ }
+});
+
+test('Unsupported values are never presented as selected defaults, and a keyboard-adjusted slider retains focus',async({page})=>{
+ states.find(e=>e.entity_id==='select.qrevo_mop').state='unlisted';states[0].attributes.fan_speed='unlisted';await open(page);await page.locator('.rp-settings summary').click();await expect(page.getByLabel('Sugestyrke',{exact:true})).toHaveValue('');await expect(page.getByLabel('Mopperute',{exact:true})).toHaveValue('');expect(posts).toEqual([]);
+ await page.getByRole('button',{name:'Robotplæneklipper',exact:true}).click();const slider=page.getByRole('slider',{name:'Kørehastighed',exact:true});await expect(page.locator('.rp-settings')).not.toHaveAttribute('open','');await page.locator('.rp-settings summary').click();await slider.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>posts.some(p=>p.body.entity_id==='number.yuka_speed'&&p.body.value===.5)).toBe(true);await expect(slider).toBeFocused();
+});
+
+test('A zone that goes offline is removed from the selection before another job can be started',async({page})=>{
+ await open(page,'mower');const choice=page.getByRole('button',{name:'Forhave',exact:true});await choice.click();await expect(choice).toHaveAttribute('aria-pressed','true');states.find(e=>e.entity_id==='switch.yuka_front').state='unavailable';await page.request.get(url+'/api/settings/ha?refresh=1');await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await expect(choice).toBeDisabled();await expect(choice).toHaveAttribute('aria-pressed','false');await expect(page.getByRole('button',{name:'Start i valgte zoner',exact:true})).toBeDisabled();expect(posts).toEqual([]);
+});
+
+test('Failed robot commands show a persistent local error, keep real status, and recover on retry',async({page})=>{
+ await open(page);await page.clock.install();serviceFailure=true;await page.getByRole('button',{name:'Start rengøring',exact:true}).click();await expect(page.locator('.rp-feedback-error')).toContainText('Home Assistant');await expect(page.locator('.rp-status')).toHaveText('Ved stationen');await expect(page.getByRole('button',{name:'Start rengøring',exact:true})).toBeEnabled();await page.clock.fastForward(7000);await expect(page.locator('.rp-feedback-error')).toBeVisible();expect(posts).toEqual([]);
+ serviceFailure=false;await page.getByRole('button',{name:'Start rengøring',exact:true}).click();await expect(page.locator('.rp-status')).toHaveText('Gør rent');await expect(page.locator('.rp-feedback-success')).toBeVisible();await page.clock.fastForward(6001);await expect(page.locator('.rp-feedback')).toHaveCount(0);expect(posts).toHaveLength(1);
+});
+
+test('Primary robot actions retain readable text contrast in both appearances',async({page})=>{
+ await open(page);for(const mode of ['day','night']){await setAppearance(page,mode);const contrast=await page.locator('[data-rp-action=start]').evaluate(el=>{const style=getComputedStyle(el),lum=color=>color.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{const v=n/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,n,i)=>sum+n*[.2126,.7152,.0722][i],0),a=lum(style.color),b=lum(style.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});expect(contrast).toBeGreaterThanOrEqual(4.5);}
 });
