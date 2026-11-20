@@ -1,10 +1,11 @@
+import {robotProfiles,robotFields,compatibleRobotEntity} from './robot-profiles.js';
 import {rooms,controlRooms,initialState} from './house.js';
 import {lightName} from './lighting-data.js';
 import {safeStorage} from './storage.js';
 export const deviceCatalogKey='engstien-devices-v1';
 export const deviceRooms=[...rooms.map(({id,name})=>({id,name})),{id:'carport',name:'Carport og bil'},{id:'outside',name:'Ude'}];
-export const deviceTypes={light:'Lys',climate:'Gulvvarme',cover:'Gardiner',sensor:'Sensorer',switch:'Kontakter',charger:'Ladeboks',vehicle:'Bil',camera:'Kamera',media_player:'Lyd',vacuum:'Robotstøvsuger'};
-export const bindingSlots={light:{primary:'Lampe'},climate:{primary:'Varmezone'},cover:{primary:'Gardin'},sensor:{primary:'Sensor'},switch:{primary:'Kontakt'},camera:{primary:'Kamera'},media_player:{primary:'Afspiller'},vacuum:{primary:'Robotstøvsuger'},charger:{primary:'Start/stop-kontakt',status:'Ladestatus',power:'Ladeeffekt',energy:'Sessionsenergi'},vehicle:{primary:'Batteriprocent',status:'Bilens ladestatus',target:'Lademål',remaining:'Resterende ladetid'}};
+export const deviceTypes={light:'Lys',climate:'Gulvvarme',cover:'Gardiner',sensor:'Sensorer',switch:'Kontakter',charger:'Ladeboks',vehicle:'Bil',camera:'Kamera',media_player:'Lyd',vacuum:'Robotstøvsuger',mower:'Robotplæneklipper'};
+export const bindingSlots={light:{primary:'Lampe'},climate:{primary:'Varmezone'},cover:{primary:'Gardin'},sensor:{primary:'Sensor'},switch:{primary:'Kontakt'},camera:{primary:'Kamera'},media_player:{primary:'Afspiller'},...Object.fromEntries(Object.entries(robotFields).map(([type,fields])=>[type,Object.fromEntries(Object.entries(fields).map(([slot,[label]])=>[slot,label]))])),charger:{primary:'Start/stop-kontakt',status:'Ladestatus',power:'Ladeeffekt',energy:'Sessionsenergi'},vehicle:{primary:'Batteriprocent',status:'Bilens ladestatus',target:'Lademål',remaining:'Resterende ladetid'}};
 export function defaultDevices(){
  const base=initialState(),items=[];
  for(const room of controlRooms){
@@ -13,10 +14,12 @@ export function defaultDevices(){
   (room.curtains||[]).forEach((name,i)=>items.push({id:room.id+':curtain:'+i,room:room.id,name,type:'cover',anchor:{room:room.id,group:'curtains',key:String(i)},bindings:{}}));
  }
  items.push({id:'carport:charger',room:'carport',name:'OK ladeboks',type:'charger',bindings:{}},{id:'carport:vehicle',room:'carport',name:'Tesla',type:'vehicle',bindings:{}},{id:'entre:camera',room:'entre',name:'Hoveddørskamera',type:'camera',bindings:{}});
+ for(const p of Object.values(robotProfiles))items.push({id:p.id,room:p.room,name:p.model,type:p.type,bindings:{}});
  return {version:1,revision:0,devices:items};
 }
 const domains={light:['light','switch','input_boolean'],climate:['climate'],cover:['cover'],sensor:['sensor','binary_sensor'],switch:['switch','input_boolean'],camera:['camera'],media_player:['media_player'],vacuum:['vacuum']};
 export function compatibleEntity(device,slot,entity){
+ if(Object.hasOwn(robotFields,device.type))return compatibleRobotEntity(device,slot,entity);
  const domain=entity.id.split('.')[0],unit=entity.unit||'',kind=entity.deviceClass||'';
  if(device.type==='charger')return slot==='primary'?['switch','input_boolean'].includes(domain):slot==='power'?domain==='sensor'&&['W','kW'].includes(unit):slot==='energy'?domain==='sensor'&&['Wh','kWh'].includes(unit):['sensor','binary_sensor'].includes(domain);
  if(device.type==='vehicle')return slot==='primary'?domain==='sensor'&&(unit==='%'||kind==='battery'):slot==='target'?['sensor','number'].includes(domain)&&unit==='%':slot==='remaining'?domain==='sensor'&&['min','minutes','h','hr'].includes(unit):['sensor','binary_sensor'].includes(domain);

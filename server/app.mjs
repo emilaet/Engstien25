@@ -73,6 +73,7 @@ export function createDashboardServer({password,storage,haUrl='',haToken='',enti
     if(path==='/api/settings/ha'&&req.method==='GET')return json(res,200,await ha.snapshot(new URL(req.url,'http://localhost').searchParams.has('refresh')));
     if(path==='/api/settings/ha'&&req.method==='POST'){try{return json(res,200,await durable(await ha.configure(await body(req))));}catch(e){return json(res,400,{error:e.message});}}
     if(path==='/api/settings/ha'&&req.method==='DELETE')return json(res,200,await durable(ha.disconnect()));
+    if(path==='/api/settings/robot-map'&&req.method==='GET'){try{const id=new URL(req.url,'http://localhost').searchParams.get('deviceId'),map=await ha.robotImage(id);res.writeHead(200,{'content-type':map.type,'cache-control':'no-store','x-content-type-options':'nosniff','content-length':map.body.length});return res.end(map.body);}catch(e){return json(res,400,{error:e.message});}}
     if(path==='/api/settings/command'&&req.method==='POST'){try{const command=await body(req);if(!Number.isSafeInteger(command.revision))throw Error('Hent enhedskataloget før betjening.');return json(res,200,await ha.command(command));}catch(e){return json(res,e.status||400,{error:e.message});}}
     if(path==='/api/vehicle'&&req.method==='GET')return json(res,200,await vehicle());
     if(path==='/api/family'&&req.method==='GET')return json(res,200,await familySnapshot(active.family));

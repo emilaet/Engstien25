@@ -39,7 +39,7 @@ jobs:
             npx playwright install --with-deps chromium
           fi
       - name: Ingress, device import and update controls
-        run: npx playwright test browser-tests/green-app.spec.js --reporter=github,line
+        run: npx playwright test browser-tests/green-app.spec.js browser-tests/robots.spec.js --reporter=github,line
       - name: Build release bundle
         run: node scripts/bundle-green.mjs
         env:

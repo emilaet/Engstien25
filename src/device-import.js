@@ -2,7 +2,7 @@ import {compatibleEntity,deviceRooms,normalizeDeviceCatalog} from './device-cata
 
 export function importedType(entity){
  const domain=entity.id.split('.')[0];
- return ({light:'light',switch:'switch',input_boolean:'switch',climate:'climate',cover:'cover',sensor:'sensor',binary_sensor:'sensor',camera:'camera',media_player:'media_player',vacuum:'vacuum'})[domain]||null;
+ return ({light:'light',switch:'switch',input_boolean:'switch',climate:'climate',cover:'cover',sensor:'sensor',binary_sensor:'sensor',camera:'camera',media_player:'media_player',vacuum:'vacuum',lawn_mower:'mower'})[domain]||null;
 }
 export function availableImports(catalog,connection){
  const bound=new Set(catalog.devices.filter(d=>!d.retired).map(d=>d.bindings.primary));

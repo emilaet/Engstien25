@@ -1,3 +1,13 @@
+# 0.3.0
+
+- Egne sider til sort Roborock Qrevo 5AE og Mammotion Yuka Mini 2 med flydende kameraovergange til stationerne i huset.
+- Tilpassede mobilvisninger, kortfane og fem menupunkter med tydelige trykflader.
+- Start, pause, hjem, rumsvalg og stationsindstillinger via faktiske Roborock-entiteter i Home Assistant.
+- Klippezoner, gemte Mammotion-opgaver og indstillinger efter den konkrete enheds muligheder.
+- Batteri, status, areal, varighed og vedligeholdelse fra HA; ingen opdigtede robotdata før tilslutning.
+- Autentificeret billedproxy til kort og validerede kommandoer med forbindelses- og revisionskontrol.
+- Opsætningsvejledning og tydelig afgrænsning af producentapp- og community-funktioner i docs/robot-devices-plan.md.
+
 # 0.2.1
 
 - Udvidede fliser ved spisepladsen og loungen efter det godkendte haveforslag.
