@@ -10,7 +10,7 @@ export function buildRobotLighting(scene){
  const fill=new THREE.SpotLight('#e2ecf4',0,3.2,Math.PI/3,.95,2);fill.name='robot-closeup-fill';fill.target=target;fill.castShadow=false;
  key.visible=fill.visible=false;scene.add(target,key,fill);
  return {key,fill,target,update(kind,daylight=1){
-  const p=robotPlacement[kind];key.visible=fill.visible=!!p;key.intensity=p?4+daylight*3:0;fill.intensity=p?1.5+daylight:0;
+  const p=robotPlacement[kind];key.visible=fill.visible=!!p;key.intensity=p?9+daylight*21:0;fill.intensity=p?3+daylight*7:0;
   if(!p)return;
   target.position.fromArray(p.target);
   const front=new THREE.Vector3(0,0,1).applyAxisAngle(new THREE.Vector3(0,1,0),p.rotation),side=new THREE.Vector3(front.z,0,-front.x);

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {fabricMaps,oakMaps} from './visual-materials.js';
+import {contactShadows} from './contact-shadows.js';
+import {buildGardenPot} from './garden-botany.js';
 import {outdoorY,outdoorPlacement} from './outdoor-layout.js';
 
 // Static garden furnishings, separate from the editable indoor inventory. Each
@@ -27,7 +29,7 @@ export function buildOutdoorFurnishings(scene){
  const flames=[];
  const geometries=new Map(),unitBox=new THREE.BoxGeometry(1,1,1),unitCylinder=new THREE.CylinderGeometry(1,1,1,20),leafGeometry=new THREE.SphereGeometry(1,7,5);
  const transform=new THREE.Object3D();
- const rounded=(w,h,d,r=.035)=>{r=Math.min(r,w/2.2,h/2.2,d/2.2);const key=[w,h,d,r].join(':');if(!geometries.has(key))geometries.set(key,new RoundedBoxGeometry(w,h,d,2,r));return geometries.get(key);};
+ const rounded=(w,h,d,r=.035)=>{r=Math.min(r,w/2.2,h/2.2,d/2.2);const key=[w,h,d,r].join(':');if(!geometries.has(key))geometries.set(key,new RoundedBoxGeometry(w,h,d,4,r));return geometries.get(key);};
  function assembly(name,x,z){const g=new THREE.Group();g.name=name;g.position.set(x,outdoorY,z);root.add(g);const batches=new Map();
   function part(geometry,m,x,y,z,sx=1,sy=1,sz=1,ry=0,frame=null){
    transform.position.set(x,y,z);transform.rotation.set(0,ry,0);transform.scale.set(sx,sy,sz);transform.updateMatrix();const matrix=transform.matrix.clone();if(frame)matrix.premultiply(frame);
@@ -52,7 +54,7 @@ export function buildOutdoorFurnishings(scene){
  for(let n=0;n<10;n++)dining.box(.86,.045,.196,0,.75,(n-4.5)*.207,wood);
  for(const x of [-.88,.88])for(const z of [-.60,.60])diningChair(dining,x,z,x<0?Math.PI/2:-Math.PI/2);
  diningChair(dining,0,-1.44,0);diningChair(dining,0,1.44,Math.PI);
- dining.cylinder(.08,.16,.08,0,.85,0,ceramic);
+
  dining.cylinder(.16,.025,.16,0,.789,.45,ceramic);
  for(const [x,z]of [[-.07,.42],[.055,.40],[.01,.52]])dining.part(leafGeometry,fruit,x,.84,z,.055,.06,.055);
  for(const z of [-.70,.70])dining.cylinder(.035,.09,.035,.27,.82,z,ceramic);
@@ -128,12 +130,17 @@ export function buildOutdoorFurnishings(scene){
  storage.box(.028,.035,.22,-.335,.45,0,metal);storage.finish();
 
  for(const [index,p]of outdoorPlacement.pots.entries()){
-  const pot=assembly('outdoor-pot-'+index,p.x,p.z),potGeometry=new THREE.CylinderGeometry(.27,.20,.46,20);
-  pot.part(potGeometry,ceramic,0,.23,0);pot.cylinder(.245,.015,.245,0,.455,0,soil);
-  for(let n=0;n<5;n++){const angle=n*Math.PI*.4,r=.10,stem=new THREE.Matrix4().makeRotationY(angle);pot.box(.016,.56,.016,Math.cos(angle)*r,.72,Math.sin(angle)*r,green);
-   for(let k=0;k<9;k++){const a=angle+k*2.4,y=.52+k*.065,spread=.12+(k%3)*.05;pot.part(leafGeometry,green,Math.cos(a)*spread,y,Math.sin(a)*spread,.09,.035,.15,a,stem);}
-  }pot.finish();
+  const pot=buildGardenPot({kind:index===0?'hydrangea':'olive',seed:58+index});pot.name='outdoor-pot-'+index;pot.position.set(p.x,outdoorY,p.z);root.add(pot);
  }
+ const bouquet=buildGardenPot({bouquet:true});bouquet.position.set(outdoorPlacement.dining.x,outdoorY+.775,outdoorPlacement.dining.z);root.add(bouquet);
+
+ const footprints=[
+  {x:outdoorPlacement.dining.x,z:outdoorPlacement.dining.z,width:1.3,depth:2.6},
+  {x:outdoorPlacement.lounge.x,z:outdoorPlacement.lounge.z-1,width:2.7,depth:1.1},
+  ...[-1.25,1.25].map(x=>({x:outdoorPlacement.lounge.x+x,z:outdoorPlacement.lounge.z+1.1,width:.95,depth:1.1})),
+  {x:outdoorPlacement.lounge.x,z:outdoorPlacement.lounge.z+.16,width:1.3,depth:.9},
+  ...outdoorPlacement.pots.map(p=>({...p,width:.65,depth:.65}))
+ ].map(p=>({...p,y:outdoorY}));root.add(contactShadows(footprints));
  root.userData={kind:'outdoor-presentation',editable:false};
  return {root,setDaylight(value){const glow=1-THREE.MathUtils.clamp(value,0,1);candle.emissiveIntensity=glow*.55;flame.emissiveIntensity=glow*2.5;for(const mesh of flames)mesh.visible=glow>.3;}};
 }

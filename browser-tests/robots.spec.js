@@ -98,8 +98,8 @@ test('A stalled animation clock releases the camera after visible 3D travel inst
 });
 
 test('Approved native plant and lawn detail stay visible in responsive robot compositions',{tag:'@smoke'},async({page})=>{
- await open(page);await readyScene(page);const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-plant-detail','curved-veined-leaves');await expect(scene).toHaveAttribute('data-robot-composition','station-and-plant');
- for(const width of [1440,390,320]){await page.setViewportSize({width,height:width===1440?1000:844});await expect.poll(()=>scene.evaluate(el=>Math.abs(el.getBoundingClientRect().width-el.querySelector('canvas').width/devicePixelRatio)<2)).toBe(true);await expect.poll(async()=>JSON.parse(await scene.getAttribute('data-camera-pose')).position[2]).toBeGreaterThan(3.4);await expect.poll(async()=>Number(await scene.getAttribute('data-camera-fov'))).toBeGreaterThan(37.9);expect(Number(await scene.getAttribute('data-robot-extent'))).toBeLessThan(.83);await expect(scene.locator('canvas')).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);}
+ await open(page);await readyScene(page);const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-plant-detail','curved-veined-leaves');await expect(scene).toHaveAttribute('data-robot-composition','station');
+ for(const width of [1440,390,320]){await page.setViewportSize({width,height:width===1440?1000:844});await expect.poll(()=>scene.evaluate(el=>Math.abs(el.getBoundingClientRect().width-el.querySelector('canvas').width/devicePixelRatio)<2)).toBe(true);await expect.poll(async()=>JSON.parse(await scene.getAttribute('data-camera-pose')).position[2]).toBeGreaterThan(3.4);await expect.poll(async()=>Number(await scene.getAttribute('data-camera-fov'))).toBeGreaterThan(29.9);const pose=JSON.parse(await scene.getAttribute('data-camera-pose'));expect(pose.target[0]).toBeCloseTo(5.85,2);expect(pose.target[1]).toBeLessThan(.5);expect(Number(await scene.getAttribute('data-robot-extent'))).toBeGreaterThan(.79);expect(Number(await scene.getAttribute('data-robot-extent'))).toBeLessThan(.83);await expect(scene.locator('canvas')).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);}
  await page.getByRole('button',{name:'Robotplæneklipper',exact:true}).click();await expect(scene).toHaveAttribute('data-view','mower');await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(scene).toHaveAttribute('data-camera-fov','25');await expect(scene).toHaveAttribute('data-lawn-detail','curved-3d-blades');await expect(page.locator('.model-card img:visible')).toHaveCount(0);expect(posts).toEqual([]);
 });
 
@@ -114,6 +114,7 @@ test('Both robot views support real one-finger rotation and two-finger pinch zoo
 
 test('Navigation labels never overlap the footer, and every robot stays reachable on short screens and iPads',async({page})=>{
  await open(page,'mower');
+ await expect(page.locator('.rail [title],#reset[title]')).toHaveCount(0);
  for(const [width,height] of [[1440,1000],[1366,768],[1280,720],[1024,768],[820,1180],[1024,430],[820,360]]){
   await page.setViewportSize({width,height});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   for(const kind of ['vacuum','mower']){const button=page.locator('.rail .nav[data-tab='+kind+']');await button.click();await expect(button).toBeInViewport();if(kind==='mower'){const rows=await page.locator('.model-heading h2').evaluate(el=>{const n=el.firstChild,t=n.textContent,r=document.createRange();r.setStart(n,t.indexOf('Mini'));r.setEnd(n,t.indexOf('Mini')+4);const first=r.getBoundingClientRect().top;r.setStart(n,t.lastIndexOf('2'));r.setEnd(n,t.lastIndexOf('2')+1);return [first,r.getBoundingClientRect().top];});expect(Math.abs(rows[0]-rows[1])).toBeLessThan(1);}const geometry=await button.evaluate(el=>{const a=el.getBoundingClientRect(),f=document.querySelector('.rail-bottom'),b=f.getBoundingClientRect(),text=el.querySelector('small'),range=document.createRange();range.selectNodeContents(text);const t=range.getBoundingClientRect();return {button:a.toJSON(),text:t.toJSON(),footer:b.toJSON(),footerVisible:getComputedStyle(f).display!=='none'};});expect(geometry.text.left).toBeGreaterThanOrEqual(geometry.button.left);expect(geometry.text.right).toBeLessThanOrEqual(geometry.button.right+.5);if(geometry.footerVisible)expect(geometry.button.bottom+12).toBeLessThanOrEqual(geometry.footer.top);const marker=page.locator('.nav-selection');await expect.poll(async()=>Math.abs((await marker.boundingBox()).y-(await button.boundingBox()).y)).toBeLessThan(1);}
@@ -136,4 +137,20 @@ test('Failed robot commands show a persistent local error, keep real status, and
 
 test('Primary robot actions retain readable text contrast in both appearances',async({page})=>{
  await open(page);for(const mode of ['day','night']){await setAppearance(page,mode);const contrast=await page.locator('[data-rp-action=start]').evaluate(el=>{const style=getComputedStyle(el),lum=color=>color.match(/[\d.]+/g).slice(0,3).map(Number).map(n=>{const v=n/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,n,i)=>sum+n*[.2126,.7152,.0722][i],0),a=lum(style.color),b=lum(style.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});expect(contrast).toBeGreaterThanOrEqual(4.5);}
+});
+
+
+test('Touch phones in landscape retain a full-width bottom menu without browser title popups',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:844,height:390},hasTouch:true,isMobile:true}),page=await context.newPage();
+ try{
+  await open(page,'mower');expect(await page.evaluate(()=>matchMedia('(any-pointer:coarse)').matches)).toBe(true);
+  for(const [width,height]of [[844,390],[932,430]]){
+   await page.setViewportSize({width,height});await expect(page.locator('.rail')).toHaveCSS('width',width+'px');await expect(page.locator('.rail [title]')).toHaveCount(0);
+   for(const kind of ['home','rooms','car','vacuum','mower']){
+    const bounds=await page.locator('.rail .nav[data-tab='+kind+']').evaluate(el=>{const b=el.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(el.querySelector('small'));return {button:b.toJSON(),text:range.getBoundingClientRect().toJSON()};});
+    expect(bounds.button.width).toBeGreaterThanOrEqual(44);expect(bounds.button.height).toBeGreaterThanOrEqual(44);expect(bounds.button.left).toBeGreaterThanOrEqual(0);expect(bounds.button.right).toBeLessThanOrEqual(width);expect(bounds.text.left).toBeGreaterThanOrEqual(bounds.button.left);expect(bounds.text.right).toBeLessThanOrEqual(bounds.button.right);
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+ }finally{await context.close();}
 });

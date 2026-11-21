@@ -17,3 +17,6 @@ Viewerens overskrift, undertitel, lysforklaring og knapper optager egne felter u
 Udemøblerne er præsentationsobjekter, adskilt fra den redigerbare indendørs møbelliste. Ingen nye Home Assistant-enheder eller kontoforbindelser oprettes.
 
 Den 16. november 2026 blev forslaget godkendt med plantekassen helt op ad flisernes vinkel, stadig på græsset. En stor hængeparasol med 3,3 m kvadratisk lys dug, mørk sidemast og tung fod står ved spisepladsens ydre kant. Parasollen, puderne, den foldede plaid, frugtskålen og de to lanterner er statiske, delte geometrier/materialer. Lanternens lys er en beskeden materiale-glød i aftenvisning og giver ingen nye lyskilder, skyggekort eller animationer. Ude-kameraet indrammer også den udvidede flade og parasollens top.
+
+
+I 0.3.4 erstattes de grove potteblade med en hortensia og et lille oliventræ i hule, drejede keramikkrukker. Et lille blomsterarrangement står på spisebordet. Plantekasserne får tynde buede blade, separate lavendelstilke og mange små kronblade. Både nærvisningen ved plæneklipperen og den fulde have har instanser af buet græs med kvalitetsafhængig tæthed; belægning, huset, skuret og stationen holdes fri. Bløde kontaktskygger under møbler og krukker supplerer solens skygger. Alle eksisterende placeringer og fliseafgrænsninger bevares.

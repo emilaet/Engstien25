@@ -3,6 +3,7 @@ import {gravelMaterial} from './visual-materials.js';
 import {buildOutdoorWallLights} from './outdoor-wall-lights.js';
 import {outdoorY,terracePolygons,plantingBeds,plotOutline,driveway as approach,approachHeight,lawnHeight,insidePolygon} from './outdoor-layout.js';
 import {outdoorGrassMaterial,outdoorPavingMaterial} from './outdoor-materials.js';
+import {gardenLeafGeometry,gardenLeafMaterial,lavenderHeadGeometry} from './garden-botany.js';
 import {buildLawnDetail} from './lawn-detail.js';
 
 function polygonMesh(polygon,height,material,name,{depth=0,uvScale=2.4}={}){
@@ -31,11 +32,14 @@ function lawnMesh(bounds,lawnMaterials){
   for(let i=1;i<cell.length-1;i++)for(const p of [cell[0],cell[i+1],cell[i]]){positions.push(p[0],lawnHeight(p[0]),p[1]);uv.push((p[0]-minX)/(maxX-minX),(p[1]-minZ)/(maxZ-minZ));}
  }
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.computeVertexNormals();
- const mesh=new THREE.Mesh(geometry,outdoorGrassMaterial(bounds,plotOutline,lawnMaterials));mesh.name='landscape-lawn';mesh.receiveShadow=true;return mesh;
+ const colors=[];for(let i=0;i<positions.length;i+=3){const x=positions[i],z=positions[i+2],v=.88+.055*Math.sin(x*.8+z*.5)+.025*Math.sin(z*2.1-x*.45);colors.push(v,v, v*.98);}
+ geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+ const material=outdoorGrassMaterial(bounds,plotOutline,lawnMaterials);material.vertexColors=true;
+ const mesh=new THREE.Mesh(geometry,material);mesh.name='landscape-lawn';mesh.receiveShadow=true;return mesh;
 }
 function curvedBlade(){
  const positions=[],uv=[],indices=[];
- for(let i=0;i<=4;i++){const t=i/4,half=.026*(1-t)+.001,bend=t*t*.25;positions.push(-half,t*.7,bend,half,t*.7,bend);uv.push(0,t,1,t);if(i<4){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}}
+ for(let i=0;i<=4;i++){const t=i/4,half=.009*(1-t)+.0004,bend=t*t*.25;positions.push(-half,t*.7,bend,half,t*.7,bend);uv.push(0,t,1,t);if(i<4){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}}
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();return geometry;
 }
 
@@ -67,20 +71,21 @@ export function buildLandscape(scene,lawnMaterials){
  }
  // Low foundation planting in the grassy front garden, clear of all accesses.
  for(const [x,z] of [[20.45,.9],[20.65,2.0],[20.5,3.5],[20.9,4.7],[21.0,5.9],[-5.5,2.1],[-6.2,2.4]])clumps.push({x,z,y:lawnHeight(x)});
- const blades=new THREE.InstancedMesh(curvedBlade(),new THREE.MeshStandardMaterial({color:'#99a06a',roughness:1,side:THREE.DoubleSide}),Math.max(1,clumps.length*30));blades.name='ornamental-grasses';
- const foliage=new THREE.InstancedMesh(new THREE.SphereGeometry(1,5,4),new THREE.MeshStandardMaterial({color:'#798b55',roughness:1}),Math.max(1,clumps.length*22));foliage.name='perennial-foliage';
- const flowers=new THREE.InstancedMesh(new THREE.SphereGeometry(1,5,4),new THREE.MeshStandardMaterial({color:'#9a89aa',roughness:1}),Math.max(1,clumps.length*6));flowers.name='lavender-flowers';
+ const blades=new THREE.InstancedMesh(curvedBlade(),new THREE.MeshStandardMaterial({color:'#99a06a',roughness:1,side:THREE.DoubleSide}),Math.max(1,clumps.length*60));blades.name='ornamental-grasses';
+ const foliage=new THREE.InstancedMesh(gardenLeafGeometry({width:.16}),gardenLeafMaterial('#71824c'),Math.max(1,clumps.length*22));foliage.name='perennial-foliage';
+ const flowers=new THREE.InstancedMesh(lavenderHeadGeometry(),new THREE.MeshStandardMaterial({color:'#9f88b9',roughness:.8,side:THREE.DoubleSide}),Math.max(1,clumps.length*12));flowers.name='lavender-flowers';
+ const flowerStems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.0013,.0018,1,5),new THREE.MeshStandardMaterial({color:'#6e7950',roughness:1}),Math.max(1,clumps.length*12));flowerStems.name='lavender-stems';
  const dummy=new THREE.Object3D(),color=new THREE.Color();let blade=0,leaf=0,flower=0;
  for(const [n,clump] of clumps.entries()){
-  for(let i=0;i<30;i++){const angle=random()*Math.PI*2,r=Math.sqrt(random())*.13;dummy.position.set(clump.x+Math.cos(angle)*r,clump.y,clump.z+Math.sin(angle)*r);dummy.rotation.set((random()-.5)*.22,angle,(random()-.5)*.22);dummy.scale.set(.8+random()*.5,.52+random()*.4,.8+random()*.4);dummy.updateMatrix();blades.setMatrixAt(blade,dummy.matrix);color.setHSL(.15+random()*.07,.18+random()*.1,.39+random()*.13);blades.setColorAt(blade++,color);}
-  for(let i=0;i<22;i++){const angle=random()*Math.PI*2,r=Math.sqrt(random())*.19;dummy.position.set(clump.x+Math.cos(angle)*r,clump.y+.08+random()*.16,clump.z+Math.sin(angle)*r);dummy.rotation.set(random()*2,angle,random()*2);dummy.scale.set(.045+random()*.045,.10+random()*.05,.028);dummy.updateMatrix();foliage.setMatrixAt(leaf++,dummy.matrix);}
-  if(n%3!==0)for(let i=0;i<6;i++){const angle=random()*Math.PI*2,r=random()*.15;dummy.position.set(clump.x+Math.cos(angle)*r,clump.y+.26+random()*.13,clump.z+Math.sin(angle)*r);dummy.rotation.set((random()-.5)*.2,angle,(random()-.5)*.2);dummy.scale.set(.028,.075+random()*.035,.028);dummy.updateMatrix();flowers.setMatrixAt(flower++,dummy.matrix);}
+  for(let i=0;i<60;i++){const angle=random()*Math.PI*2,r=Math.sqrt(random())*.13;dummy.position.set(clump.x+Math.cos(angle)*r,clump.y,clump.z+Math.sin(angle)*r);dummy.rotation.set((random()-.5)*.22,angle,(random()-.5)*.22);dummy.scale.set(.8+random()*.5,.52+random()*.4,.8+random()*.4);dummy.updateMatrix();blades.setMatrixAt(blade,dummy.matrix);color.setHSL(.15+random()*.07,.18+random()*.1,.39+random()*.13);blades.setColorAt(blade++,color);}
+  for(let i=0;i<22;i++){const angle=random()*Math.PI*2,r=Math.sqrt(random())*.19;dummy.position.set(clump.x+Math.cos(angle)*r,clump.y+.08+random()*.16,clump.z+Math.sin(angle)*r);dummy.rotation.set(random()*2,angle,random()*2);dummy.scale.set(.15+random()*.10,.17+random()*.13,.17+random()*.12);dummy.updateMatrix();foliage.setMatrixAt(leaf++,dummy.matrix);}
+  if(n%3!==0)for(let i=0;i<12;i++){const angle=random()*Math.PI*2,r=random()*.15;dummy.position.set(clump.x+Math.cos(angle)*r,clump.y+.26+random()*.13,clump.z+Math.sin(angle)*r);dummy.rotation.set((random()-.5)*.2,angle,(random()-.5)*.2);dummy.scale.set(.8+random()*.3,1+random()*.4,.8+random()*.3);dummy.updateMatrix();flowers.setMatrixAt(flower,dummy.matrix);const y=dummy.position.y;dummy.position.y=(clump.y+y)/2;dummy.rotation.set(0,0,0);dummy.scale.set(1,y-clump.y,1);dummy.updateMatrix();flowerStems.setMatrixAt(flower++,dummy.matrix);}
  }
- for(const [mesh,count] of [[blades,blade],[foliage,leaf],[flowers,flower]]){mesh.count=count;mesh.castShadow=true;mesh.receiveShadow=true;planting.add(mesh);}
+ for(const [mesh,count] of [[blades,blade],[foliage,leaf],[flowers,flower],[flowerStems,flower]]){mesh.count=count;mesh.castShadow=true;mesh.receiveShadow=true;planting.add(mesh);}
  const trees=new THREE.Group();trees.name='landscape-trees';outdoorRoot.add(trees);
  const treeSpecs=[{x:-6.4,z:2.7,height:4.0},{x:23.5,z:2.2,height:3.0}];
  const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(1,1,1,6),new THREE.MeshStandardMaterial({color:'#827d64',roughness:1}),90);stems.name='multistem-tree-branches';
- const crowns=new THREE.InstancedMesh(new THREE.SphereGeometry(1,5,4),new THREE.MeshStandardMaterial({color:'#76894d',roughness:1}),1800);crowns.name='multistem-tree-leaves';let stemCount=0,crownCount=0;
+ const crowns=new THREE.InstancedMesh(gardenLeafGeometry({width:.25}),gardenLeafMaterial('#76894d'),1800);crowns.name='multistem-tree-leaves';let stemCount=0,crownCount=0;
  const up=new THREE.Vector3(0,1,0);
  function branch(a,b,radius){const delta=b.clone().sub(a);dummy.position.copy(a).add(b).multiplyScalar(.5);dummy.rotation.set(0,0,0);dummy.quaternion.setFromUnitVectors(up,delta.clone().normalize());dummy.scale.set(radius,delta.length(),radius);dummy.updateMatrix();stems.setMatrixAt(stemCount++,dummy.matrix);}
  for(const spec of treeSpecs){
@@ -91,7 +96,7 @@ export function buildLandscape(scene,lawnMaterials){
     const a=angle+(tip-1.5)*.65,end=top.clone().add(new THREE.Vector3(Math.cos(a)*(.55+random()*.4),h*(.12+random()*.13),Math.sin(a)*(.55+random()*.4)));branch(top.clone().lerp(base,.12+random()*.12),end,.011);
     for(let i=0;i<48;i++){
      const phi=random()*Math.PI*2,r=Math.sqrt(random())*.58,dy=(random()-.5)*.65;
-     dummy.position.copy(end).add(new THREE.Vector3(Math.cos(phi)*r,dy,Math.sin(phi)*r));dummy.rotation.set(random()*Math.PI,random()*Math.PI*2,random()*Math.PI);dummy.scale.set(.07+random()*.045,.10+random()*.06,.027);dummy.updateMatrix();crowns.setMatrixAt(crownCount,dummy.matrix);color.setHSL(.19+random()*.07,.24+random()*.18,.24+random()*.18);crowns.setColorAt(crownCount++,color);
+     dummy.position.copy(end).add(new THREE.Vector3(Math.cos(phi)*r,dy,Math.sin(phi)*r));dummy.rotation.set(random()*Math.PI,random()*Math.PI*2,random()*Math.PI);dummy.scale.set(.15+random()*.08,.14+random()*.08,.14+random()*.08);dummy.updateMatrix();crowns.setMatrixAt(crownCount,dummy.matrix);color.setHSL(.19+random()*.07,.24+random()*.18,.24+random()*.18);crowns.setColorAt(crownCount++,color);
     }
    }
   }

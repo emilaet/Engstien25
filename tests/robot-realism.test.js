@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {broadLeafGeometry,buildBotanicalPlant} from '../src/botanical-plant.js';
-import {buildLawnDetail,isLawnDetailPoint} from '../src/lawn-detail.js';
+import {buildLawnDetail,isLawnDetailPoint,isGardenGrassPoint,gardenEdgeFade} from '../src/lawn-detail.js';
 import {buildFurnishings} from '../src/furniture.js';
 import {initialFurnishing} from '../src/furnishing-data.js';
 import {buildRobotModels} from '../src/robot-models.js';
@@ -19,12 +19,15 @@ test('Removing the editable plant releases its detailed geometry and surface map
 });
 
 test('Living grass is rooted on the real lawn, stays off paving and the dock, and has bounded quality levels',()=>{
- const lawn=buildLawnDetail(new THREE.Group()),mesh=lawn.mesh;assert.equal(mesh.visible,false);assert.ok(mesh.userData.roots.length>50000&&mesh.userData.roots.length<100000);for(const [x,y,z]of mesh.userData.roots){assert.ok(isLawnDetailPoint(x,z));assert.ok(Math.abs(y-(lawnHeight(x)-.001))<1e-6);}assert.equal(isLawnDetailPoint(14,12.5),false);assert.equal(isLawnDetailPoint(15,13.4),false);assert.equal(isLawnDetailPoint(15.4,14),false);assert.ok(mesh.isInstancedMesh);mesh.geometry.computeBoundingBox();assert.ok(mesh.geometry.boundingBox.max.z-mesh.geometry.boundingBox.min.z>.04);for(const n of mesh.geometry.attributes.normal.array)assert.ok(Number.isFinite(n));
- lawn.update('mower','detailed');const high=mesh.count;assert.equal(mesh.visible,true);assert.ok(high*mesh.geometry.index.count/3<2500000);lawn.update('mower','standard');const standard=mesh.count;lawn.update('mower','light');assert.ok(mesh.count<standard&&standard<high);lawn.update('rooms','standard');assert.equal(mesh.visible,false);lawn.update('rooms','standard',true);const full=mesh.count;assert.equal(mesh.visible,true);lawn.update('rooms','light',true);assert.ok(mesh.count<full);
+ const lawn=buildLawnDetail(new THREE.Group()),mesh=lawn.mesh;assert.ok(lawn.garden.userData.roots.length>40000&&lawn.garden.userData.roots.length<100000);for(const [x,y,z]of lawn.garden.userData.roots){assert.ok(isGardenGrassPoint(x,z));assert.ok(Math.abs(y-(lawnHeight(x)-.001))<1e-6);}assert.equal(gardenEdgeFade(-10,0),0);assert.equal(gardenEdgeFade(0,15),1);assert.equal(isGardenGrassPoint(5,4),false);assert.equal(isGardenGrassPoint(16,10),false);assert.equal(isGardenGrassPoint(8,10),false);assert.equal(mesh.visible,false);assert.ok(mesh.userData.roots.length>50000&&mesh.userData.roots.length<100000);for(const [x,y,z]of mesh.userData.roots){assert.ok(isLawnDetailPoint(x,z));assert.ok(Math.abs(y-(lawnHeight(x)-.001))<1e-6);}assert.equal(isLawnDetailPoint(14,12.5),false);assert.equal(isLawnDetailPoint(15,13.4),false);assert.equal(isLawnDetailPoint(15.4,14),false);assert.ok(mesh.isInstancedMesh);mesh.geometry.computeBoundingBox();assert.ok(mesh.geometry.boundingBox.max.z-mesh.geometry.boundingBox.min.z>.04);for(const n of mesh.geometry.attributes.normal.array)assert.ok(Number.isFinite(n));
+ lawn.update('mower','detailed');const high=mesh.count;assert.equal(mesh.visible,true);assert.ok(high*mesh.geometry.index.count/3<2500000);lawn.update('mower','standard');const standard=mesh.count;lawn.update('mower','light');assert.ok(mesh.count<standard&&standard<high);lawn.update('rooms','standard');assert.equal(mesh.visible,false);lawn.update('rooms','standard',true);const full=mesh.count,gardenFull=lawn.garden.count;assert.equal(mesh.visible,true);assert.equal(lawn.garden.visible,true);lawn.update('rooms','light',true);assert.ok(mesh.count<full);assert.ok(lawn.garden.count<gardenFull);
 });
 
-test('The approved vacuum-and-plant composition fits narrow screens while its camera stays inside the living room',()=>{
- const scene=new THREE.Scene(),robots=buildRobotModels(scene),furniture=buildFurnishings(scene,initialFurnishing());scene.updateMatrixWorld(true);const plant=furniture.get('stue-plant'),bounds=new THREE.Box3().setFromObject(robots.vacuum).union(new THREE.Box3().setFromObject(plant)),samples=[];
- for(const root of [robots.vacuum,plant])root.traverse(o=>{if(o.isMesh&&o.visible){const a=o.geometry.attributes.position;for(let n=0;n<a.count;n+=6)samples.push(new THREE.Vector3().fromBufferAttribute(a,n).applyMatrix4(o.matrixWorld));}});
- for(const aspect of [.85,1.1,1.8]){const camera=new THREE.PerspectiveCamera(robotFieldOfView('vacuum',aspect),aspect,.1,500),frame=frameRobotCamera(camera,bounds,'vacuum',{compositionTarget:bounds.getCenter(new THREE.Vector3()),samples});assert.ok(frame.extent<=.821);assert.ok(camera.position.z>3.4,'Camera must stay in front of the suite wall');assert.ok(camera.position.distanceTo(frame.target)<5.5);}assert.equal(robotFieldOfView('mower',.85),25);assert.equal(robotFieldOfView('charger',.85),25);furniture.dispose();
+test('The vacuum itself fills the default frame on phone and tablet without moving the camera behind a room wall',()=>{
+ const scene=new THREE.Scene(),robots=buildRobotModels(scene);scene.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(robots.vacuum),center=bounds.getCenter(new THREE.Vector3());
+ for(const aspect of [.75,.85,1.1,1.8]){
+  const camera=new THREE.PerspectiveCamera(robotFieldOfView('vacuum',aspect),aspect,.1,500),frame=frameRobotCamera(camera,bounds,'vacuum',{compositionTarget:center});
+  assert.ok(frame.extent>.79&&frame.extent<=.821,'The station must occupy the frame rather than shrink to fit a separate plant');assert.ok(camera.position.z>3.4,'Camera must stay in front of the suite wall');assert.ok(camera.position.distanceTo(frame.target)<2.6,'The standard close-up must stay close to the actual product');assert.deepEqual(frame.target.toArray(),center.toArray());
+ }
+ assert.ok(Math.abs(robotFieldOfView('vacuum',1.8)-30)<1e-10);assert.equal(robotFieldOfView('mower',.85),25);assert.equal(robotFieldOfView('charger',.85),25);
 });

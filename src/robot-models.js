@@ -39,44 +39,64 @@ export function buildRobotModels(scene){
   path(shape,w,d,r);const hole=new THREE.Path();path(hole,w-thickness*2,d-thickness*2,Math.max(.004,r-thickness));shape.holes.push(hole);
   return new THREE.ExtrudeGeometry(shape,{depth:.008,bevelEnabled:true,bevelSegments:3,bevelSize:.0014,bevelThickness:.001,curveSegments:12}).rotateX(-Math.PI/2);
  }
- function flutedFront(w,h){
-  const pos=[],uv=[],idx=[],cols=240,rows=4;
-  for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const u=i/cols,v=j/rows,x=(u-.5)*w,fade=Math.min(1,Math.min(u,1-u)*16),z=.0014*Math.cos(u*Math.PI*20)*fade;pos.push(x,(v-.5)*h,z);uv.push(u,v);if(i<cols&&j<rows){const a=j*(cols+1)+i;idx.push(a,a+1,a+cols+1,a+1,a+cols+2,a+cols+1);}}
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();return geo;
- }
  const v=group('vacuum');
- v.box(.399,.018,.580,0,.009,.110,black,.013);
- v.box(.358,.006,.443,0,.020,.100,graphite,.009);
- for(const x of [-.151,.151])v.box(.025,.128,.205,x,.082,-.112,graphite,.008);
- v.box(.322,.130,.016,0,.082,-.208,black,.006);
- v.box(.340,.145,.260,0,.211,-.110,graphite,.018);
- v.box(.322,.130,.012,0,.211,.024,graphite,.008);
- v.box(.328,.003,.256,0,.285,-.110,black,.001);
- v.box(.344,.244,.274,0,.410,-.112,graphite,.021);
- v.part(flutedFront(.322,.231),graphite,0,.411,.0268);
- for(const x of [-.087,.087]){
-  v.part(rim(.160,.254,.024,.013),graphite,x,.533,-.111);
-  v.box(.133,.006,.220,x,.528,-.111,black,.018);
-  v.box(.111,.006,.019,x,.538,-.202,satin,.006);
+ // Qrevo 5AE: a continuous rounded tower, two open water tanks and a deep
+ // recessed wash bay. Dimensions are in metres, independent of presentation.
+ v.g.userData.model='Roborock Qrevo 5AE';
+ v.box(.352,.022,.578,0,.011,.063,black,.010);
+ v.box(.343,.012,.438,0,.028,.139,graphite,.006);
+ v.box(.338,.128,.224,0,.087,-.128,graphite,.018);
+ for(const side of [-1,1]){
+  v.box(.026,.145,.283,side*.157,.099,-.080,graphite,.010);
+  v.box(.018,.025,.285,side*.161,.028,-.072,black,.008);
  }
- v.box(.0024,.020,.002,-.143,.492,.029,indicator,.001);
- v.label('roborock',.068,.016,-.104,.250,.032,{color:'#989e9d'});
- for(const side of [-1,1])for(let n=0;n<6;n++)v.box(.002,.040,.008,side*.172,.193,-.17+n*.014,black,.001);
- // The round robot is kept low, with a separate bumper, lidar, optical window,
- // actual underside wheels/mops and a shallow moulded washing tray.
- v.setFloor(.022);
- const body=new THREE.LatheGeometry([[0,.011],[.145,.011],[.162,.016],[.172,.029],[.174,.046],[.173,.058],[.168,.069],[.155,.075],[0,.075]].map(p=>new THREE.Vector2(...p)),160);
- v.part(body,graphite,0,0,.220);v.cylinder(.158,.003,0,.075,.220,black);
- v.part(new THREE.TorusGeometry(.1731,.0009,8,160),satin,0,.041,.220,1,1,1,Math.PI/2);
- v.part(new THREE.TorusGeometry(.158,.00065,6,160),graphite,0,.077,.220,1,1,1,Math.PI/2);
- v.cylinder(.043,.023,0,.086,.158,graphite);v.cylinder(.039,.002,0,.0985,.158,black);v.cylinder(.0435,.0015,0,.076,.158,metal);
- v.box(.112,.034,.006,0,.040,.388,black,.009);v.box(.091,.026,.003,0,.040,.393,lens,.007);
- for(const x of [-.024,.024])v.cylinder(.005,.001,x,.078,.263,satin);
- v.label('⌁',.036,.025,0,.101,.158,{rx:-Math.PI/2,color:'#a5a59a'});
- for(const x of [-.139,.139])v.cylinder(.026,.027,x,.026,.220,rubber,0,0,Math.PI/2);
- for(const x of [-.072,.072])v.cylinder(.063,.014,x,.008,.166,rubber);
- for(let n=0;n<3;n++)v.box(.062,.002,.003,-.134,.010,.312,black,.001,0,n*Math.PI*2/3);
- v.setFloor(0);for(let n=0;n<7;n++)v.box(.343,.0015,.003,0,.024,.270+n*.018,satin,.001);
+ v.box(.342,.157,.278,0,.220,-.108,graphite,.024);
+ // Dustbag door sits flush under the water tanks, with an actual fine reveal.
+ v.box(.322,.141,.009,0,.220,.034,black,.012);
+ v.box(.317,.136,.008,0,.221,.040,graphite,.011);
+ v.box(.325,.003,.257,0,.301,-.109,black,.001);
+ for(const x of [-.087,.087])v.box(.170,.248,.281,x,.427,-.109,graphite,.023);
+ // The top is hollow with two individually moulded tank rims and handles.
+ for(const x of [-.085,.085]){
+  v.part(rim(.162,.259,.027,.010),graphite,x,.551,-.109);
+  v.box(.140,.018,.234,x,.533,-.109,black,.020);
+  v.part(rim(.145,.237,.025,.006),graphite,x,.540,-.109);
+  v.box(.103,.008,.015,x,.553,-.200,graphite,.005);
+  for(const dx of [-.047,.047])v.box(.008,.014,.014,x+dx,.546,-.200,graphite,.003);
+ }
+ v.box(.0028,.019,.0012,-.142,.510,.042,indicator,.001);
+ v.label('roborock',.060,.013,-.105,.280,.046,{color:'#9b9d9c'});
+ for(const side of [-1,1])for(let n=0;n<8;n++)v.box(.001,.027,.003,side*.171,.213,-.198+n*.009,black,.001);
+ // A low cylindrical robot with a convex lid, sprung bumper and glossy
+ // front optical recess; it is not a flat disc or a box under the dock.
+ v.setFloor(.023);
+ const profile=[[0,.009],[.142,.009],[.161,.014],[.171,.023],[.175,.036],[.175,.055],[.173,.067],[.168,.079],[.158,.084],[.120,.086],[0,.087]];
+ v.part(new THREE.LatheGeometry(profile.map(p=>new THREE.Vector2(...p)),192),graphite,0,0,.183);
+ // Separate curved bumper skin follows the circular body and its real seam.
+ function band(radius,y0,y1,start,end){
+  const pos=[],uv=[],idx=[],steps=100;
+  for(let n=0;n<=steps;n++){const a=start+(end-start)*n/steps;for(const y of [y0,y1]){pos.push(Math.sin(a)*radius,y,Math.cos(a)*radius);uv.push(n/steps,y===y0?0:1);}if(n<steps){const k=n*2;idx.push(k,k+2,k+1,k+1,k+2,k+3);}}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;
+ }
+ v.part(band(.1753,.023,.060,-1.28,1.28),black,0,0,.183);
+ v.part(band(.1759,.033,.056,-.32,.32),lens,0,0,.183);
+ v.part(band(.1761,.029,.031,-1.1,1.1),satin,0,0,.183);
+ v.part(new THREE.TorusGeometry(.165,.0007,8,160),black,0,.080,.183,1,1,1,Math.PI/2);
+ v.cylinder(.043,.023,0,.098,.127,graphite);
+ v.cylinder(.0395,.002,0,.110,.127,black);
+ v.cylinder(.044,.0015,0,.0865,.127,metal);
+ // Recessed lidar slots and the gold-coloured top emblem.
+ for(const a of [-1.1,-.55,0,.55,1.1])v.box(.014,.007,.002,Math.sin(a)*.043,.099,.127+Math.cos(a)*.043,black,.001,0,a);
+ v.label('Z',.025,.020,0,.112,.127,{rx:-Math.PI/2,color:'#a7a08c',italic:true});
+ for(const x of [-.020,.020])v.cylinder(.007,.0008,x,.087,.225,black);
+ v.label('⌂  ⏻',.055,.012,0,.088,.225,{rx:-Math.PI/2,color:'#777c7c'});
+ v.box(.272,.0008,.001,0,.085,.169,black,.0003);
+ for(const x of [-.139,.139])v.cylinder(.027,.026,x,.024,.183,rubber,0,0,Math.PI/2);
+ for(const x of [-.072,.072])v.cylinder(.062,.013,x,.007,.128,rubber);
+ for(let n=0;n<3;n++)v.box(.054,.002,.003,-.141,.009,.260,black,.001,0,n*Math.PI*2/3);
+ v.setFloor(0);
+ for(const x of [-.073,.073])v.cylinder(.061,.003,x,.033,-.020,black);
+ for(let n=0;n<5;n++)v.box(.280,.0015,.002,0,.035,.264+n*.016,satin,.001);
  const vacuum=v.finish();
 
  const m=group('mower');

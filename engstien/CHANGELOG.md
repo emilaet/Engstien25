@@ -1,3 +1,12 @@
+# 0.3.4
+
+- Støvsugerens standardudsnit og nulstilling indrammer selve produktet tæt; planten er kun baggrund. Samme native 3D, rotation og knibezoom på telefon og iPad.
+- Qrevo 5AE er ombygget med sammenhængende kabinet, separate afrundede vandtanke, et forsænket vaskerum og en rund robot med buet kofanger, optik og lidar.
+- Krukker med hortensia og olivengrene erstatter de grove ovale planteformer. Plantekasser får tynde buede blade, blomster med individuelle kronblade og flere slanke græsstrå.
+- Tredimensionelt græs fordeles over havens faktiske græsareal; geometri og tæthed tilpasses kvalitet og kamerabevægelse.
+- Finere, centrerede solskygger, mere retningsbestemt dagslys, bedre nærlys ved robotterne og bløde kontaktskygger under udemøbler og krukker.
+- Menuen reserverer tilstrækkelig bredde til de fulde robotnavne. Browserens hover-tooltips fjernes fra navigation, dato og nulstilling; tilgængelige navne bevares.
+
 # 0.3.3
 
 - Den godkendte materialeretning bygges i den interaktive 3D-scene: tæt, buet græs med en detaljeret bundoverflade samt planter med individuelle blade, bladårer og forgrenede stængler.
