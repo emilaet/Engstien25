@@ -7,7 +7,7 @@ En lille ændring skal ikke vente på hele 3D-browserpakken.
 - Den fulde browserpakke køres automatisk hver nat og kan vælges manuelt i workflowets **full_suite**-felt. Efter en bestået natlig kontrol genbygges den krypterede udgave med nybekræftede tariffer. Udgivelser deler samme kø, så der ikke publiceres to versioner samtidigt.
 - Ved større ændringer i navigation, lagring, 3D-motor, integrationer eller mange widgets vælges den fulde kontrol før udgivelse.
 
-`npm run test:smoke` bygger appen og kører de eksisterende tests mærket `@smoke`. Det omfatter Hjem/Rum-navigation, lister og genindlæsning, redigering, Indstillinger, Spotify-login fra Hjem/Indstillinger billaderens overgang/dag/aften og robotternes native kamera-/inputforløb. Testene er genbrugt fra den fulde pakke og bliver ikke vedligeholdt som kopier.
+`npm run test:smoke` bygger appen og kører de eksisterende tests mærket `@smoke`. Det omfatter Hjem/Rum-navigation, lister og genindlæsning, redigering, Indstillinger, Spotify-login fra Hjem/Indstillinger, billaderens overgang/dag/aften og robotternes native kamera-/inputforløb. Testene er genbrugt fra den fulde pakke og bliver ikke vedligeholdt som kopier.
 
 `npm run test:browser` kører fortsat alle browserforløb. `npm run test:preview` kontrollerer adgangskoden og det selvstændige krypterede build; de kontroller bevares ved hver udgivelse.
 

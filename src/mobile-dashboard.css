@@ -16,6 +16,8 @@ html{scrollbar-width:thin!important}
  --widget-inset:var(--mobile-card-inset);
 }
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid :is(.family-list,.hw-agenda,.collection-list,.summary-widget>.stat){overflow:hidden!important;overscroll-behavior-y:auto!important}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .dashboard-widget:not(.mobile-half) .family-list{overflow-y:auto!important}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .camera-card:not(.mobile-half) .hw-camera-foot{padding-bottom:6px}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .ep-scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;overscroll-behavior-y:auto;touch-action:auto}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .dashboard-widget>.widget-options{top:5px;right:5px;min-width:44px;width:44px;height:44px;border-radius:14px;color:var(--muted)}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .dashboard-widget>.widget-options .menu-dots{width:14px;height:14px}
@@ -60,7 +62,8 @@ html{scrollbar-width:thin!important}
 :root[data-page=home] .mobile-half .list-open-summary{display:flex!important;align-items:flex-end;min-height:44px;padding:4px 0 0;margin-top:auto;font-size:12px;line-height:18px;gap:4px}
 :root[data-page=home] .mobile-half .list-open-summary>span:last-child{display:none}
 :root[data-page=home] .mobile-half .family-list{display:none!important}
-:root[data-page=home] .mobile-half.widget-compact{padding:10px 42px 10px 12px!important}
+:root[data-page=home] .mobile-half.widget-compact{padding:10px 50px 10px 12px!important}
+:root[data-page=home] .mobile-half.widget-compact .list-title-short{display:inline!important}
 :root[data-page=home] .mobile-half.widget-compact :is(.family-card-title,.family-card-title h2){margin:0!important;padding:0;min-height:44px!important;display:flex;align-items:center}
 :root[data-page=home] .mobile-half.widget-compact .list-open-summary{display:none!important}
 :root[data-page=home] .mobile-half .ep-summary{display:flex;flex-wrap:wrap;gap:2px 6px;margin:0 0 6px}
@@ -144,7 +147,7 @@ html{scrollbar-width:thin!important}
 :root[data-page=home] .mobile-half.camera-card .hw-camera-foot{position:absolute;z-index:2;background:var(--surface);border-radius:12px;margin:0;padding:0}
 :root[data-page=home] .mobile-half.camera-card .hw-camera-image>span{display:block!important;position:absolute;inset:auto auto 10px 8px;font-size:7px;padding:4px;background:var(--text);color:var(--surface)}
 :root[data-page=home] .mobile-half.camera-card .hw-camera-image>em{display:none}
-@container widget (width < 130px){
+@container widget (width < 100px){
  :root[data-page=home] .mobile-half .list-title-icon{display:none}
  :root[data-page=home] .mobile-half .list-summary-label{font-size:11px}
 }

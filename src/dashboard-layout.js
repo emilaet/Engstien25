@@ -112,7 +112,11 @@ export function setupDashboardLayout({onFinish=()=>{},onSaved=()=>{},notify=()=>
  function writePositions(layout,rects,{mobileOrder=false}={}){
   const byId=new Map(rects.map(r=>[r.id,r])),reading=[...rects].sort((a,b)=>a.row-b.row||a.column-b.column);
   if(mobileLayout()){if(mobileOrder||gesture?.kind==='move')for(const [index,r] of reading.entries())layout.find(w=>w.id===r.id).mobileOrder=index;}
-  else {for(const w of layout){const r=byId.get(w.id);if(r){w.column=r.column;w.row=r.row;}}layout.sort((a,b)=>{const x=byId.get(a.id),y=byId.get(b.id);return x&&y?x.row-y.row||x.column-y.column:x?-1:y?1:0;});}
+  else {
+   // Spatial sorting leaves the standard array order. Keep its displayed pixel
+   // heights so the final grid uses the same geometry as the drop preview.
+   const standard=sameDefault(layout);if(standard)for(const w of layout)w.heightPx??=cardHeight(w,standard);
+   for(const w of layout){const r=byId.get(w.id);if(r){w.column=r.column;w.row=r.row;}}layout.sort((a,b)=>{const x=byId.get(a.id),y=byId.get(b.id);return x&&y?x.row-y.row||x.column-y.column:x?-1:y?1:0;});}
  }
  function applySizes(layout,rects=rectangles(layout)){
   const byId=new Map(rects.map(r=>[r.id,r])),profiles={desktop:rectangles(layout,{minimum:2,stack:false}),tablet:rectangles(layout,{minimum:3,stack:false}),mobile:rectangles(layout,{stack:true})};

@@ -2,7 +2,7 @@ import {test,expect} from './fixtures.js';
 import {defaultLayout} from '../src/dashboard-layout.js';
 
 test('Non-briefing desktop checkmarks and phone Notes updates keep the page, cards and both list scroll positions fixed',async({page})=>{
- await page.addInitScript(layout=>localStorage.setItem('engstien-home-layout-v3',JSON.stringify(layout)),defaultLayout().map(w=>['tasks','shopping'].includes(w.id)?{...w,mobileWidth:12,mobileHeightPx:420,mobileVisible:true}:w));
+ await page.addInitScript(layout=>{localStorage.setItem('engstien-home-layout-v3',JSON.stringify(layout));localStorage.setItem('engstien-family-v1',JSON.stringify({version:1,tasks:Array.from({length:8},(_,i)=>({id:'audit-task-'+i,text:'Undateret huskepunkt '+i,done:false})),shopping:Array.from({length:8},(_,i)=>({id:'audit-item-'+i,text:'Vare '+i,done:false}))}));},defaultLayout().map(w=>['tasks','shopping'].includes(w.id)?{...w,mobileWidth:12,mobileHeightPx:420,mobileVisible:true}:w));
  for(const [width,height] of [[1194,834],[390,844]]){
   await page.setViewportSize({width,height});await page.goto('/');
   await expect(page.locator('.tasks-card input[type=checkbox]').first()).toBeVisible();
@@ -10,7 +10,9 @@ test('Non-briefing desktop checkmarks and phone Notes updates keep the page, car
   const importNotes=()=>page.getByLabel('Indlæs eksport fra Apple Noter').setInputFiles({name:'noter.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(notes))});
   if(width<760){await importNotes();await expect(page.locator('.tasks-card')).toContainText('Pak tasken');}
   for(const key of ['tasks','shopping']){
-   const checkbox=key==='tasks'&&width>=760?page.locator('input[data-item=task-3]'):page.locator(`.${key}-card input[type=checkbox]:not(:checked)`).first();
+   // Use an undated item: completing a dated item deliberately removes its date
+   // badge and can clamp a list already scrolled to its bottom to a new maximum.
+   const checkbox=key==='tasks'&&width>=760?page.locator('input[data-item=audit-task-5]'):page.locator(`.${key}-card input[type=checkbox]:not(:checked)`).first();
    await checkbox.scrollIntoViewIfNeeded();
    const before=await page.evaluate(()=>({y:scrollY,lists:[...document.querySelectorAll('.family-list')].map(el=>el.scrollTop),cards:[...document.querySelectorAll('.family-card')].map(el=>el.getBoundingClientRect().top)}));
    const id=await checkbox.getAttribute('data-item');

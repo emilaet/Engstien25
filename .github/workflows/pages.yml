@@ -88,6 +88,14 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
       - run: npm run test:preview
+      - name: Preserve browser failure context
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-context
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Build encrypted preview
         if: github.ref == 'refs/heads/main'
         run: |

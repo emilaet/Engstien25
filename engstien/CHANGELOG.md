@@ -1,5 +1,6 @@
 # 0.3.6
 
+- Kort bevarer deres viste højder ved første flytning; fuldbredde-lister på mobil kan rulles til alle punkter.
 - Fuld UX-, design-, performance-, kode- og testgennemgang dokumenteret i docs/full-app-review-2026-11-21.md.
 - Tabsfrit komprimerede 3D-materialer: 32,81 % færre billedbytes med identiske pixels. Græsinstanser allokeres først ved faktisk brug; plantematerialer undgår dobbeltarbejde.
 - Forsinkede profil-/Spotify-svar kan ikke genoprette gamle kontotilstande efter logout eller kontoskift.
