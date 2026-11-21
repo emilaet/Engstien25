@@ -3,8 +3,13 @@ import {finishedFloor} from './architecture.js';
 import {lawnHeight} from './outdoor-layout.js';
 // User's marked locations. Local +Z is the robot's forward direction.
 export const robotPlacement={
- vacuum:{position:[5.85,finishedFloor,6.54],rotation:Math.PI,target:[5.85,finishedFloor+.28,6.43],view:[.65,.43,-1.65]},
+ vacuum:{position:[5.85,finishedFloor,6.54],rotation:Math.PI,target:[5.85,finishedFloor+.25,6.43],view:[.48,.39,-1.65]},
  mower:{position:[15.18,lawnHeight(15.18),13.4],rotation:-Math.PI/2,target:[14.87,lawnHeight(15.18)+.20,13.4],view:[-1.6,.82,1.08]},
+};
+// Stay on the room/lawn side of the real wall rather than orbiting inside it.
+export const robotOrbitLimits={
+ vacuum:{minAzimuth:Math.PI-1.05,maxAzimuth:Math.PI+1.05,minDistance:.6,maxDistance:3.4},
+ mower:{minAzimuth:-Math.PI+.30,maxAzimuth:-.30,minDistance:.7,maxDistance:4.5},
 };
 export function frameRobotCamera(camera,bounds,kind){
  const p=robotPlacement[kind],target=new THREE.Vector3(...p.target),direction=new THREE.Vector3(...p.view).normalize(),points=[];

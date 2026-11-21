@@ -1,89 +1,138 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {chargerSurfaceMaps,chargerEnvironment} from './visual-materials.js';
 import {robotPlacement} from './robot-layout.js';
 
-// Procedural presentation models: shared geometries, fine bevels and batched
-// repeated details. They show docking locations, never an invented live track.
+// Actual geometry in the house, not a picture plane. Parts are merged by
+// material so curved mouldings and small details remain practical on an iPad.
 export function buildRobotModels(scene){
  const root=new THREE.Group();root.name='house-robots';scene.add(root);
- const material=(name,color,roughness=.5,metalness=0)=>{const m=new THREE.MeshStandardMaterial({color,roughness,metalness});m.name=name;return m;};
- const graphite=material('robot-graphite','#35393b',.42,.12),black=material('robot-dark-trim','#171b1d',.57,.05),rubber=material('robot-rubber','#161919',.94),satin=material('robot-satin','#505658',.35,.27),silver=material('robot-metal','#9a9fa0',.28,.6),ivory=material('mower-ivory','#edeee7',.4,.05),yellow=material('mower-yellow','#d0b52c',.55),lens=material('robot-sensor-glass','#111f28',.18,.35);
- const light=material('robot-indicator','#d1ddd9',.35);light.emissive.set('#b9e7d6');light.emissiveIntensity=.12;
- const unitBox=new THREE.BoxGeometry(1,1,1),unitCylinder=new THREE.CylinderGeometry(1,1,1,64),sphere=new THREE.SphereGeometry(1,24,16),geometries=new Map(),dummy=new THREE.Object3D();
- function rounded(w,h,d,r){r=Math.min(r,w/2.2,h/2.2,d/2.2);const key=[w,h,d,r].join(':');if(!geometries.has(key))geometries.set(key,new RoundedBoxGeometry(w,h,d,3,r));return geometries.get(key);}
- function group(kind){const g=new THREE.Group(),p=robotPlacement[kind];g.name='robot-'+kind;g.position.set(...p.position);g.rotation.y=p.rotation;g.userData={kind,station:true,presentation:true};root.add(g);const batches=new Map();let lift=0;
-  function part(geometry,m,x,y,z,sx=1,sy=1,sz=1,rx=0,ry=0,rz=0){dummy.position.set(x,y+lift,z);dummy.rotation.set(rx,ry,rz);dummy.scale.set(sx,sy,sz);dummy.updateMatrix();const key=geometry.uuid+':'+m.uuid;if(!batches.has(key))batches.set(key,{geometry,m,matrices:[]});batches.get(key).matrices.push(dummy.matrix.clone());}
+ const surface=chargerSurfaceMaps(),environment=chargerEnvironment(),materials=[];
+ function material(name,color,roughness=.5,metalness=.03,coat=.12){
+  const m=new THREE.MeshPhysicalMaterial({color,roughness,metalness,clearcoat:coat,clearcoatRoughness:.4,envMap:environment,envMapIntensity:.65,...surface,bumpScale:.00008});m.name=name;materials.push(m);return m;
+ }
+ const graphite=material('robot-graphite','#303336',.49,.05),black=material('robot-dark-trim','#17191c',.73,.02,.04),rubber=material('robot-rubber','#17191a',.92,0,0),satin=material('robot-satin','#54595c',.37,.20),metal=material('robot-metal','#9ba2a6',.27,.65),lens=material('robot-optical-glass','#102027',.12,.15,.8),mowerHood=material('mower-graphite-hood','#595c60',.49,.08),yellow=material('mower-yellow-trim','#c9ae25',.52),greenLens=material('mower-green-inset','#385f40',.25,.08,.65),stop=material('mower-stop','#8d2524',.60);
+ const indicator=new THREE.MeshStandardMaterial({color:'#d5ddd9',roughness:.5});indicator.name='robot-indicator';
+ const geometries=new Map(),cylinderGeometry=new THREE.CylinderGeometry(1,1,1,96),dummy=new THREE.Object3D();
+ function rounded(w,h,d,r){r=Math.min(r,w/2.1,h/2.1,d/2.1);const key=[w,h,d,r].join(':');if(!geometries.has(key))geometries.set(key,new RoundedBoxGeometry(w,h,d,Math.min(w,h,d)<.035?2:5,r));return geometries.get(key);}
+ function group(kind){
+  const g=new THREE.Group(),p=robotPlacement[kind];g.name='robot-'+kind;g.position.set(...p.position);g.rotation.y=p.rotation;g.userData={kind,station:true,presentation:true,interactive:true};root.add(g);const batches=new Map();let lift=0;
+  function part(geometry,m,x,y,z,sx=1,sy=1,sz=1,rx=0,ry=0,rz=0){
+   dummy.position.set(x,y+lift,z);dummy.rotation.set(rx,ry,rz);dummy.scale.set(sx,sy,sz);dummy.updateMatrix();
+   const copy=geometry.index?geometry.toNonIndexed():geometry.clone();copy.applyMatrix4(dummy.matrix);if(!batches.has(m))batches.set(m,[]);batches.get(m).push(copy);
+  }
   const box=(w,h,d,x,y,z,m,r=.006,rx=0,ry=0,rz=0)=>part(rounded(w,h,d,r),m,x,y,z,1,1,1,rx,ry,rz);
-  const cylinder=(radius,height,x,y,z,m,rx=0,ry=0,rz=0)=>part(unitCylinder,m,x,y,z,radius,height,radius,rx,ry,rz);
-  function label(text,w,h,x,y,z,ry=0){let mat=new THREE.MeshBasicMaterial({color:'#aeb7b8'});if(typeof document!=='undefined'){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.clearRect(0,0,512,128);ctx.fillStyle='#d1d4cf';ctx.font='500 72px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64);const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;mat=new THREE.MeshBasicMaterial({map,transparent:true,depthWrite:false});}part(new THREE.PlaneGeometry(w,h),mat,x,y,z,1,1,1,0,ry,0);}
-  function finish(){let n=0;for(const {geometry,m,matrices}of batches.values()){const mesh=new THREE.InstancedMesh(geometry,m,matrices.length);mesh.name=g.name+':'+m.name+':'+n++;matrices.forEach((v,i)=>mesh.setMatrixAt(i,v));mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=mesh.receiveShadow=true;g.add(mesh);}return g;}
+  const cylinder=(radius,height,x,y,z,m,rx=0,ry=0,rz=0)=>part(cylinderGeometry,m,x,y,z,radius,height,radius,rx,ry,rz);
+  function label(text,w,h,x,y,z,{rx=0,ry=0,color='#aeb4b3',italic=false}={}){
+   if(typeof document==='undefined')return;
+   const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle=color;ctx.font=(italic?'italic ':'')+'500 72px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64);
+   const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;const m=new THREE.MeshBasicMaterial({map,transparent:true,depthWrite:false});m.name='robot-marking';part(new THREE.PlaneGeometry(w,h),m,x,y,z,1,1,1,rx,ry);
+  }
+  function finish(){for(const [m,parts]of batches){const geometry=mergeGeometries(parts,false);const mesh=new THREE.Mesh(geometry,m);mesh.name=g.name+':'+m.name;mesh.castShadow=mesh.receiveShadow=true;g.add(mesh);for(const part of parts)part.dispose();}return g;}
   return {g,part,box,cylinder,label,finish,setFloor(value){lift=value;}};
  }
+ // Rounded rectangular rims with a real opening, used for the two water tanks.
+ function rim(w,d,r,thickness){
+  const shape=new THREE.Shape();
+  const path=(p,a,b,c)=>{p.moveTo(-a/2+c,-b/2);p.lineTo(a/2-c,-b/2);p.quadraticCurveTo(a/2,-b/2,a/2,-b/2+c);p.lineTo(a/2,b/2-c);p.quadraticCurveTo(a/2,b/2,a/2-c,b/2);p.lineTo(-a/2+c,b/2);p.quadraticCurveTo(-a/2,b/2,-a/2,b/2-c);p.lineTo(-a/2,-b/2+c);p.quadraticCurveTo(-a/2,-b/2,-a/2+c,-b/2);};
+  path(shape,w,d,r);const hole=new THREE.Path();path(hole,w-thickness*2,d-thickness*2,Math.max(.004,r-thickness));shape.holes.push(hole);
+  return new THREE.ExtrudeGeometry(shape,{depth:.008,bevelEnabled:true,bevelSegments:3,bevelSize:.0014,bevelThickness:.001,curveSegments:12}).rotateX(-Math.PI/2);
+ }
+ function flutedFront(w,h){
+  const pos=[],uv=[],idx=[],cols=240,rows=4;
+  for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const u=i/cols,v=j/rows,x=(u-.5)*w,fade=Math.min(1,Math.min(u,1-u)*16),z=.0014*Math.cos(u*Math.PI*20)*fade;pos.push(x,(v-.5)*h,z);uv.push(u,v);if(i<cols&&j<rows){const a=j*(cols+1)+i;idx.push(a,a+1,a+cols+1,a+1,a+cols+2,a+cols+1);}}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();return geo;
+ }
  const v=group('vacuum');
- v.box(.397,.017,.54,0,.0085,.09,black,.008);
- for(const x of [-.155,.155])v.box(.025,.14,.22,x,.08,-.065,graphite,.008);
- v.box(.354,.17,.232,0,.222,-.061,graphite,.012);
- v.box(.356,.294,.248,0,.455,-.064,graphite,.017);
- // Fluted water tanks, a fine separating seam, and two inset carry handles.
- for(let n=0;n<12;n++)v.box(.027,.280,.0018,(n-5.5)*.0285,.455,.0608,n%3===0?satin:graphite,.0007);
- v.box(.344,.003,.237,0,.307,-.064,black,.001);
- for(const x of [-.089,.089]){v.box(.168,.009,.237,x,.607,-.064,satin,.018);v.box(.125,.006,.046,x,.612,-.071,black,.018);v.box(.108,.004,.024,x,.616,-.071,graphite,.009);}
- v.box(.0025,.022,.002,-.146,.568,.062,light,.001);
- v.label('roborock',.084,.019,-.10,.265,.056);
- for(let n=0;n<6;n++)v.box(.003,.060,.011,.18,.17,-.14+n*.023,black,.001);
- // Rounded circular body, bumper seam, lidar and the forward optical window.
- v.setFloor(.017);
- const body=new THREE.LatheGeometry([[0,.013],[.147,.013],[.164,.021],[.173,.038],[.174,.067],[.171,.083],[.161,.096],[0,.096]].map(p=>new THREE.Vector2(...p)),96);
- v.part(body,graphite,0,0,.18);v.cylinder(.162,.004,0,.097,.18,black);
- const ring=new THREE.TorusGeometry(.171,.0013,6,96);v.part(ring,satin,0,.055,.18,1,1,1,Math.PI/2);
- v.cylinder(.044,.022,0,.110,.119,graphite);v.cylinder(.039,.003,0,.123,.119,black);v.cylinder(.043,.0012,0,.098,.119,silver);
- v.box(.086,.031,.007,0,.051,.351,lens,.007);v.box(.108,.043,.004,0,.051,.347,black,.009);
- for(const x of [-.026,.026])v.cylinder(.006,.0015,x,.101,.228,satin);
- for(const x of [-.128,.128])v.cylinder(.030,.024,x,.030,.18,rubber,0,0,Math.PI/2);
- for(const x of [-.075,.075])v.cylinder(.064,.014,x,.009,.125,rubber);
- for(let n=0;n<3;n++)v.box(.066,.002,.004,-.128,.014,.279,black,.001,0,n*Math.PI*2/3,0);
- for(let n=0;n<6;n++)v.box(.34,.001,.003,0,.019,.225+n*.019,satin,.001);
+ v.box(.399,.018,.580,0,.009,.110,black,.013);
+ v.box(.358,.006,.443,0,.020,.100,graphite,.009);
+ for(const x of [-.151,.151])v.box(.025,.128,.205,x,.082,-.112,graphite,.008);
+ v.box(.322,.130,.016,0,.082,-.208,black,.006);
+ v.box(.340,.145,.260,0,.211,-.110,graphite,.018);
+ v.box(.322,.130,.012,0,.211,.024,graphite,.008);
+ v.box(.328,.003,.256,0,.285,-.110,black,.001);
+ v.box(.344,.244,.274,0,.410,-.112,graphite,.021);
+ v.part(flutedFront(.322,.231),graphite,0,.411,.0268);
+ for(const x of [-.087,.087]){
+  v.part(rim(.160,.254,.024,.013),graphite,x,.533,-.111);
+  v.box(.133,.006,.220,x,.528,-.111,black,.018);
+  v.box(.111,.006,.019,x,.538,-.202,satin,.006);
+ }
+ v.box(.0024,.020,.002,-.143,.492,.029,indicator,.001);
+ v.label('roborock',.068,.016,-.104,.250,.032,{color:'#989e9d'});
+ for(const side of [-1,1])for(let n=0;n<6;n++)v.box(.002,.040,.008,side*.172,.193,-.17+n*.014,black,.001);
+ // The round robot is kept low, with a separate bumper, lidar, optical window,
+ // actual underside wheels/mops and a shallow moulded washing tray.
+ v.setFloor(.022);
+ const body=new THREE.LatheGeometry([[0,.011],[.145,.011],[.162,.016],[.172,.029],[.174,.046],[.173,.058],[.168,.069],[.155,.075],[0,.075]].map(p=>new THREE.Vector2(...p)),160);
+ v.part(body,graphite,0,0,.220);v.cylinder(.158,.003,0,.075,.220,black);
+ v.part(new THREE.TorusGeometry(.1731,.0009,8,160),satin,0,.041,.220,1,1,1,Math.PI/2);
+ v.part(new THREE.TorusGeometry(.158,.00065,6,160),graphite,0,.077,.220,1,1,1,Math.PI/2);
+ v.cylinder(.043,.023,0,.086,.158,graphite);v.cylinder(.039,.002,0,.0985,.158,black);v.cylinder(.0435,.0015,0,.076,.158,metal);
+ v.box(.112,.034,.006,0,.040,.388,black,.009);v.box(.091,.026,.003,0,.040,.393,lens,.007);
+ for(const x of [-.024,.024])v.cylinder(.005,.001,x,.078,.263,satin);
+ v.label('⌁',.036,.025,0,.101,.158,{rx:-Math.PI/2,color:'#a5a59a'});
+ for(const x of [-.139,.139])v.cylinder(.026,.027,x,.026,.220,rubber,0,0,Math.PI/2);
+ for(const x of [-.072,.072])v.cylinder(.063,.014,x,.008,.166,rubber);
+ for(let n=0;n<3;n++)v.box(.062,.002,.003,-.134,.010,.312,black,.001,0,n*Math.PI*2/3);
+ v.setFloor(0);for(let n=0;n<7;n++)v.box(.343,.0015,.003,0,.024,.270+n*.018,satin,.001);
  const vacuum=v.finish();
 
  const m=group('mower');
- m.box(.58,.018,.84,0,.009,.34,black,.009);
- for(let n=0;n<8;n++)m.box(.43,.003,.012,0,.020,.08+n*.075,graphite,.001);
- m.box(.30,.036,.13,0,.033,-.006,graphite,.01);
- m.box(.116,.238,.064,0,.142,-.015,black,.012);m.box(.16,.048,.087,0,.25,-.005,graphite,.014);
- for(const x of [-.048,.048])m.box(.018,.025,.008,x,.145,.032,silver,.003);
- m.box(.014,.004,.003,0,.251,.041,light,.001);
- const robotZ=.34;
- m.setFloor(.018);
- m.box(.425,.100,.45,0,.145,robotZ+.020,black,.044);
- m.box(.375,.065,.39,0,.092,robotZ+.035,graphite,.028);
- // Lofted hood: rounded front, rising shoulders and a separate dark chassis.
- const positions=[],uv=[],indices=[],rows=40,cols=32;
- for(let j=0;j<=rows;j++){const t=j/rows,z=-.25+t*.54,width=.19+.026*Math.sin(t*Math.PI)-.052*Math.pow(t,5),height=.305-.12*Math.pow(t,1.5),edge=.158-.018*t;
-  for(let i=0;i<=cols;i++){const u=i/cols,x=(u-.5)*2*width,y=edge+(height-edge)*Math.pow(Math.sin(u*Math.PI),.48);positions.push(x,y,robotZ+z);uv.push(u,t);if(i<cols&&j<rows){const a=j*(cols+1)+i;indices.push(a,a+cols+1,a+1,a+1,a+cols+1,a+cols+2);}}
+ m.box(.560,.018,.820,0,.009,.330,black,.014);
+ for(let n=0;n<7;n++)m.box(.405,.002,.010,0,.020,.090+n*.078,graphite,.001);
+ m.box(.285,.028,.128,0,.032,-.002,graphite,.009);
+ m.box(.104,.212,.060,0,.132,-.015,black,.012);m.box(.145,.043,.085,0,.249,-.008,graphite,.014);
+ for(const x of [-.047,.047])m.box(.016,.024,.007,x,.141,.020,metal,.002);
+ m.box(.011,.003,.002,0,.258,.036,indicator,.001);
+ const z0=.330;m.setFloor(.018);
+ m.box(.399,.111,.444,0,.111,z0+.016,black,.046);
+ m.box(.344,.063,.375,0,.070,z0+.031,graphite,.027);
+ // A closed, smoothly lofted moulding: broad shoulders, curved sides and a
+ // lowered nose, rather than a flat open sheet over a rectangular chassis.
+ const hoodSection=t=>({w:.185+.030*Math.sin(t*Math.PI)-.004*Math.pow(t,6),edge:.140+.022*Math.sin(t*Math.PI),roof:.262+.014*Math.cos((t-.25)*Math.PI)-.100*Math.pow(t,3)});
+ const hoodY=(x,z)=>{const t=(z-z0+.235)/.520,{w,edge,roof}=hoodSection(t);return edge+(roof-edge)*Math.pow(Math.sqrt(Math.max(0,1-(x/w)**2)),.48);};
+ function inset(side,width,length,offset){const positions=[],uvs=[],indices=[],rows=20,cols=8,angle=side*.23;
+  for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const a=j/rows*2-1,b=(i/cols*2-1)*width*Math.sqrt(Math.max(.01,1-a**8)),along=a*length,x=side*.158+b*Math.cos(angle)+along*Math.sin(angle),z=z0+.066+along*Math.cos(angle)-b*Math.sin(angle);positions.push(x,hoodY(x,z)+offset,z);uvs.push(i/cols,j/rows);if(i<cols&&j<rows){const n=j*(cols+1)+i;indices.push(n,n+cols+1,n+1,n+1,n+cols+1,n+cols+2);}}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();return g;
  }
- const hood=new THREE.BufferGeometry();hood.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));hood.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));hood.setIndex(indices);hood.computeVertexNormals();
- const hoodMaterial=material('mower-graphite-hood','#55585c',.48,.14);hoodMaterial.side=THREE.DoubleSide;m.part(hood,hoodMaterial,0,0,0);
- m.box(.135,.034,.252,0,.303,robotZ-.087,black,.012,-.09);
- m.box(.154,.060,.080,0,.326,robotZ+.034,graphite,.012);
- m.box(.137,.040,.004,0,.328,robotZ+.076,lens,.009);
- for(const x of [-.046,0,.046]){m.cylinder(.013,.003,x,.328,robotZ+.079,satin,Math.PI/2);m.cylinder(.009,.004,x,.328,robotZ+.081,lens,Math.PI/2);}
- m.box(.071,.012,.025,0,.330,robotZ-.080,material('mower-stop','#a72424',.54),.006);
- m.cylinder(.024,.037,0,.332,robotZ-.19,black);m.cylinder(.028,.016,0,.358,robotZ-.19,graphite);
- for(let n=0;n<20;n++){const a=n*Math.PI/10;m.box(.003,.012,.003,Math.sin(a)*.028,.358,robotZ-.19+Math.cos(a)*.028,black,.001,0,a);}
+ const pos=[],uv=[],idx=[],rows=64,cols=80;
+ for(let j=0;j<=rows;j++){
+  const t=j/rows,z=z0-.235+t*.520,{w,edge,roof}=hoodSection(t);
+  for(let i=0;i<=cols;i++){const a=i/cols*Math.PI*2,c=Math.cos(a),x=w*Math.sin(a),y=edge+(c>=0?(roof-edge)*Math.pow(c,.48):-.025*Math.pow(-c,.7));pos.push(x,y,z);uv.push(i/cols,t);if(i<cols&&j<rows){const n=j*(cols+1)+i;idx.push(n,n+cols+1,n+1,n+1,n+cols+1,n+cols+2);}}
+ }
+ for(const j of [0,rows]){const c=pos.length/3;pos.push(0,j===0?.18:.15,z0-.235+j/rows*.520);uv.push(.5,j/rows);for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+1;idx.push(c,...(j===0?[a,b]:[b,a]));}}
+ const hood=new THREE.BufferGeometry();hood.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));hood.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));hood.setIndex(idx);hood.computeVertexNormals();
+ const normals=hood.attributes.normal;for(let j=0;j<=rows;j++){const a=j*(cols+1),b=a+cols,n=new THREE.Vector3().fromBufferAttribute(normals,a).add(new THREE.Vector3().fromBufferAttribute(normals,b)).normalize();normals.setXYZ(a,n.x,n.y,n.z);normals.setXYZ(b,n.x,n.y,n.z);}
+ m.part(hood,mowerHood,0,0,0);
+ m.box(.358,.060,.104,0,.133,z0+.250,black,.018);
+ m.box(.295,.035,.070,0,.077,z0+.252,black,.016);
+ for(let n=0;n<11;n++)m.box(.007,.023,.0015,(n-5)*.026,.115,z0+.304,graphite,.001);
+ m.box(.139,.034,.248,0,.286,z0-.045,black,.011,-.18);
+ m.box(.119,.026,.079,0,.266,z0+.100,graphite,.007);
+ m.box(.158,.060,.082,0,.309,z0+.083,graphite,.015);
+ m.box(.144,.047,.004,0,.310,z0+.126,lens,.009);
+ for(const x of [-.047,0,.047]){m.cylinder(.015,.003,x,.310,z0+.130,satin,Math.PI/2);m.cylinder(.011,.0035,x,.310,z0+.133,lens,Math.PI/2);m.cylinder(.005,.004,x-.002,.313,z0+.135,black,Math.PI/2);}
+ m.label('MAMMOTION',.059,.008,0,.291,z0+.129);
+ m.box(.063,.012,.024,0,.313,z0-.094,stop,.005);
+ m.cylinder(.026,.028,0,.293,z0-.185,black);m.cylinder(.029,.010,0,.312,z0-.185,graphite);
+ for(let n=0;n<24;n++){const a=n*Math.PI/12;m.box(.002,.012,.003,Math.sin(a)*.029,.308,z0-.185+Math.cos(a)*.029,black,.001,0,a);}
  for(const side of [-1,1]){
-  const x=side*.233,wheelZ=robotZ-.145;
-  m.cylinder(.130,.065,x,.140,wheelZ,rubber,0,0,Math.PI/2);m.cylinder(.098,.004,x+side*.034,.140,wheelZ,satin,0,0,Math.PI/2);m.cylinder(.050,.006,x+side*.038,.140,wheelZ,graphite,0,0,Math.PI/2);
-  for(let n=0;n<28;n++){const a=n*Math.PI/14;m.box(.073,.020,.026,x,.14+Math.cos(a)*.13,wheelZ+Math.sin(a)*.13,rubber,.003,a);}
-  for(let n=0;n<6;n++){const a=n*Math.PI/3;m.cylinder(.005,.003,x+side*.039,.14+Math.cos(a)*.070,wheelZ+Math.sin(a)*.070,black,0,0,Math.PI/2);}
-  m.box(.009,.018,.115,side*.209,.178,robotZ+.08,yellow,.007,-.15);
-  m.box(.004,.024,.085,side*.195,.237,robotZ+.09,material('mower-green-inset','#587946',.5),.010,-.3);
-  for(let n=0;n<7;n++)m.box(.003,.025,.013,side*.21,.239-n*.0018,robotZ-.10+n*.019,black,.001);
+  const x=side*.232,wheelZ=z0-.132;
+  m.cylinder(.125,.067,x,.136,wheelZ,rubber,0,0,Math.PI/2);
+  for(let n=0;n<20;n++){const a=n*Math.PI/10;m.box(.073,.022,.033,x,.136+Math.cos(a)*.125,wheelZ+Math.sin(a)*.125,rubber,.003,a);}
+  m.cylinder(.101,.004,x+side*.0355,.136,wheelZ,satin,0,0,Math.PI/2);m.cylinder(.052,.006,x+side*.039,.136,wheelZ,graphite,0,0,Math.PI/2);
+  m.part(new THREE.TorusGeometry(.104,.0016,6,96),graphite,x+side*.038,.136,wheelZ,1,1,1,0,Math.PI/2);
+  for(let n=0;n<8;n++){const a=n*Math.PI/4;m.cylinder(.004,.002,x+side*.039,.136+Math.cos(a)*.077,wheelZ+Math.sin(a)*.077,black,0,0,Math.PI/2);}
+  m.box(.010,.017,.131,side*.211,.148,z0+.060,yellow,.006,-.12);
+  m.part(inset(side,.021,.062,.0008),black,0,0,0);
+  m.part(inset(side,.014,.052,.0013),greenLens,0,0,0);
+  m.box(.007,.023,.065,side*.207,.193,z0-.108,black,.008);
+  for(let n=0;n<6;n++)m.box(.002,.023,.010,side*.207,.181,z0-.133+n*.018,black,.001);
  }
- for(const x of [-.10,.10])m.cylinder(.031,.023,x,.031,robotZ+.21,rubber,0,0,Math.PI/2);
- m.box(.345,.042,.045,0,.119,robotZ+.247,black,.018);
- for(let n=0;n<9;n++)m.box(.008,.021,.001,(n-4)*.030,.121,robotZ+.270,graphite,.001);
- m.label('MAMMOTION',.11,.018,0,.153,robotZ+.254);
- const mower=m.finish();
- root.updateMatrixWorld(true);
- return {root,vacuum,mower};
+ for(const x of [-.101,.101])m.cylinder(.028,.023,x,.028,z0+.207,rubber,0,0,Math.PI/2);
+ m.label('MAMMOTION',.091,.013,0,.153,z0+.278,{color:'#747b7e'});
+ const mower=m.finish();root.updateMatrixWorld(true);
+ return {root,vacuum,mower,setDaylight(value){for(const mat of materials)mat.envMapIntensity=.28+.45*value;}};
 }

@@ -8,6 +8,7 @@ import {createHaBridge,normalizeHaEntity,readHaRegistry} from '../server/home-as
 import {robotCommand} from '../server/robot-commands.mjs';
 import {robotSnapshot,robotMetric,robotOptionLabel} from '../src/robot-data.js';
 import {buildRobotModels} from '../src/robot-models.js';
+import {buildRobotLighting} from '../src/robot-lighting.js';
 import {frameRobotCamera,robotPlacement} from '../src/robot-layout.js';
 import {finishedFloor} from '../src/architecture.js';
 import {lawnHeight} from '../src/outdoor-layout.js';
@@ -79,4 +80,15 @@ test('Dock models rest on their real floors, face the requested directions, fit 
  assert.ok(Math.abs(v.min.y-finishedFloor)<1e-5);assert.ok(v.max.z<6.82,'Dock clears the living-room wall');assert.ok(v.min.x>5.5&&v.max.x<6.2,'Dock fits between the plant and the glazing');assert.ok(Math.abs(m.min.y-lawnHeight(robotPlacement.mower.position[0]))<1e-5);assert.ok(m.min.z>12.7,'Mower stays on grass, beyond the terrace');assert.ok(m.max.x<15.29,'Station clears the shed cladding');const forward=new THREE.Vector3(0,0,1).applyQuaternion(robots.mower.quaternion);assert.ok(forward.x<-.99,'Front faces away from the driveway');
  for(const kind of ['vacuum','mower'])for(const aspect of [.6,1,1.8,2.4]){const camera=new THREE.PerspectiveCamera(25,aspect,.1,500),bounds=new THREE.Box3().setFromObject(robots[kind]),framing=frameRobotCamera(camera,bounds,kind);assert.ok(framing.extent<=.821);assert.ok(camera.position.distanceTo(framing.target)<12);}
  let meshes=0;robots.root.traverse(o=>{if(o.isMesh)meshes++;assert.equal(!!o.isLight,false);});assert.ok(meshes<85,'Fine details must be instanced rather than hundreds of draw calls');
+});
+
+test('Robot close-ups contain curved physical meshes with material detail, and grounded mower tyres',()=>{
+ const model=buildRobotModels(new THREE.Scene());let triangles=0,calls=0;
+ model.root.traverse(o=>{if(!o.isMesh)return;calls++;triangles+=o.geometry.attributes.position.count/3;assert.ok(o.material.isMeshPhysicalMaterial||o.material.name==='robot-indicator');if(o.material.isMeshPhysicalMaterial){assert.ok(o.material.bumpMap);assert.ok(o.material.roughnessMap);}for(const n of o.geometry.attributes.normal.array)assert.ok(Number.isFinite(n));});
+ assert.ok(calls<30,'Fine detail must remain merged for tablet rendering');assert.ok(triangles>40000&&triangles<160000,'Smooth geometry needs a bounded GPU budget');const tyres=model.mower.getObjectByName('robot-mower:robot-rubber'),bounds=new THREE.Box3().setFromObject(tyres);assert.ok(Math.abs(bounds.min.y-(lawnHeight(15.18)+.018))<.002,'Tyres must touch the actual charging pad');
+});
+
+test('Close-up lighting remains local to the real station and switches off outside robot views',()=>{
+ const lights=buildRobotLighting(new THREE.Scene());assert.equal(lights.key.visible,false);for(const kind of ['vacuum','mower']){lights.update(kind,0);const night=lights.key.intensity;lights.update(kind,1);assert.ok(lights.key.intensity>night);assert.deepEqual(lights.target.position.toArray(),robotPlacement[kind].target);assert.equal(lights.key.castShadow,true);assert.equal(lights.fill.castShadow,false);assert.ok(lights.key.distance<=4);assert.ok(lights.key.position.distanceTo(lights.target.position)<2);if(kind==='vacuum')assert.ok(lights.key.position.z<lights.target.position.z);else assert.ok(lights.key.position.x<lights.target.position.x);}
+ lights.update(null,1);assert.equal(lights.key.visible,false);assert.equal(lights.key.intensity,0);assert.equal(lights.fill.intensity,0);
 });

@@ -13,7 +13,7 @@ FROM node:24-bookworm-slim
 WORKDIR /app
 ARG APP_BUILD
 ENV NODE_ENV=production APP_BUILD=${APP_BUILD}
-LABEL io.hass.name="Engstien 25" io.hass.description="Hjem og rum" io.hass.type="addon" io.hass.version="0.3.1" org.opencontainers.image.source="https://github.com/emilaet/Engstien25"
+LABEL io.hass.name="Engstien 25" io.hass.description="Hjem og rum" io.hass.type="addon" io.hass.version="0.3.2" org.opencontainers.image.source="https://github.com/emilaet/Engstien25"
 COPY --from=build /app/dist ./dist
 COPY src ./src
 COPY server ./server

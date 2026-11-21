@@ -7,6 +7,6 @@ const output=resolve(process.argv[2]||'.green-release'),stage=resolve(output,'ap
 await stat('dist/index.html');const info=JSON.parse(await readFile('dist/build-info.json','utf8'));if(info.version!==appVersion||info.build!==build)throw Error('Byg frontend med samme APP_BUILD før pakning.');await rm(stage,{recursive:true,force:true});await mkdir(stage,{recursive:true});
 await cp('dist',resolve(stage,'dist'),{recursive:true});await cp('server',resolve(stage,'server'),{recursive:true});await mkdir(resolve(stage,'src'),{recursive:true});
 for(const file of await readdir('src'))if(file.endsWith('.js'))await cp(resolve('src',file),resolve(stage,'src',file));
-await cp('src/assets/tesla-model-y.LICENSE.txt',resolve(stage,'model-license.txt'));await cp('src/assets/robot-renderings.LICENSE.txt',resolve(stage,'robot-renderings.txt'));await cp('package.json',resolve(stage,'package.json'));
+await cp('src/assets/tesla-model-y.LICENSE.txt',resolve(stage,'model-license.txt'));await cp('package.json',resolve(stage,'package.json'));
 await writeFile(resolve(stage,'build-info.json'),JSON.stringify({version:appVersion,build})+'\n');
 const file='engstien-'+appVersion+'.tar.gz';execFileSync('tar',['-czf',resolve(output,file),'-C',stage,'.']);const digest=createHash('sha256').update(await readFile(resolve(output,file))).digest('hex');await writeFile(resolve(output,'engstien-'+appVersion+'.sha256'),digest+'  '+file+'\n');console.log(file+' · '+digest);

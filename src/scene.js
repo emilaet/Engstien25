@@ -1,5 +1,6 @@
 import {buildRobotModels} from './robot-models.js';
-import {robotPlacement,frameRobotCamera} from './robot-layout.js';
+import {buildRobotLighting} from './robot-lighting.js';
+import {robotPlacement,frameRobotCamera,robotOrbitLimits} from './robot-layout.js';
 import {buildFurnishings} from './furniture.js';
 import {initialFurnishing} from './furnishing-data.js';
 import * as THREE from 'three';
@@ -70,8 +71,8 @@ const scene=new THREE.Scene();scene.background=null;
  const localLights=buildRoomLighting(scene,options.furnishings||initialFurnishing());localLights.bindArchitecture(structure,floors);localLights.bindFurniture(furnishing.root);
  const carport=buildCarportRoof(scene);
  const robots=buildRobotModels(scene);
- const robotFill=new THREE.SpotLight('#edf4f4',0,3.5,Math.PI/4,.8,2),robotLightTarget=new THREE.Object3D();robotFill.name='robot-presentation-fill';robotFill.castShadow=false;robotFill.target=robotLightTarget;scene.add(robotFill,robotLightTarget);
- function updateRobotLight(){const active=activeView==='vacuum'||activeView==='mower';robotFill.intensity=active?5+15*daylight:0;if(active){robotLightTarget.position.set(...robotPlacement[activeView].target);robotFill.position.copy(robotLightTarget.position).add(new THREE.Vector3(...robotPlacement[activeView].view).multiplyScalar(.8)).add(new THREE.Vector3(0,.4,0));}}
+ const robotLighting=buildRobotLighting(scene);
+ function updateRobotLight(){const kind=robotPlacement[activeView]?activeView:null;robotLighting.update(kind,daylight);robots.setDaylight(daylight);host.dataset.robotLighting=kind||'off';}
  function robotFrame(kind){robots.root.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(robots[kind]),preview=perspective.clone(),framing=frameRobotCamera(preview,bounds,kind);return {preview,framing};}
  function focusRobot(kind){const {preview,framing}=robotFrame(kind);moveCamera(preview.position,framing.target);robotAutoFrame=true;host.dataset.robotKind=kind;host.dataset.robotExtent=framing.extent.toFixed(3);host.dataset.robotDock=JSON.stringify(robotPlacement[kind]);updateRobotLight();}
 
@@ -80,8 +81,8 @@ const scene=new THREE.Scene();scene.background=null;
  function setAppearance(value){const t=value.daylight;daylight=t;charger.setDaylight(t);outdoorDecor?.setDaylight(t);updateRobotLight();updateChargerFill(chargerFill,t,activeView==='charger');seamLines.material.opacity=0;seamLines.material.color.set(value.theme==='dark'?'#697268':'#a9ab94');renderer.setClearColor(value.theme==='dark'?'#1b1e1c':'#e9e5dd',0);host.style.backgroundColor='transparent';ambient.intensity=.34+t*.90;sun.intensity=.14+t*1.65;ground.visible=value.theme!=='dark';sun.color.set(t<.5?'#b4c8e1':'#fff0d8');renderer.toneMappingExposure=1.04-t*.18;host.dataset.appearance=value.theme;host.dataset.daylight=t.toFixed(3);invalidate();renderer.shadowMap.needsUpdate=true;}
  function applyLimits(){
   const close=activeView==='charger',robot=activeView==='vacuum'||activeView==='mower';controls.minDistance=close?.6:robot?.5:furnitureEditing?.7:6;controls.maxDistance=close?5:robot?12:300;
-  controls.minAzimuthAngle=close?Math.PI*.25:-Infinity;controls.maxAzimuthAngle=close?Math.PI*.75:Infinity;
-  controls.minPolarAngle=close?Math.PI/3:0;controls.maxPolarAngle=close?Math.PI/2+.15:Math.PI/2-.08;
+  const limit=robotOrbitLimits[activeView];if(limit){controls.minDistance=limit.minDistance;controls.maxDistance=limit.maxDistance;}controls.minAzimuthAngle=close?Math.PI*.25:limit?.minAzimuth??-Infinity;controls.maxAzimuthAngle=close?Math.PI*.75:limit?.maxAzimuth??Infinity;
+  controls.minPolarAngle=close?Math.PI/3:robot?.3:0;controls.maxPolarAngle=close?Math.PI/2+.15:Math.PI/2-.08;
  }
  function moveCamera(position,target){invalidate();
   overview=false;
@@ -103,7 +104,7 @@ const scene=new THREE.Scene();scene.background=null;
  function setView(view){
   if(view===activeView)return;robotAutoFrame=false;if(view!=='charger')setExterior(false);activeView=view;updateRobotLight();host.dataset.view=view;renderer.domElement.style.touchAction=view==='home'?'pan-y':'none';updateChargerFill(chargerFill,daylight,view==='charger');
   host.setAttribute('aria-label',view==='charger'?'3D-nærbillede af billader':view==='vacuum'?'3D-visning af Roborock og station':view==='mower'?'3D-visning af Yuka Mini 2 og station':'Interaktiv 3D-model af huset');
-  structure.setChargerView(view==='charger');structure.setCutaway(isFull?false:cutaway);exterior.setView({full:isFull,cutaway:isFull?false:cutaway});localLights.syncClipping();updateRoof();renderer.shadowMap.needsUpdate=true;
+  structure.setChargerView(view==='charger');structure.setCutaway(isFull||view==='vacuum'?false:cutaway);exterior.setView({full:isFull,cutaway:isFull||view==='vacuum'?false:cutaway});localLights.syncClipping();updateRoof();renderer.shadowMap.needsUpdate=true;
   if(view==='home'){home();togglePlan();updateRoof();controls.enabled=false;}else if(view==='charger')focusCharger();else if(view==='vacuum'||view==='mower')focusRobot(view);else{resize();const preview=perspective.clone(),framing=frameOverview(preview);moveCamera(preview.position,framing.target);overview=true;}
  }
  // Original level carport footprint and the two original end posts.
@@ -164,8 +165,8 @@ const scene=new THREE.Scene();scene.background=null;
  const pulseFrame=activeView==='charger'&&charging&&!motionPreference.matches;
  if(!frame&&(transition||pulseFrame))frame=requestAnimationFrame(animate);if(!dirty&&(!pulseFrame||now-lastDraw<33))return;dirty=false;lastDraw=now;
  host.dataset.renderCount=String(Number(host.dataset.renderCount||0)+1);
- host.dataset.houseLighting=JSON.stringify({ambient:ambient.intensity,sun:sun.intensity,sunColor:sun.color.getHex(),exposure:renderer.toneMappingExposure,cutaway:!isFull&&cutaway,full:isFull});
- host.dataset.cameraMode=isFull?'full':isPlan?'plan':'3d';host.dataset.cameraDistance=camera.position.distanceTo(controls.target).toFixed(3);
+ host.dataset.houseLighting=JSON.stringify({ambient:ambient.intensity,sun:sun.intensity,sunColor:sun.color.getHex(),exposure:renderer.toneMappingExposure,cutaway:!isFull&&cutaway&&activeView!=='vacuum',full:isFull});
+ host.dataset.cameraPose=JSON.stringify({position:camera.position.toArray(),target:controls.target.toArray(),enabled:controls.enabled});host.dataset.cameraMode=isFull?'full':isPlan?'plan':'3d';host.dataset.cameraDistance=camera.position.distanceTo(controls.target).toFixed(3);
  host.dataset.chargerPulse=charger.update(now/1000,charging,motionPreference.matches).toFixed(3);
  renderer.render(scene,camera);host.dataset.renderFinish='native';document.querySelector('#scene .loading')?.remove();
  const points={};for(const r of rooms){project.set(r.x+r.w/2,finishedFloor+.03,r.z+r.d/2).project(camera);points[r.id]=[(project.x+1)/2,(-project.y+1)/2];}host.dataset.roomPoints=JSON.stringify(points);

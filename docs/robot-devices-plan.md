@@ -1,13 +1,15 @@
 # Robotter i Engstien
 
-Implementeret 20. november 2026. Sider og HA-forbindelse er afprøvet mod en simuleret Home Assistant. Fysisk funktion og de præcise muligheder afventer opsætning af Green og tilføjelse af robotterne.
+Implementeret 20. november 2026, 3D-visninger rettet 21. november. Sider og HA-forbindelse er afprøvet mod en simuleret Home Assistant. Fysisk funktion og de præcise muligheder afventer opsætning af Green og tilføjelse af robotterne.
 
 ## Modeller og placering
 
 - **Sort Roborock Qrevo 5AE**, allerede i Roborock-appen. Den store tømnings-/vaskestation står ved væggen mellem stue og alrum, efter markeringen på plantegningen.
 - **Mammotion Yuka Mini 2 RTK Vision, 800 m²**, endnu ikke købt. [Brugerens produktlink](https://www.bauhaus.dk/mammotion-yuka-mini-2-rtk-vision-robotplaeneklipper-800-m). Stationen står på græs ved skuret med fronten væk fra indkørslen.
 
-Begge har eget menupunkt, mobilvisning og en kameraovergang til stationen i husets eksisterende 3D-model. Standardvisningen er et fotorealistisk nærbillede, genereret ud fra brugerens produktreference. Nærbillederne er mærket Visualisering. 3D og Kort kan vælges separat. Modellerne er proceduralt tegnede præsentationsmodeller; de er ikke producenternes CAD-filer. De viser stationernes placering, også når robotten arbejder. Der simuleres ikke en live position.
+Begge har eget menupunkt, mobilvisning og en kameraovergang til stationen i husets eksisterende 3D-model. Visningen bliver i samme interaktive 3D-scene efter overgangen, ligesom Billader. Musetræk og fingertræk roterer kameraet, og knibezoom og zoomknapper ændrer afstanden. Kameravinklerne holder sig på rummets eller havens side af væggen. Kort åbnes særskilt med fanen **Kort**; der bruges ingen stillbilleder som erstatning for 3D.
+
+Modellerne er proceduralt tegnede præsentationsmodeller baseret på produktreferencerne; de er ikke producenternes CAD-filer. De har afrundede kabinetter, fysiske detaljemodeller, overfladeteksturer og lokal belysning. Baggrunden er husets faktiske vægge, gulve, belægning og have. De viser stationernes placering, også når robotten arbejder. Der simuleres ikke en live position.
 
 ## Hvad siderne kan
 

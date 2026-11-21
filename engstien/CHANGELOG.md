@@ -1,3 +1,11 @@
+# 0.3.2
+
+- Robotternes kameraovergange bliver i den samme interaktive 3D-scene som huset og Billader; de statiske produktbilleder er fjernet.
+- Begge visninger kan roteres med mus og finger, zoomes med knibebevægelse og nulstilles. Kameravinkler holder sig foran den faktiske væg.
+- Ombyggede sorte Qrevo- og grå Yuka-modeller med afrundede former, profilerede overflader, kameraer, hjul og stationsdetaljer samt lokal belysning og skygger.
+- Baggrunden er husets eksisterende vægge, gulve og have. Støvsugeren står i stue/alrum; plæneklipperen står på græs ved skuret med fronten væk fra indkørslen.
+- Nye browserkontroller af musetræk, fingertræk, knibezoom og fortsat 3D efter kameraovergangen.
+
 # 0.3.1
 
 - Navigationen reserverer plads til brand, menu og bundtekst, også på lave skærme. Fulde robotnavne og aktiv markering holder sig inden for menuen.
