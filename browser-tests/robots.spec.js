@@ -58,7 +58,11 @@ test('Robot phone pages remain readable at 320–430 px, with five reachable nav
 });
 
 test('Robot selection during an unfinished camera morph cannot leave an old station or duplicate canvas',async({page})=>{
- await open(page);await readyScene(page);await page.emulateMedia({reducedMotion:'no-preference'});await page.getByRole('button',{name:'Robotplæneklipper',exact:true}).click();await expect(page.locator('#scene')).toHaveAttribute('data-camera-moving','true');await page.getByRole('button',{name:'Billader',exact:true}).click();await expect(page.locator('#scene')).toHaveAttribute('data-view','charger');await expect(page.locator('#scene')).toHaveAttribute('data-camera-moving','false');await expect(page.locator('#scene canvas')).toHaveCount(1);await expect(page.locator('.robot-panel')).toHaveCount(0);
+ await open(page);await readyScene(page);const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-view','vacuum');await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});await page.emulateMedia({reducedMotion:'no-preference'});
+ // Queue both navigations in one browser task, before the first flight can
+ // render. This exercises cancellation independently of software GPU speed.
+ const intermediate=await page.evaluate(()=>{document.querySelector('.nav[data-tab=mower]').click();const scene=document.querySelector('#scene'),value={view:scene.dataset.view,moving:scene.dataset.cameraMoving};document.querySelector('.nav[data-tab=car]').click();return value;});expect(intermediate).toEqual({view:'mower',moving:'true'});
+ await expect(scene).toHaveAttribute('data-view','charger');await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});await expect(page.locator('#scene canvas')).toHaveCount(1);await expect(page.locator('.robot-panel')).toHaveCount(0);
 });
 
 
@@ -67,8 +71,11 @@ test('An unconnected installation shows no invented battery or job and keeps bot
 });
 
 for(const kind of ['vacuum','mower'])test(`Robot morphs to ${kind} finish in a draggable 3D canvas that never swaps to a still image`,{tag:'@smoke'},async({page})=>{
- await open(page,kind==='vacuum'?'mower':'vacuum');await readyScene(page);const scene=page.locator('#scene'),canvas=scene.locator('canvas');await page.emulateMedia({reducedMotion:'no-preference'});
-  await page.getByRole('button',{name:kind==='vacuum'?'Robotstøvsuger':'Robotplæneklipper',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','true');await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(canvas).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);await expect(page.getByRole('button',{name:'Nærbillede',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Zoom ind',exact:true})).toBeVisible();
+ const initial=kind==='vacuum'?'mower':'vacuum';await open(page,initial);await readyScene(page);const scene=page.locator('#scene'),canvas=scene.locator('canvas');await expect(scene).toHaveAttribute('data-view',initial);await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});await page.emulateMedia({reducedMotion:'no-preference'});await expect.poll(()=>page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
+ // Record transient start state and actual camera positions throughout flight
+ // before clicking: a slow renderer may finish before click() returns.
+ await page.evaluate(()=>{const scene=document.querySelector('#scene');window.robotFlightStarted=false;window.robotFlightPositions=new Set();const sample=()=>{if(scene.dataset.cameraMoving==='true')window.robotFlightStarted=true;const pose=JSON.parse(scene.dataset.cameraPose);window.robotFlightPositions.add(JSON.stringify([...pose.position,...pose.target].map(n=>Math.round(n*1000)/1000)));};sample();window.robotFlightObserver=new MutationObserver(sample);window.robotFlightObserver.observe(scene,{attributes:true,attributeFilter:['data-camera-moving','data-camera-pose']});});
+  await page.getByRole('button',{name:kind==='vacuum'?'Robotstøvsuger':'Robotplæneklipper',exact:true}).click({noWaitAfter:true});await expect(scene).toHaveAttribute('data-view',kind);await expect(scene).toHaveAttribute('data-camera-moving','false',{timeout:25000});const flight=await page.evaluate(()=>{window.robotFlightObserver.disconnect();return {started:window.robotFlightStarted,positions:window.robotFlightPositions.size};});expect(flight.started).toBe(true);expect(flight.positions).toBeGreaterThanOrEqual(2);await expect(canvas).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);await expect(page.getByRole('button',{name:'Nærbillede',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Zoom ind',exact:true})).toBeVisible();
   // Crop the real compositor image directly: software WebGL may keep rendering
   // during damping, while an element screenshot waits for extra stable frames.
   const box=await canvas.boundingBox(),start=await scene.getAttribute('data-camera-pose'),before=await page.screenshot({clip:box});expect(await canvas.evaluate(el=>{const r=el.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===el;})).toBe(true);

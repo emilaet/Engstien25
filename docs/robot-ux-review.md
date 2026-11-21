@@ -35,4 +35,6 @@ Node-tests og målrettede browserkontroller med simuleret HA dækker fejl/tilgæ
 
 Kontrollerne omfatter også en simuleret lang forsinkelse mellem animationsbilleder, så kameraets betjening frigives uden at vente på otte billeder. Green-pakken valideres og bygges sammen med udgivelsen.
 
+Kameratesten registrerer start og faktiske kamerapositioner, inden navigationen sendes, så korte overgange kan verificeres uafhængigt af testmaskinens hastighed. Afbrydelsestesten sender to navigationer i samme browserhændelse for at sikre, at den første tur stadig er igang, når den anden starter.
+
 Resultat for materialeretningen: 207 Node-tests og 29 målrettede browserkontroller bestået. De syv kamera- og interaktionskontroller er bekræftet efter den sidste finpudsning af græssets overgang og detaljegrad. Den krypterede webversion har desuden bestået tre kontroller af adgang, indlejret fungerende 3D og mobilkonto-login. Build, Green-validering og lokal pakning er bestået.

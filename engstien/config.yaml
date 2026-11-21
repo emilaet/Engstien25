@@ -1,7 +1,7 @@
 name: Engstien 25
 version: "0.3.3"
 slug: engstien
-description: Dit hjem, rum og enheder samlet i et dansk dashboard.
+description: Dit hjem, rum og robotter samlet i et interaktivt dansk 3D-dashboard.
 url: https://github.com/emilaet/Engstien25
 arch:
   - aarch64
