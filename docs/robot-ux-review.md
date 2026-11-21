@@ -1,6 +1,6 @@
 # UX- og designgennemgang af robotsektionerne
 
-21. november 2026, version 0.3.4.
+21. november 2026, version 0.3.5.
 
 ## Retninger, der er gennemført
 
@@ -50,3 +50,8 @@ Power-CDN-linket kunne ikke hentes i udviklingsmiljøets netværksprofil (HTTP 4
 
 
 Kontrol af 0.3.4: 210 Node-tests samt 33 forskellige målrettede browserkontroller er bestået. Efter den sidste finpudsning er den tætte produktramme og den vandrette touchmenu kontrolleret igen. Tre kontroller af den krypterede webapp er bestået, inklusive adgang, indlejret fungerende 3D og mobilkonto-login. Green-konfiguration og lokal udgivelsespakke er valideret. Faktiske skærmbilleder fra webappens native renderer er gennemgået; ingen konceptbilleder bruges som erstatning for 3D-visningen.
+
+
+0.3.4 blev publiceret til Green og bestod alle 22 robot-/ingresskontroller dér. Webudgivelsen blev stoppet af to billedoptagelser efter træk, som på web-jobbets software-GPU overskred handlingers 10-sekunders grænse. 0.3.5 respekterer reduceret bevægelse også i OrbitControls-inertien og eksponerer, når kameraet faktisk er i ro. Billedkontrollen afventer dette og bruger en særskilt tidsgrænse for GPU-billedaflæsning; selve kamera-, input- og pixelkontrollerne bevares.
+
+Den efterfølgende lokale kontrol af 0.3.5 bestod alle 210 Node-tests og de fem berørte kamerakontroller: begge billedsammenligninger efter træk, animationens tidsgrænse, den tætte responsive ramme og fingertræk/knibezoom.

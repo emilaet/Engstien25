@@ -31,10 +31,12 @@ const scene=new THREE.Scene();scene.background=null;
  let camera=perspective,isPlan=false,activeView='rooms',transition=null,charging=true,overview=true,quality='standard';
  let landscape=null,outdoorDecor=null,parkedCar=null,outdoorPromise=null,outdoorRequest=0,latestState=null;
  let interacting=false,grassDetailPending=false;
- const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');motionPreference.addEventListener('change',()=>{invalidate();});
- const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.maxPolarAngle=Math.PI/2-.08;controls.minDistance=6;controls.maxDistance=50;controls.maxZoom=8;controls.minZoom=.5;controls.enablePan=true;
- controls.addEventListener('change',()=>{invalidate();});
- controls.addEventListener('start',()=>{overview=false;robotAutoFrame=false;interacting=true;grassDetailPending=false;landscape?.lawnDetail.update(activeView,'light',isFull);});
+ const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=!motionPreference.matches;controls.maxPolarAngle=Math.PI/2-.08;controls.minDistance=6;controls.maxDistance=50;controls.maxZoom=8;controls.minZoom=.5;controls.enablePan=true;
+ host.dataset.cameraDamping=String(controls.enableDamping);
+ motionPreference.addEventListener('change',()=>{controls.enableDamping=!motionPreference.matches;host.dataset.cameraDamping=String(controls.enableDamping);controls.update();invalidate();});
+ controls.addEventListener('change',()=>{host.dataset.cameraSettled='false';invalidate();});
+ controls.addEventListener('start',()=>{overview=false;robotAutoFrame=false;interacting=true;host.dataset.cameraSettled='false';grassDetailPending=false;landscape?.lawnDetail.update(activeView,'light',isFull);});
  controls.addEventListener('end',()=>{interacting=false;grassDetailPending=true;invalidate();});
  const home=()=>{invalidate();transition=null;overview=true;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=false;camera=perspective;perspective.fov=25;perspective.updateProjectionMatrix();controls.object=camera;controls.enableRotate=true;camera.position.set(22,27,29);controls.target.set(10,0,6.9);controls.minDistance=6;controls.maxDistance=180;controls.minAzimuthAngle=-Infinity;controls.maxAzimuthAngle=Infinity;controls.minPolarAngle=0;controls.maxPolarAngle=Math.PI/2-.08;controls.update();};home();
  const togglePlan=(force=false)=>{invalidate();transition=null;controls.enabled=true;host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');isPlan=force||!isPlan;if(!isPlan){home();return false;}camera=planCamera;controls.object=camera;controls.enableRotate=false;const target=framePlan(planCamera,perspective.aspect,{home:activeView==='home'});controls.target.copy(target);camera.position.copy(target).add(new THREE.Vector3(0,40,.001));camera.zoom=1;camera.updateProjectionMatrix();controls.update();return true;};
@@ -106,7 +108,7 @@ const scene=new THREE.Scene();scene.background=null;
    const distance=(planCamera.top-planCamera.bottom)/(2*planCamera.zoom*Math.tan(THREE.MathUtils.degToRad(perspective.fov/2)));
    perspective.position.copy(controls.target).addScaledVector(direction,distance);camera=perspective;controls.object=camera;isPlan=false;
   }
-  updateRoof();controls.enableDamping=false;controls.update();controls.enableDamping=true;controls.enabled=false;controls.enableRotate=true;
+  updateRoof();controls.enableDamping=false;controls.update();controls.enableDamping=!motionPreference.matches;controls.enabled=false;controls.enableRotate=true;
   transition={fromPosition:camera.position.clone(),fromTarget:controls.target.clone(),toPosition:position,toTarget:target,frames:0,started:performance.now(),duration:motionPreference.matches?0:1450};
   grassDetailPending=false;
   landscape?.lawnDetail.update(activeView,'light',isFull);
@@ -170,14 +172,14 @@ const scene=new THREE.Scene();scene.background=null;
  function resize(){invalidate();const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);perspective.aspect=w/h;perspective.fov=robotFieldOfView(activeView,w/h);perspective.updateProjectionMatrix();framePlan(planCamera,w/h,{home:activeView==='home'});fit();}new ResizeObserver(resize).observe(host);resize();
  function animate(now=performance.now()){
  frame=0;if(!sceneReady||contextLost||host.closest('[hidden]')||document.hidden)return;
- if(transition){invalidate();
+ if(transition){host.dataset.cameraSettled='false';invalidate();
   // A slow GPU still gets a visible start, then releases controls by the deadline.
   transition.frames++;
   const progress=cameraFlightProgress(now-transition.started,transition.duration,transition.frames);
   const eased=progress*progress*(3-2*progress);
   camera.position.lerpVectors(transition.fromPosition,transition.toPosition,eased);controls.target.lerpVectors(transition.fromTarget,transition.toTarget,eased);camera.lookAt(controls.target);
   if(progress===1){transition=null;controls.enabled=true;applyLimits();controls.update();host.dataset.cameraMoving='false';host.removeAttribute('aria-busy');if(robotAutoFrame)fit();landscape?.lawnDetail.update(activeView,quality,isFull);}
- }else{const moving=controls.update();if(grassDetailPending&&!interacting&&!moving){grassDetailPending=false;landscape?.lawnDetail.update(activeView,quality,isFull);invalidate();}}
+ }else{const moving=controls.update();host.dataset.cameraSettled=String(!moving&&!interacting);if(grassDetailPending&&!interacting&&!moving){grassDetailPending=false;landscape?.lawnDetail.update(activeView,quality,isFull);invalidate();}}
  const pulseFrame=activeView==='charger'&&charging&&!motionPreference.matches;
  if(!frame&&(transition||pulseFrame))frame=requestAnimationFrame(animate);if(!dirty&&(!pulseFrame||now-lastDraw<33))return;dirty=false;lastDraw=now;
  host.dataset.renderCount=String(Number(host.dataset.renderCount||0)+1);

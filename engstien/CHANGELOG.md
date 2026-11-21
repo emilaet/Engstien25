@@ -1,3 +1,9 @@
+# 0.3.5
+
+- Reduceret bevægelse gælder nu også kameraets inerti, så kameratræk stopper straks, når systemets indstilling er slået til.
+- Browserkontrollen venter på et reelt stillestående kamera før billedsammenligning efter træk. Rotation, billedændring, zoom og nulstilling verificeres fortsat.
+- Samler 0.3.4-forbedringerne af robotudsnit, produktgeometri, have og iPad-menu med den opdaterede kamerahåndtering på web og Green.
+
 # 0.3.4
 
 - Støvsugerens standardudsnit og nulstilling indrammer selve produktet tæt; planten er kun baggrund. Samme native 3D, rotation og knibezoom på telefon og iPad.

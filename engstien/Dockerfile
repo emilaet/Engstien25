@@ -1,5 +1,5 @@
 FROM node:24-bookworm-slim
-ARG ENGSTIEN_VERSION=0.3.4
+ARG ENGSTIEN_VERSION=0.3.5
 WORKDIR /app
 # The frontend is already compiled and tested by GitHub. Green only assembles
 # the small runtime image; no npm install or frontend build runs on the hub.
