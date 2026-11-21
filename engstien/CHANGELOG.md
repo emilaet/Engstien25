@@ -1,3 +1,12 @@
+# 0.3.3
+
+- Den godkendte materialeretning bygges i den interaktive 3D-scene: tæt, buet græs med en detaljeret bundoverflade samt planter med individuelle blade, bladårer og forgrenede stængler.
+- Stuekompositionen indrammer både støvsuger og plante, tilpasser synsvinklen til mobil og holder kameraet foran rummets vægge.
+- Glat, hul keramikkrukke med synlig jord og tredimensionelt substrat; finere træstruktur på skuret og tilpasset nærbelysning.
+- Græssets geometri tilpasses kvalitetsvalg og afstand; belægning, station og bygninger holdes fri for græsrødder.
+- Kameraovergange får en tidsgrænse, så langsomme enheder frigiver træk og zoom uden at vente på otte renderede billeder.
+- Ekstra kontrol af animerede robotvisninger efter et simuleret langt billedophold.
+
 # 0.3.2
 
 - Robotternes kameraovergange bliver i den samme interaktive 3D-scene som huset og Billader; de statiske produktbilleder er fjernet.

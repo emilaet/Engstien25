@@ -2,14 +2,15 @@ import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {finishedFloor} from './architecture.js';
 import {oakMaps,fabricMaps,softContactTexture} from './visual-materials.js';
+import {buildBotanicalPlant} from './botanical-plant.js';
 
 function grain(kind){
  const n=64,data=new Uint8Array(n*n*4);for(let y=0;y<n;y++)for(let x=0;x<n;x++){const seed=((x*73856093)^(y*19349663))>>>0;const noise=(seed%101)/100;const diamond=Math.abs(x%32-16)+Math.abs(y%32-16);const value=kind==='rug'?(Math.abs(diamond-16)<1.3?105:235+noise*15):kind==='wood'?224+Math.sin(x*.4+Math.sin(y*.09)*2)*8+noise*15:225+noise*30;const p=(y*n+x)*4;data[p]=data[p+1]=data[p+2]=value;data[p+3]=255;}
  const texture=new THREE.DataTexture(data,n,n);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(kind==='rug'?1:kind==='wood'?3:10,kind==='rug'?1:kind==='wood'?1:10);texture.needsUpdate=true;texture.colorSpace=THREE.SRGBColorSpace;return texture;
 }
-export function buildFurnishings(scene,snapshot){
+export function buildFurnishings(scene,snapshot,{leafAlbedo=null}={}){
  const root=new THREE.Group();root.name='home-furnishings';scene.add(root);let groups=new Map(),selected=null,visible=true;
- const wood=oakMaps(),fabric=fabricMaps(),contact=softContactTexture();const textures={wood:wood.map,fabric:fabric.map,rug:grain('rug')},materials=new Map(),geometries=new Map();let resourceId=0;
+ const wood=oakMaps(),fabric=fabricMaps(),contact=softContactTexture();const textures={wood:wood.map,fabric:fabric.map,rug:grain('rug')},materials=new Map(),geometries=new Map(),plantTextures=new Set();let resourceId=0;
  const mat=(color,type='fabric')=>{const key=color+type;if(!materials.has(key))materials.set(key,new THREE.MeshStandardMaterial({color,roughness:type==='steel'?.24:type==='mirror'?.07:type==='ceramic'?.22:type==='stone'?.62:.9,metalness:type==='steel'?.45:type==='mirror'?.15:0,emissive:type==='mirror'?'#b7c7bf':'#000000',emissiveIntensity:type==='mirror'?.12:0,map:textures[type]||null,bumpMap:type==='wood'?wood.bumpMap:type==='fabric'?fabric.bumpMap:null,bumpScale:type==='wood'?.003:.009,roughnessMap:type==='wood'?wood.roughnessMap:null}));return materials.get(key);};
  const oak=()=>mat('#c7ae84','wood'),cream=()=>mat('#eee9df'),steel=()=>mat('#a8aca7','steel'),dark=()=>mat('#343b37'),stone=()=>mat('#e2d8c2','stone'),white=()=>mat('#eeeee7','ceramic');
  function mesh(group,geometry,material,x,y,z){const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m;}
@@ -27,7 +28,7 @@ export function buildFurnishings(scene,snapshot){
  function ribbedBase(g,w,d,h,z,m){rounded(g,w,h,d,0,h/2,z,m,.08);const count=12;for(let k=0;k<count;k++){const x=-w/2+.03+k*(w-.06)/(count-1);rounded(g,.018,h*.96,.015,x,h/2,z+d/2+.006,m,.005);rounded(g,.018,h*.96,.015,x,h/2,z-d/2-.006,m,.005);}}
  function dining(g,i){const w=i.width,d=i.depth,h=i.height,m=mat(i.color,i.material);rounded(g,w,.045,d,0,h-.022,0,mat('#dbc6a5','wood'),.11);for(const z of [-d*.28,d*.28])ribbedBase(g,w*.66,.34,h-.06,z,m);for(const x of [-1,1])for(let n=0;n<3;n++)chair(g,x*(w/2+.32),(n-1)*d*.31,x<0?-Math.PI/2:Math.PI/2);}
  function coffee(g,i){const m=mat(i.color,i.material);rounded(g,i.width,.055,i.depth,0,i.height-.027,0,m,.16);rounded(g,i.width*.62,i.height-.06,i.depth*.62,0,(i.height-.06)/2,0,m,.12);}
- function plant(g,i){cylinder(g,.17,.32,0,.16,0,mat(i.color,'stone'),.21);const green=mat('#748464');for(let k=0;k<9;k++){const angle=k*2.4,y=.4+(k%4)*.12,x=Math.sin(angle)*.17,z=Math.cos(angle)*.17;const leaf=mesh(g,new THREE.SphereGeometry(.16,7,5),green,x,y,z);geometries.set('leaf-'+resourceId++,leaf.geometry);leaf.scale.set(.7,1.5,.6);leaf.rotation.z=Math.sin(angle)*.5;}}
+ function plant(g,i){const built=buildBotanicalPlant(i,{leafAlbedo});g.add(built.root);for(const t of built.textures)plantTextures.add(t);built.root.traverse(o=>{if(o.geometry)geometries.set('plant-'+resourceId++,o.geometry);if(o.material)materials.set('plant-'+resourceId++,o.material);});}
  function cabinet(g,i,columns=3,includeTop=true,front=1){
   const m=mat(i.color,i.material),w=i.width,d=i.depth,h=i.height,plinth=Math.min(.166,h*.19),top=h-.03,bodyH=top-plinth;
   box(g,w-.06,plinth,d-.05,0,plinth/2,0,mat('#9c8b72','wood'));
@@ -106,7 +107,7 @@ export function buildFurnishings(scene,snapshot){
  function model(g,i){switch(i.type){case 'sofa':sofa(g,i);break;case 'armchair':sofa(g,{...i,width:i.width});break;case 'bed':bed(g,i);break;case 'childBed':bed(g,i,true);break;case 'coffee':coffee(g,i);break;case 'dining':dining(g,i);break;case 'plant':plant(g,i);break;case 'rug':rounded(g,i.width,i.height,i.depth,0,i.height/2,0,mat(i.color,['v1','v2'].includes(i.room)?'rug':'fabric'),.04);break;case 'bedside':cabinet(g,i,1);break;case 'wardrobe':wardrobe(g,i);break;case 'slidingWardrobe':slidingWardrobe(g,i);break;case 'entryBench':entryBench(g,i);break;case 'entryConsole':entryConsole(g,i);break;case 'childBench':childBench(g,i);break;case 'shelf':shelf(g,i);break;case 'toyStorage':shelf(g,i,true);break;case 'vanity':vanity(g,i);break;case 'toilet':toilet(g,i);break;case 'shower':shower(g,i);break;case 'desk':desk(g,i);break;case 'kitchenRear':case 'kitchenIsland':case 'kitchenTowers':kitchen(g,i);break;case 'console':cabinet(g,{...i,height:.46},4);box(g,i.width*.66,.69,.035,0,.90,-.12,dark());break;case 'utility':utility(g,i);break;}}
  function disposeGeometry(){for(const geometry of geometries.values())geometry.dispose();geometries.clear();}
  let previous=new Map();
- function pruneResources(){const usedGeometries=new Set(),usedMaterials=new Set();root.traverse(mesh=>{if(mesh.geometry)usedGeometries.add(mesh.geometry);if(mesh.material)usedMaterials.add(mesh.baseMaterial||mesh.material);});for(const [key,g]of geometries)if(!usedGeometries.has(g)){g.dispose();geometries.delete(key);}for(const [key,m]of materials)if(!usedMaterials.has(m)){m.dispose();materials.delete(key);}}
+ function pruneResources(){const usedGeometries=new Set(),usedMaterials=new Set(),usedTextures=new Set();root.traverse(mesh=>{if(mesh.geometry)usedGeometries.add(mesh.geometry);if(mesh.material)usedMaterials.add(mesh.baseMaterial||mesh.material);});for(const m of usedMaterials)for(const value of Object.values(m))if(value?.isTexture)usedTextures.add(value);for(const [key,g]of geometries)if(!usedGeometries.has(g)){g.dispose();geometries.delete(key);}for(const [key,m]of materials)if(!usedMaterials.has(m)){m.dispose();materials.delete(key);}for(const t of plantTextures)if(!usedTextures.has(t)){t.dispose();plantTextures.delete(t);}}
  function setSnapshot(value){visible=value.visible;root.visible=visible;const changes=[],next=new Map(value.items.map(i=>[i.id,structuredClone(i)]));
   for(const [id,g]of groups)if(!next.has(id)){g.removeFromParent();groups.delete(id);changes.push(id);}
   for(const i of value.items){const before=previous.get(i.id),existing=groups.get(i.id),shape=item=>JSON.stringify(Object.fromEntries(Object.entries(item).filter(([k])=>!['x','z','rotation','visible','name','image','imageScale'].includes(k))));
@@ -118,5 +119,5 @@ export function buildFurnishings(scene,snapshot){
  }
  function select(id){selected=id;for(const [key,g]of groups)g.getObjectByName('selection').visible=key===id;}
  setSnapshot(snapshot);
- return {root,setSnapshot,select,get(id){return groups.get(id);},get visible(){return visible;},setVisible(value){visible=value;root.visible=value;},dispose(){disposeGeometry();for(const material of materials.values())material.dispose();new Set([...Object.values(textures),...Object.values(wood),...Object.values(fabric),contact]).forEach(t=>t.dispose());root.removeFromParent();}};
+ return {root,setSnapshot,select,get(id){return groups.get(id);},get visible(){return visible;},setVisible(value){visible=value;root.visible=value;},dispose(){disposeGeometry();for(const material of materials.values())material.dispose();new Set([...Object.values(textures),...Object.values(wood),...Object.values(fabric),...plantTextures,contact]).forEach(t=>t.dispose());root.removeFromParent();}};
 }

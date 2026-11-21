@@ -21,9 +21,9 @@ export function outdoorPavingMaterial(){
  const bumpMap=pixels(512,(x,z)=>joint(x,z)?72:170+(hash(x,z,97)-.5)*19,{color:false});
  paving=new THREE.MeshStandardMaterial({color:'#f1eee5',map,bumpMap,bumpScale:.004,roughness:.91});paving.name='warm-grey-outdoor-pavers';return paving;
 }
-export function outdoorGrassMaterial(bounds,outline){
+export function outdoorGrassMaterial(bounds,outline,{albedo=null}={}){
  const {minX,maxX,minZ,maxZ}=bounds,w=maxX-minX,d=maxZ-minZ;
- const map=pixels(512,(ix,iz)=>{
+ const map=albedo?.clone()||pixels(512,(ix,iz)=>{
   const x=minX+ix/511*w,z=minZ+iz/511*d;
   const broad=Math.sin(x*1.7+Math.sin(z*.9))*3+Math.cos(z*1.4+x*.2)*3;
   const fine=(hash(ix,iz,41)-.5)*20+Math.sin(x*74+z*43)*2;
@@ -38,6 +38,11 @@ export function outdoorGrassMaterial(bounds,outline){
   }
   return 255*Math.min(1,distance/.65);
  },{color:false});
- for(const texture of [map,alphaMap])texture.wrapS=texture.wrapT=THREE.ClampToEdgeWrapping;
- const material=new THREE.MeshStandardMaterial({color:'#fff',map,alphaMap,transparent:true,depthWrite:false,roughness:1});material.name='muted-finite-lawn';return material;
+ alphaMap.wrapS=alphaMap.wrapT=THREE.ClampToEdgeWrapping;
+ let bumpMap=null;
+ if(albedo){
+  map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(w/.65,d/.65);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=8;map.needsUpdate=true;
+  if(typeof document!=='undefined'){const c=document.createElement('canvas');c.width=c.height=256;const ctx=c.getContext('2d');ctx.drawImage(albedo.image,0,0,256,256);const data=ctx.getImageData(0,0,256,256).data;bumpMap=pixels(256,(x,z)=>{const p=(z*256+x)*4;return data[p]*.25+data[p+1]*.65+data[p+2]*.1;},{color:false});bumpMap.repeat.copy(map.repeat);bumpMap.anisotropy=8;}
+ }else map.wrapS=map.wrapT=THREE.ClampToEdgeWrapping;
+ const material=new THREE.MeshStandardMaterial({color:albedo?'#e2e4cf':'#fff',map,bumpMap,bumpScale:.005,alphaMap,transparent:true,depthWrite:false,roughness:.96});material.name='muted-finite-lawn';return material;
 }

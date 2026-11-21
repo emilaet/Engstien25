@@ -33,10 +33,11 @@ export function floorMaterial(tile=false){
  return new THREE.MeshStandardMaterial({color:'#e0c397',...oakMaps({floor:true}),bumpScale:.0035,roughness:.68,metalness:0});
 }
 export function blackTimberMaterial(){
- const map=texture(256,(u,v,x,y)=>{const bow=Math.sin(v*9)*.03+Math.sin(v*31)*.006;return 218+Math.sin((u+bow)*190)*8+Math.sin((u+bow)*420)*4+(noise(x,y)-.5)*9;});
- const bump=texture(256,(u,v,x,y)=>130+Math.sin((u+Math.sin(v*9)*.03)*190)*17+(noise(x,y)-.5)*15,{color:false});
+ const grain=(u,v,x,y)=>{const bow=Math.sin(v*9)*.009+Math.sin(v*31)*.003;return Math.sin((u+bow)*67)*10+Math.sin((u+bow)*183)*3+(noise(x,y)-.5)*10;};
+ const map=texture(512,(u,v,x,y)=>224+grain(u,v,x,y));
+ const bump=texture(512,(u,v,x,y)=>128+grain(u,v,x,y)*2,{color:false});
  map.repeat.set(2,1);bump.repeat.set(2,1);
- return new THREE.MeshStandardMaterial({color:'#272b29',map,bumpMap:bump,bumpScale:.008,roughness:.82,metalness:.04});
+ return new THREE.MeshStandardMaterial({color:'#30312c',map,bumpMap:bump,bumpScale:.0025,roughness:.86,metalness:.02});
 }
 export function gravelMaterial(){return new THREE.MeshStandardMaterial({color:'#79766c',roughness:1,map:texture(256,(u,v,x,y)=>{const a=noise(x>>2,y>>2,7),b=noise(x,y,9);return 110+a*110+b*30;}),bumpScale:.01});}
 export function softContactTexture(){

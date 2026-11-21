@@ -46,7 +46,7 @@ export function buildStructure(scene){
     const count=Math.max(0,Math.ceil(along/.13)),height=topA-section.bottom;
     const boards=new THREE.InstancedMesh(new THREE.BoxGeometry(w.axis==='x'?.122:w.thickness+.018,height,w.axis==='x'?w.thickness+.018:.122),shedMaterial,count),transform=new THREE.Object3D();
     boards.name='cladding:'+w.id;boards.castShadow=true;boards.receiveShadow=true;boards.userData={kind:'wall',wall:w.id};
-    for(let i=0;i<count;i++){const width=Math.min(.122,along-i*.13),t=i*.13+width/2;transform.position.set(a[0]+(w.axis==='x'?t:0),finishedFloor+section.bottom+height/2,a[1]+(w.axis==='z'?t:0));transform.scale.set(w.axis==='x'?width/.122:1,1,w.axis==='z'?width/.122:1);transform.updateMatrix();boards.setMatrixAt(i,transform.matrix);}group.add(boards);
+    for(let i=0;i<count;i++){const width=Math.min(.122,along-i*.13),t=i*.13+width/2;transform.position.set(a[0]+(w.axis==='x'?t:0),finishedFloor+section.bottom+height/2,a[1]+(w.axis==='z'?t:0));transform.scale.set(w.axis==='x'?width/.122:1,1,w.axis==='z'?width/.122:1);transform.updateMatrix();boards.setMatrixAt(i,transform.matrix);const tone=.85+((Math.imul(i+w.id.length+1,16807)>>>0)%101)/100*.17;boards.setColorAt(i,new THREE.Color(tone,tone*.99,tone*.97));}group.add(boards);
    }
    const cut=cutHeight(w.id);if(w.scope!=='outbuilding'&&section.bottom<cut&&Math.min(topA,topB)>cut){
     const cap=box(group,(a[0]+b[0])/2,finishedFloor+cut,(a[1]+b[1])/2,w.axis==='x'?along:w.thickness,.008,w.axis==='x'?w.thickness:along,capMaterial,`cut-cap:${w.id}`);cutCaps.push(cap);

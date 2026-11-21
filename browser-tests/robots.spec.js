@@ -69,10 +69,31 @@ test('An unconnected installation shows no invented battery or job and keeps bot
 for(const kind of ['vacuum','mower'])test(`Robot morphs to ${kind} finish in a draggable 3D canvas that never swaps to a still image`,{tag:'@smoke'},async({page})=>{
  await open(page,kind==='vacuum'?'mower':'vacuum');await readyScene(page);const scene=page.locator('#scene'),canvas=scene.locator('canvas');await page.emulateMedia({reducedMotion:'no-preference'});
   await page.getByRole('button',{name:kind==='vacuum'?'Robotstøvsuger':'Robotplæneklipper',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','true');await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(canvas).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);await expect(page.getByRole('button',{name:'Nærbillede',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Zoom ind',exact:true})).toBeVisible();
-  const box=await canvas.boundingBox(),start=await scene.getAttribute('data-camera-pose'),before=await canvas.screenshot();expect(await canvas.evaluate(el=>{const r=el.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===el;})).toBe(true);
-  await page.mouse.move(box.x+box.width*.5,box.y+box.height*.6);await page.mouse.down();await page.mouse.move(box.x+box.width*.5+75,box.y+box.height*.6-18,{steps:10});await page.mouse.up();await expect.poll(()=>scene.getAttribute('data-camera-pose')).not.toBe(start);await page.waitForTimeout(1000);const after=await canvas.screenshot();expect(before.equals(after)).toBe(false);await expect(canvas).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);
+  // Crop the real compositor image directly: software WebGL may keep rendering
+  // during damping, while an element screenshot waits for extra stable frames.
+  const box=await canvas.boundingBox(),start=await scene.getAttribute('data-camera-pose'),before=await page.screenshot({clip:box});expect(await canvas.evaluate(el=>{const r=el.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===el;})).toBe(true);
+  await page.mouse.move(box.x+box.width*.5,box.y+box.height*.6);await page.mouse.down();await page.mouse.move(box.x+box.width*.5+75,box.y+box.height*.6-18,{steps:10});await page.mouse.up();await expect.poll(()=>scene.getAttribute('data-camera-pose')).not.toBe(start);await page.waitForTimeout(1000);const after=await page.screenshot({clip:box});expect(before.equals(after)).toBe(false);await expect(canvas).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);
   const distance=Number(await scene.getAttribute('data-camera-distance'));await page.getByRole('button',{name:'Zoom ind',exact:true}).click();await expect.poll(async()=>Number(await scene.getAttribute('data-camera-distance'))).toBeLessThan(distance-.01);await page.getByRole('button',{name:'Nulstil visning',exact:true}).click();await expect(scene).toHaveAttribute('data-camera-moving','false');
  expect(posts).toEqual([]);
+});
+
+test('A stalled animation clock releases the camera after visible 3D travel instead of waiting for eight frames',async({page})=>{
+ await open(page);await readyScene(page);const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-view','vacuum');await expect(scene).toHaveAttribute('data-camera-moving','false');await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.evaluate(()=>{
+  window.robotOriginalRaf=window.requestAnimationFrame;
+  window.requestAnimationFrame=callback=>window.robotOriginalRaf(now=>callback(now+60000));
+  window.robotStallStart=Number(document.querySelector('#scene').dataset.renderCount);
+  document.querySelector('.nav[data-tab=mower]').click();
+ });
+ await expect(scene).toHaveAttribute('data-view','mower');await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(scene).not.toHaveAttribute('aria-busy','true');
+ const frames=await scene.evaluate(el=>Number(el.dataset.renderCount)-window.robotStallStart);expect(frames).toBeGreaterThanOrEqual(2);expect(frames).toBeLessThanOrEqual(4);expect(JSON.parse(await scene.getAttribute('data-camera-pose')).enabled).toBe(true);await expect(page.locator('.model-card img:visible')).toHaveCount(0);expect(posts).toEqual([]);
+ await page.evaluate(()=>{window.requestAnimationFrame=window.robotOriginalRaf;});
+});
+
+test('Approved native plant and lawn detail stay visible in responsive robot compositions',{tag:'@smoke'},async({page})=>{
+ await open(page);await readyScene(page);const scene=page.locator('#scene');await expect(scene).toHaveAttribute('data-plant-detail','curved-veined-leaves');await expect(scene).toHaveAttribute('data-robot-composition','station-and-plant');
+ for(const width of [1440,390,320]){await page.setViewportSize({width,height:width===1440?1000:844});await expect.poll(()=>scene.evaluate(el=>Math.abs(el.getBoundingClientRect().width-el.querySelector('canvas').width/devicePixelRatio)<2)).toBe(true);await expect.poll(async()=>JSON.parse(await scene.getAttribute('data-camera-pose')).position[2]).toBeGreaterThan(3.4);await expect.poll(async()=>Number(await scene.getAttribute('data-camera-fov'))).toBeGreaterThan(37.9);expect(Number(await scene.getAttribute('data-robot-extent'))).toBeLessThan(.83);await expect(scene.locator('canvas')).toBeVisible();await expect(page.locator('.model-card img:visible')).toHaveCount(0);}
+ await page.getByRole('button',{name:'Robotplæneklipper',exact:true}).click();await expect(scene).toHaveAttribute('data-view','mower');await expect(scene).toHaveAttribute('data-camera-moving','false');await expect(scene).toHaveAttribute('data-camera-fov','25');await expect(scene).toHaveAttribute('data-lawn-detail','curved-3d-blades');await expect(page.locator('.model-card img:visible')).toHaveCount(0);expect(posts).toEqual([]);
 });
 
 test('Both robot views support real one-finger rotation and two-finger pinch zoom on a phone',async({page})=>{

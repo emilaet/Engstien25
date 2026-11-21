@@ -3,6 +3,7 @@ import {gravelMaterial} from './visual-materials.js';
 import {buildOutdoorWallLights} from './outdoor-wall-lights.js';
 import {outdoorY,terracePolygons,plantingBeds,plotOutline,driveway as approach,approachHeight,lawnHeight,insidePolygon} from './outdoor-layout.js';
 import {outdoorGrassMaterial,outdoorPavingMaterial} from './outdoor-materials.js';
+import {buildLawnDetail} from './lawn-detail.js';
 
 function polygonMesh(polygon,height,material,name,{depth=0,uvScale=2.4}={}){
  const points=polygon.map(([x,z])=>new THREE.Vector2(x,z)),clockwise=THREE.ShapeUtils.isClockWise(points),triangles=THREE.ShapeUtils.triangulateShape(points,[]),positions=[],uv=[],indices=[];
@@ -22,7 +23,7 @@ function clipped(polygon,axis,value,keepGreater){
   if(insideA!==insideB){const t=(value-a[axis])/(b[axis]-a[axis]);out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
  }return out;
 }
-function lawnMesh(bounds){
+function lawnMesh(bounds,lawnMaterials){
  const {minX,maxX,minZ,maxZ}=bounds,xs=[minX,maxX,approach.startX];for(let x=minX+1;x<maxX;x++)xs.push(x);xs.sort((a,b)=>a-b);
  const positions=[],uv=[];
  for(let ix=0;ix<xs.length-1;ix++)for(let z=minZ;z<maxZ;z+=1){
@@ -30,7 +31,7 @@ function lawnMesh(bounds){
   for(let i=1;i<cell.length-1;i++)for(const p of [cell[0],cell[i+1],cell[i]]){positions.push(p[0],lawnHeight(p[0]),p[1]);uv.push((p[0]-minX)/(maxX-minX),(p[1]-minZ)/(maxZ-minZ));}
  }
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.computeVertexNormals();
- const mesh=new THREE.Mesh(geometry,outdoorGrassMaterial(bounds,plotOutline));mesh.name='landscape-lawn';mesh.receiveShadow=true;return mesh;
+ const mesh=new THREE.Mesh(geometry,outdoorGrassMaterial(bounds,plotOutline,lawnMaterials));mesh.name='landscape-lawn';mesh.receiveShadow=true;return mesh;
 }
 function curvedBlade(){
  const positions=[],uv=[],indices=[];
@@ -40,11 +41,11 @@ function curvedBlade(){
 
 // Finite plot, connected stone terraces and measured driveway grade. All geometry
 // remains separate from the traced architecture and editable indoor furniture.
-export function buildLandscape(scene){
+export function buildLandscape(scene,lawnMaterials){
  const root=new THREE.Group();root.name='landscape';scene.add(root);
  const outdoorRoot=new THREE.Group();outdoorRoot.name='landscape-outdoor';root.add(outdoorRoot);
  const bounds={minX:Math.min(...plotOutline.map(p=>p[0])),maxX:Math.max(...plotOutline.map(p=>p[0])),minZ:Math.min(...plotOutline.map(p=>p[1])),maxZ:Math.max(...plotOutline.map(p=>p[1]))};
- const terrain=lawnMesh(bounds);outdoorRoot.add(terrain);
+ const terrain=lawnMesh(bounds,lawnMaterials);outdoorRoot.add(terrain);const lawnDetail=buildLawnDetail(outdoorRoot);
  const stone=outdoorPavingMaterial();
  const terraces=terracePolygons.map((polygon,i)=>polygonMesh(polygon,()=>outdoorY,stone,['west-terrace','garden-walk','main-terrace'][i],{depth:.075}));root.add(...terraces);
  const driveway=polygonMesh([[approach.startX,approach.minZ],[approach.endX,approach.minZ],[approach.endX,approach.maxZ],[approach.startX,approach.maxZ]],approachHeight,stone,'driveway-slope',{depth:.075});root.add(driveway);
@@ -97,5 +98,5 @@ export function buildLandscape(scene){
  }
  stems.count=stemCount;crowns.count=crownCount;stems.castShadow=crowns.castShadow=true;stems.receiveShadow=crowns.receiveShadow=true;trees.add(stems,crowns);
  const wallLights=buildOutdoorWallLights(outdoorRoot);
- return {root,outdoorRoot,terraces,driveway,terrain,planting,trees,fixtures:wallLights.root,pavingMaterial:stone,setCutaway:wallLights.setCutaway,update:wallLights.update};
+ return {root,outdoorRoot,terraces,driveway,terrain,lawnDetail,planting,trees,fixtures:wallLights.root,pavingMaterial:stone,setCutaway:wallLights.setCutaway,update:wallLights.update};
 }

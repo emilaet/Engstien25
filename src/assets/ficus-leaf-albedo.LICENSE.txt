@@ -1,0 +1,7 @@
+Engstien ficus leaf albedo
+
+Original image generated with OpenAI image generation on 21 November 2026 for
+the approved Engstien plant material direction. It is applied to curved leaf
+geometry, not used as a replacement image for the interactive scene.
+
+Source: /workspace/generated_images/exec-024db557-67d7-4980-b3f5-839f8d721d13.png

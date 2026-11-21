@@ -15,7 +15,7 @@ export function buildRobotLighting(scene){
   target.position.fromArray(p.target);
   const front=new THREE.Vector3(0,0,1).applyAxisAngle(new THREE.Vector3(0,1,0),p.rotation),side=new THREE.Vector3(front.z,0,-front.x);
   key.position.copy(target.position).addScaledVector(front,.95).addScaledVector(side,-.65).add(new THREE.Vector3(0,1.05,0));
-  fill.position.copy(target.position).addScaledVector(front,.65).addScaledVector(side,.8).add(new THREE.Vector3(0,.50,0));
+  fill.position.copy(target.position).addScaledVector(front,p===robotPlacement.vacuum?1.3:.65).addScaledVector(side,p===robotPlacement.vacuum?1.0:.8).add(new THREE.Vector3(0,p===robotPlacement.vacuum?1.35:.50,0));
   key.shadow.needsUpdate=true;
  }};
 }
