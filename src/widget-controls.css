@@ -1,6 +1,6 @@
 /* A quiet visual mark with a generous touch target. */
 .dashboard-widget{position:relative}
-.widget-options{position:absolute;z-index:6;right:8px;top:8px;width:44px;height:44px;min-height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);opacity:.65;cursor:pointer}
+.widget-options{position:absolute;z-index:6;right:8px;top:8px;width:44px;height:44px;min-height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);opacity:var(--widget-options-opacity,.75);cursor:pointer}
 .widget-options svg{width:16px;height:16px;fill:currentColor;stroke:none}
 .widget-options:hover,.widget-options[aria-expanded=true]{opacity:1;background:var(--soft)}
 .widget-options:focus-visible{opacity:1;outline:2px solid var(--amber);outline-offset:1px}
@@ -26,7 +26,7 @@
 .wc-check input{width:21px;height:21px;accent-color:var(--primary);flex:none}
 .wc-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap}
 .wc-actions button,.wc-more,.wc-connection button,.settings-widgets button{min-height:44px;padding:10px 14px;border:1px solid var(--border);border-radius:11px;color:var(--text);background:var(--soft);font:inherit;font-size:13px}
-.wc-actions .primary{background:var(--primary);color:var(--primary-text,#fff)}
+.wc-actions .primary{background:var(--primary);color:var(--on-primary)}
 .wc-help,.wc-connection p{margin:0;font-size:12px;line-height:1.65;color:var(--muted)}
 .wc-message:empty{display:none}
 .wc-connection{border-top:1px solid var(--border);padding-top:18px;display:grid;gap:13px}
@@ -46,7 +46,7 @@
 .full-list-add{display:flex;gap:10px;align-items:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 .full-list-add label{flex:1;min-width:0;font-size:12px;display:grid;gap:6px}
 .full-list-add input{width:100%;min-width:0;min-height:46px;font:inherit;font-size:16px;background:var(--soft);color:var(--text);border:1px solid var(--border);border-radius:11px;padding:10px}
-.full-list-add button{min-height:46px;padding:10px 14px;background:var(--primary);color:var(--primary-text,#fff);border-radius:11px}
+.full-list-add button{min-height:46px;padding:10px 14px;background:var(--primary);color:var(--on-primary);border-radius:11px}
 .wc-no-artwork .music-cover,.wc-no-timeline .music-timeline,.wc-no-power .home-car-meta>span:first-child,.wc-no-remaining .home-car-meta>span:last-child,.wc-no-waste-icons .waste-icons,.wc-no-details .hw-event-detail{display:none!important}
 /* Prices use colour and written prices; negative prices extend below zero. */
 .electricity-card{display:flex;flex-direction:column;gap:6px;padding:16px;min-width:0;overflow:hidden;background:linear-gradient(145deg,var(--surface),var(--soft))}

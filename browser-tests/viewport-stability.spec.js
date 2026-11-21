@@ -1,6 +1,8 @@
 import {test,expect} from './fixtures.js';
+import {defaultLayout} from '../src/dashboard-layout.js';
 
-test('Desktop checkmarks and phone Notes updates keep the page, cards and both list scroll positions fixed',async({page})=>{
+test('Non-briefing desktop checkmarks and phone Notes updates keep the page, cards and both list scroll positions fixed',async({page})=>{
+ await page.addInitScript(layout=>localStorage.setItem('engstien-home-layout-v3',JSON.stringify(layout)),defaultLayout().map(w=>['tasks','shopping'].includes(w.id)?{...w,mobileWidth:12,mobileHeightPx:420,mobileVisible:true}:w));
  for(const [width,height] of [[1194,834],[390,844]]){
   await page.setViewportSize({width,height});await page.goto('/');
   await expect(page.locator('.tasks-card input[type=checkbox]').first()).toBeVisible();
@@ -8,7 +10,7 @@ test('Desktop checkmarks and phone Notes updates keep the page, cards and both l
   const importNotes=()=>page.getByLabel('Indlæs eksport fra Apple Noter').setInputFiles({name:'noter.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(notes))});
   if(width<760){await importNotes();await expect(page.locator('.tasks-card')).toContainText('Pak tasken');}
   for(const key of ['tasks','shopping']){
-   const checkbox=page.locator(`.${key}-card input[type=checkbox]:not(:checked)`).first();
+   const checkbox=key==='tasks'&&width>=760?page.locator('input[data-item=task-3]'):page.locator(`.${key}-card input[type=checkbox]:not(:checked)`).first();
    await checkbox.scrollIntoViewIfNeeded();
    const before=await page.evaluate(()=>({y:scrollY,lists:[...document.querySelectorAll('.family-list')].map(el=>el.scrollTop),cards:[...document.querySelectorAll('.family-card')].map(el=>el.getBoundingClientRect().top)}));
    const id=await checkbox.getAttribute('data-item');

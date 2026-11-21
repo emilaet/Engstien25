@@ -119,6 +119,7 @@
  .rail{width:100%;padding-inline:16px}
  :root main{margin-left:0}
  .rail nav .nav{width:auto;min-width:44px}
- .rail nav .nav small{font-size:10px;line-height:13px;letter-spacing:0}
+ .rail nav .nav small{font-size:12px;line-height:16px;letter-spacing:0}
+ .rail nav .nav .robot-nav-name{font-size:10px;line-height:13px}
  .rail nav .nav .robot-nav-name>span{white-space:nowrap}
 }

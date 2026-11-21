@@ -46,3 +46,7 @@
 @container widget (width < 200px){.music-player-card .music-playing-indicator{display:none}.music-player-card .music-now{gap:6px}.music-player-card .music-cover{width:30px;height:30px;min-width:30px}.music-player-card .music-track strong{font-size:13px}.music-player-card .music-track>span{font-size:11px}.music-player-card .music-timeline{gap:3px;font-size:9px}.music-player-card .hw-head h2>button>svg{display:none}}
 @container widget (height > 300px) and (width > 200px){.music-player-card .music-now{flex-direction:column;justify-content:center;text-align:center;gap:14px}.music-player-card .music-cover{width:min(150px,60cqw);height:min(150px,60cqw)}.music-player-card .music-track{flex:none;width:100%}.music-player-card .music-playing-indicator{display:none}.music-player-card .music-timeline{min-height:32px}.music-player-card .music-timeline input{height:32px}}
 @media(max-width:500px){.music-full-body{padding:0 14px 20px}.music-accounts-body{padding:0 12px}.music-provider-options{gap:6px}.music-provider-options button{font-size:13px}.music-full-dialog .hw-dialog-head,.music-accounts-dialog .hw-dialog-head{position:sticky;top:0;background:var(--surface);z-index:1}}
+
+/* Small transports prioritise the track and playback controls; account/status
+   details remain available from the header and full player. */
+@container widget (height < 220px){.music-player-card .music-state{display:none}}

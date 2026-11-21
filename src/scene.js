@@ -72,7 +72,7 @@ const scene=new THREE.Scene();scene.background=null;
  // A camera presentation light makes black-on-black detail readable in close-up.
  const chargerFill=buildChargerFill(scene,charger.root);
  await nextPaint();
- const {default:leafAsset}=await import('./assets/ficus-leaf-albedo.png?url&inline'),leafAlbedo=await new THREE.TextureLoader().loadAsync(leafAsset);leafAlbedo.colorSpace=THREE.SRGBColorSpace;
+ const {default:leafAsset}=await import('./assets/ficus-leaf-albedo.webp?url&inline'),leafAlbedo=await new THREE.TextureLoader().loadAsync(leafAsset);leafAlbedo.colorSpace=THREE.SRGBColorSpace;
  const furnishing=buildFurnishings(scene,options.furnishings||initialFurnishing(),{leafAlbedo});let furnitureEditing=false;
  await nextPaint();
  const localLights=buildRoomLighting(scene,options.furnishings||initialFurnishing());localLights.bindArchitecture(structure,floors);localLights.bindFurniture(furnishing.root);
@@ -132,7 +132,7 @@ const scene=new THREE.Scene();scene.background=null;
  async function ensureOutdoors(){
   if(outdoorPromise)return outdoorPromise;
   host.dataset.outdoorLoading='true';
-  outdoorPromise=(async()=>{await nextPaint();const [{buildLandscape},{buildOutdoorFurnishings},{buildParkedCar},{default:carAsset},{default:lawnAsset}]=await Promise.all([import('./landscape.js'),import('./outdoor-furniture.js'),import('./parked-car.js'),import('./assets/tesla-model-y.glb?url&inline'),import('./assets/lawn-albedo.png?url&inline')]);
+  outdoorPromise=(async()=>{await nextPaint();const [{buildLandscape},{buildOutdoorFurnishings},{buildParkedCar},{default:carAsset},{default:lawnAsset}]=await Promise.all([import('./landscape.js'),import('./outdoor-furniture.js'),import('./parked-car.js'),import('./assets/tesla-model-y.glb?url&inline'),import('./assets/lawn-albedo.webp?url&inline')]);
  const lawnAlbedo=await new THREE.TextureLoader().loadAsync(lawnAsset);lawnAlbedo.colorSpace=THREE.SRGBColorSpace;
  landscape=buildLandscape(scene,{albedo:lawnAlbedo});landscape.lawnDetail.update(activeView,quality,isFull);host.dataset.lawnDetail='curved-3d-blades';host.dataset.plantDetail='curved-veined-leaves';landscape.setCutaway(!isFull&&cutaway);await nextPaint();outdoorDecor=buildOutdoorFurnishings(scene);outdoorDecor.setDaylight(daylight);parkedCar=await buildParkedCar(outdoorDecor.root,carAsset);parkedCar.setVisible(activeView!=='charger');localLights.bindOutdoor(parkedCar.root);
  landscape.root.visible=true;outdoorDecor.root.visible=true;host.dataset.outdoorVisible='true';

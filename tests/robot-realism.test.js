@@ -31,3 +31,7 @@ test('The vacuum itself fills the default frame on phone and tablet without movi
  }
  assert.ok(Math.abs(robotFieldOfView('vacuum',1.8)-30)<1e-10);assert.equal(robotFieldOfView('mower',.85),25);assert.equal(robotFieldOfView('charger',.85),25);
 });
+
+test('Detailed grass is allocated only for a visible outdoor view and reused afterwards',()=>{
+ const parent=new THREE.Group(),lawn=buildLawnDetail(parent);assert.equal(lawn.initialized,false);assert.equal(parent.children.length,0);for(const view of ['home','rooms','charger','vacuum'])lawn.update(view);assert.equal(lawn.initialized,false);lawn.update('mower');assert.equal(lawn.initialized,true);const mesh=lawn.mesh,garden=lawn.garden,count=mesh.count;lawn.update('rooms');assert.equal(mesh.visible,false);lawn.update('mower');assert.equal(lawn.mesh,mesh);assert.equal(lawn.garden,garden);assert.equal(lawn.mesh.count,count);assert.equal(parent.children.length,2);
+});

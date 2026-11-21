@@ -33,7 +33,7 @@ export function gardenEdgeFade(x,z){
 
 // Finite real geometry at the station. The photographed albedo supplies the
 // distant lawn; curved tufts supply parallax, silhouettes and shadow reception.
-export function buildLawnDetail(parent){
+function materializeLawnDetail(parent){
  let seed=583;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;},roots=[];
  for(let n=0;n<100000;n++){
   const x=12.2+random()*3.085,z=12.65+random()*3.05,edge=Math.max(0,Math.min(1,(x-12.2)/.6,(15.7-z)/.6));
@@ -57,4 +57,11 @@ export function buildLawnDetail(parent){
  const garden=new THREE.InstancedMesh(mesh.geometry,material,gardenRoots.length);garden.name='garden-lawn-tufts';garden.receiveShadow=true;garden.visible=false;garden.userData.roots=gardenRoots;
  gardenRoots.forEach(([x,y,z,scale,a,t],n)=>{transform.position.set(x,y,z);transform.rotation.set(0,a,0);transform.scale.setScalar(scale);transform.updateMatrix();garden.setMatrixAt(n,transform.matrix);color.setRGB((62+t*38+Math.sin(x*.8+z*.5)*5)/255,(91+t*42+Math.sin(x*.8+z*.5)*8)/255,(32+t*24)/255,THREE.SRGBColorSpace);garden.setColorAt(n,color);});garden.computeBoundingSphere();parent.add(garden);
  return {mesh,garden,update(view,quality='standard',full=false){garden.visible=full;garden.count=Math.floor(gardenRoots.length*(quality==='light'?.15:quality==='detailed'?1:.70));mesh.visible=view==='mower'||full;mesh.count=Math.floor(roots.length*(view==='mower'?(quality==='light'?.25:quality==='detailed'?1:.75):(quality==='light'?.04:.12)));}};
+}
+
+// Allocate the detailed, invisible grass only when it is actually viewed.
+export function buildLawnDetail(parent){
+ let detail=null;
+ const ensure=()=>detail??=materializeLawnDetail(parent);
+ return {get initialized(){return !!detail;},get mesh(){return ensure().mesh;},get garden(){return ensure().garden;},update(view,quality='standard',full=false){if(!detail&&view!=='mower'&&!full)return;ensure().update(view,quality,full);}};
 }

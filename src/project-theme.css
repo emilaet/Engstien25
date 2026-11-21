@@ -4,6 +4,7 @@
  --border:#281e1414; --amber:#a9530f; --amber-soft:#fdeadb; --green:#2f8052;
  --green-soft:#e1f4e8; --alert:#97501c; --alert-soft:#fbecdd;
  --primary:#f0761e; --on-primary:#2b2111; --scene:#e9e6df;
+ --danger-ink:#862225; --widget-options-opacity:.75;
  --study-card:linear-gradient(135deg,#ffffff 0%,#f7f5f1 100%);
  --study-shadow:0 1px 2px #1e140a0a,0 10px 30px -12px #3c281429;
  --study-glow:#ffc48c59; --study-glow-2:#ffffffb3;
@@ -20,6 +21,7 @@
  --border:#ffffff12; --amber:#f5b83d; --amber-soft:#f5b83d24; --green:#4cc57f;
  --green-soft:#4cc57f24; --alert:#efbd7c; --alert-soft:#30251c;
  --primary:#f5b83d; --on-primary:#1b1404; --scene:#141416;
+ --danger-ink:#f39a9d; --widget-options-opacity:.65;
  --study-card:linear-gradient(135deg,#1d1d21 0%,#17171a 100%);
  --study-shadow:0 0 0 1px #ffffff05,0 10px 30px -12px #0005;
  --study-glow:#f5b83d14; --study-glow-2:#ffffff08;
@@ -40,6 +42,7 @@ html:root .dashboard-grid>.summary-widget:has(#car-summary) {background:var(--st
 html:root .dashboard-grid>.waste-card {background:var(--study-waste)!important;border-color:color-mix(in srgb,var(--alert) 13%,transparent)}
 html:root .dashboard-grid>.tasks-card {
  --text:#2b2111; --muted:var(--study-task-muted); --border:var(--study-task-line); --surface:#ffda83; --soft:#ffe4a4;
+ --danger-ink:#862225;
  background:var(--study-task);color:#2b2111;border-color:transparent;
 }
 html:root .tasks-card .family-check {border-color:#2b211166;background:#fff2}

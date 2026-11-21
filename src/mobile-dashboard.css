@@ -83,7 +83,7 @@ html{scrollbar-width:thin!important}
 :root[data-page=home] .mobile-half .music-transport .music-play{width:44px;height:44px;min-width:44px}
 :root[data-page=home] .mobile-half.camera-card .hw-head{inset:8px 8px auto;padding:4px 30px 4px 6px!important;min-height:40px!important;border-radius:10px}
 :root[data-page=home] .mobile-half.camera-card .hw-head h2{font-size:12px!important}
-:root[data-page=home] .mobile-half.camera-card .hw-camera-foot{right:8px;bottom:8px;min-height:44px}
+:root[data-page=home] .mobile-half.camera-card .hw-camera-foot{right:8px;bottom:10px;min-height:44px}
 :root[data-page=home] .mobile-half.camera-card [data-hw=camera-open]{font-size:0;gap:0;width:44px;height:44px;padding:10px}
 :root[data-page=home] .mobile-half.camera-card .hw-camera-foot>span{display:none!important}
 :root[data-page=home] .mobile-half.summary-widget{padding:14px!important}
@@ -187,7 +187,7 @@ html{scrollbar-width:thin!important}
 .hw-phone-prompt{display:none}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing button:last-child{border-bottom:0;padding-bottom:0}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing button.briefing-overdue{border-left:0;color:var(--text)}
-:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing button.briefing-overdue>svg{height:22px;width:22px;flex:none;color:var(--danger,#c94444)}
+:root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-briefing button.briefing-overdue>svg{height:22px;width:22px;flex:none;color:var(--danger-ink,#862225)}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid :is(.hw-head h2,.family-card-title h2){font-size:16px;line-height:22px}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .electricity-card .ep-summary>span{font-size:12px;line-height:18px}
 :root[data-page=home]:is([data-phone-ui=true],[data-dashboard-preview=mobile]) .family-grid .electricity-card .ep-summary>span small{display:none}

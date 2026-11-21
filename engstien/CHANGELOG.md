@@ -1,3 +1,13 @@
+# 0.3.6
+
+- Fuld UX-, design-, performance-, kode- og testgennemgang dokumenteret i docs/full-app-review-2026-11-21.md.
+- Tabsfrit komprimerede 3D-materialer: 32,81 % færre billedbytes med identiske pixels. Græsinstanser allokeres først ved faktisk brug; plantematerialer undgår dobbeltarbejde.
+- Forsinkede profil-/Spotify-svar kan ikke genoprette gamle kontotilstande efter logout eller kontoskift.
+- Mobilen får kontoindgang under Forbindelser og et fungerende førstegangsvalg af Google-kalendere.
+- Headerdatoens responsive varianter og tilgængelige navn opdateres korrekt; tilføjelsesvalg låser ikke eksisterende listeafkrydsninger.
+- Forbedret kontrast i widgetdialoger, advarsler og menuprikker samt læsbarhed i mobilnavigation og små musikkort.
+- Nye regressioner og opdaterede testopsætninger for nutidige mobile layouts, magnetisk placering og fælles visningsindstillinger.
+
 # 0.3.5
 
 - Reduceret bevægelse gælder nu også kameraets inerti, så kameratræk stopper straks, når systemets indstilling er slået til.

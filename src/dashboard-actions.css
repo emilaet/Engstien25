@@ -1,7 +1,7 @@
-.due-warning{width:18px;height:18px;display:inline-block;vertical-align:middle;color:var(--red,#b33437);flex:none;overflow:visible}
-.due-overdue{color:var(--red,#b33437)!important;background:color-mix(in srgb,#c93939 12%,var(--surface))!important}
+.due-warning{width:18px;height:18px;display:inline-block;vertical-align:middle;color:var(--danger-ink,#862225);flex:none;overflow:visible}
+.due-overdue{color:var(--danger-ink,#862225)!important;background:color-mix(in srgb,#c93939 12%,var(--surface))!important}
 .due-tag.due-overdue,.full-list-due{display:inline-flex!important;align-items:center;gap:6px;line-height:1.5}
-.family-briefing .briefing-overdue{border-left-color:#c93939}.family-briefing .briefing-overdue>.due-warning{width:21px;height:21px}
+.family-briefing .briefing-overdue{border-left-color:var(--danger-ink,#862225)}.family-briefing .briefing-overdue>.due-warning{width:21px;height:21px}
 .family-briefing>div{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));align-items:stretch}
 .family-briefing button{padding-right:4px}.family-briefing button b{display:none}
 .note-editor{width:min(480px,calc(100vw - 24px));max-height:90dvh;overflow:auto;border:1px solid var(--border);border-radius:24px;padding:24px;background:var(--surface);color:var(--text)}
@@ -17,7 +17,7 @@
 .note-calendar-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.note-calendar-nav strong{font-weight:500;color:var(--text);text-transform:capitalize}.note-calendar-nav button{width:44px;border-radius:10px;font-size:23px;background:var(--soft)}
 .note-weekdays,.note-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.note-weekdays span{text-align:center;padding:8px 0;font-size:11px}
 .note-calendar-days button{border:1px solid transparent;border-radius:10px;padding:0;min-width:0;color:var(--text);font-size:13px}.note-calendar-days .outside-month{color:var(--muted);opacity:.55}.note-calendar-days [aria-current=date]{box-shadow:inset 0 0 0 1px var(--amber)}
-.note-save-error{font-size:13px;color:var(--red,#b33437);margin:0}.note-editor[aria-busy=true]{cursor:progress}
+.note-save-error{font-size:13px;color:var(--danger-ink,#862225);margin:0}.note-editor[aria-busy=true]{cursor:progress}
 /* A narrow strip beside the weather keeps vehicle status available on every page. */
 .header-live-widgets{display:flex;align-items:stretch;gap:10px;flex:none;min-width:0}
 .header-live-widgets .header-weather{height:64px;border-radius:18px;min-width:68px}

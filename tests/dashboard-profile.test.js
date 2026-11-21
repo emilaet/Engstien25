@@ -48,3 +48,33 @@ test('The profile API authenticates, enforces origin and revision, and persists 
 test('Offline pending queues are isolated when switching account scope',async()=>{
  const store=createDashboardProfileStore(memory()),network=bridge(store),a=client(network);a.sync.scope('first-account');await a.sync.connect();network.offline=true;a.edit(p=>p.appearance='night');await a.sync.flush();assert.equal(a.sync.snapshot().hasPending,true);a.sync.scope('second-account');assert.equal(a.sync.snapshot().hasPending,false);a.sync.scope('first-account');assert.equal(a.sync.snapshot().hasPending,true);a.sync.disconnect();
 });
+
+for(const switchAccount of [false,true])test('A delayed explicit shared-profile choice cannot mutate '+(switchAccount?'a new account scope':'a signed-out local profile'),async()=>{
+ const disk=memory(),firstStore=createDashboardProfileStore(memory()),secondStore=createDashboardProfileStore(memory()),first=bridge(firstStore),second=bridge(secondStore),hold=deferred(),started=deferred();
+ firstStore.save(profile(),0);const other=profile();other.appearance='day';secondStore.save(other,0);let network=first,paused=false;
+ const a=client(first,profile(),{storage:disk,fetchImpl:async(url,options)=>{const response=await network.fetch(url,options);if(paused&&options?.method!=='PUT'){started.resolve();await hold.promise;}return response;}});
+ try{
+  a.sync.scope('first');await a.sync.connect();const oldShared=profile();oldShared.appearance='night';firstStore.save(oldShared,1);paused=true;const choosing=a.sync.useShared();await started.promise;
+  if(switchAccount){paused=false;network=second;a.sync.scope('second');await a.sync.connect();a.edit(p=>p.density='comfortable');}
+  else{a.sync.disconnect();a.edit(p=>p.appearance='day');}
+  const expected=structuredClone(a.current),before=a.sync.snapshot();hold.resolve();await choosing;
+  assert.deepEqual(a.current,expected);assert.equal(a.sync.snapshot().hasPending,true);assert.equal(a.sync.snapshot().authenticated,switchAccount);assert.equal(a.sync.snapshot().status,before.status);assert.equal(a.sync.snapshot().revision,before.revision);
+ }finally{hold.resolve();a.sync.disconnect();}
+});
+
+for(const failedLookup of [false,true])test('A stale conflict '+(failedLookup?'lookup failure':'lookup result')+' cannot block edits in a new account scope',async()=>{
+ const firstStore=createDashboardProfileStore(memory()),secondStore=createDashboardProfileStore(memory()),first=bridge(firstStore),second=bridge(secondStore),hold=deferred(),started=deferred();firstStore.save(profile(),0);const other=profile();other.appearance='day';secondStore.save(other,0);let network=first,paused=false;
+ const a=client(first,profile(),{fetchImpl:async(url,options)=>{const response=await network.fetch(url,options);if(paused&&options?.method!=='PUT'){started.resolve();await hold.promise;if(failedLookup)throw Error('old account offline');}return response;}});
+ try{
+  a.sync.scope('first');await a.sync.connect();const changed=profile();changed.appearance='night';firstStore.save(changed,1);a.edit(p=>p.density='comfortable');paused=true;const saving=a.sync.flush();await started.promise;
+  paused=false;network=second;a.sync.scope('second');await a.sync.connect();a.edit(p=>p.briefing=false);hold.resolve();await saving;
+  assert.equal(a.sync.snapshot().conflict,false);assert.equal(a.sync.snapshot().hasPending,true);assert.equal(a.current.appearance,'day');assert.equal(a.current.briefing,false);await a.sync.flush();assert.equal(secondStore.load().profile.briefing,false);assert.equal(a.sync.snapshot().status,'synced');
+ }finally{hold.resolve();a.sync.disconnect();}
+});
+
+test('A delayed connect response cannot replace the currently connected account profile',async()=>{
+ const firstStore=createDashboardProfileStore(memory()),secondStore=createDashboardProfileStore(memory()),first=bridge(firstStore),second=bridge(secondStore),hold=deferred(),started=deferred();const initial=profile();initial.appearance='night';firstStore.save(initial,0);const other=profile();other.appearance='day';secondStore.save(other,0);let network=first,paused=true;
+ const a=client(first,profile(),{fetchImpl:async(url,options)=>{const response=await network.fetch(url,options);if(paused){started.resolve();await hold.promise;}return response;}});
+ try{a.sync.scope('first');const connecting=a.sync.connect();await started.promise;paused=false;network=second;a.sync.scope('second');await a.sync.connect();hold.resolve();await connecting;assert.equal(a.current.appearance,'day');assert.equal(a.sync.snapshot().authenticated,true);assert.equal(a.sync.snapshot().status,'synced');}
+ finally{hold.resolve();a.sync.disconnect();}
+});

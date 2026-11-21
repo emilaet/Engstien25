@@ -3,8 +3,8 @@ import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {chargerEnvironment} from './visual-materials.js';
 
 function maps(albedo){
- const size=512,rgb=new Uint8Array(size*size*4),bump=new Uint8Array(rgb.length);
- for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+ const size=512,photographed=!!albedo&&typeof document!=='undefined',rgb=photographed?null:new Uint8Array(size*size*4),bump=new Uint8Array(size*size*4);
+ if(!photographed)for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const u=x/(size-1)*2-1,v=y/(size-1),rib=Math.exp(-Math.abs(u)*110),branch=Math.exp(-Math.abs(Math.sin((v-Math.abs(u)*.27)*Math.PI*12))*45),grain=Math.sin(x*127.1+y*311.7)*43758.5453%1;
   const variation=5*Math.sin(v*9)+grain*2,vein=rib*14+branch*4,p=(y*size+x)*4;
   rgb.set([57+variation+vein,104+variation*1.5+vein,32+variation*.4+vein*.45,255],p);

@@ -5,3 +5,5 @@ the approved Engstien material direction. It is a repeatable surface texture,
 not a replacement image for the interactive 3D scene.
 
 Source: /workspace/generated_images/exec-f093fd09-32b0-437c-8097-69f457fe22b0.png
+
+Runtime WebP: lossless representation of the original PNG with identical decoded RGBA pixels and dimensions. Original PNG/provenance is retained in the repository.
